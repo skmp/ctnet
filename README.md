@@ -10,7 +10,7 @@ We present CTNet (Cosine Transform Network), a family of compressed neural netwo
 
 We present two variants:
 
-- **CTNet-18** (based on ResNet-18): achieves **23.7x compression** (42.9 MB to 1.8 MB) at **83.72% Top-1** on ImageNette2-320, with 17 DCT layers replacing all spatial convolutions.
+- **CTNet-18** (based on ResNet-18): achieves **34.6x compression** (42.9 MB to 1.2 MB) at **87.75% Top-1** on ImageNette2-320 after 128 epochs of training, with 17 DCT layers replacing all spatial convolutions.
 - **CTNet-50** (based on ResNet-50): applies the same DCT reparameterization to ResNet-50's bottleneck architecture. Due to ResNet-50's heavy use of 1x1 pointwise convolutions (which are not DCT-transformed), CTNet-50 has a similar DCT parameter count (11.3M) to CTNet-18 (11.0M) but benefits from the deeper architecture's representational capacity. The 36 retained 1x1 convolutions and batch normalization layers (54.3 MB total non-DCT overhead) can be independently compressed via standard quantization.
 
 ---
@@ -128,20 +128,22 @@ A JSON manifest stores all metadata needed for exact reconstruction: architectur
 **Setup:**
 - **Base architecture**: ResNet-18 (17 DCT layers, 3 standard 1x1 convolutions)
 - **Dataset**: ImageNette2-320 (10-class subset of ImageNet, 320px images)
-- **Training**: 30 epochs, pretrained ImageNet weights, SGD with cosine annealing, 5-epoch linear warmup
+- **Training**: pretrained ImageNet weights, SGD with cosine annealing, 5-epoch linear warmup
 - **Rate proxy**: $\lambda = 10^{-4}$, $q = 0.1$, steepness $= 10$
 - **Export**: 8-bit depth, CRF 0 (lossless), `slower` preset, dither amplitude 0.1
 
 **Results:**
 
-| Metric | Value |
-|--------|-------|
-| **Top-1 Accuracy** | 83.72% |
-| **Top-5 Accuracy** | 98.37% |
-| **Validation Loss** | 0.5103 |
-| **Original model size (float32)** | 42,948.8 KB (42.0 MB) |
-| **H.265 compressed size** | 1,811.1 KB (1.8 MB) |
-| **Compression ratio (DCT layers)** | **23.7x** |
+| Metric | 30 epochs | 128 epochs |
+|--------|-----------|------------|
+| **Top-1 Accuracy** | 83.72% | **87.75%** |
+| **Top-5 Accuracy** | 98.37% | **98.78%** |
+| **Validation Loss** | 0.5103 | **0.4144** |
+| **Original model size (float32)** | 42,948.8 KB (42.0 MB) | 42,948.8 KB (42.0 MB) |
+| **H.265 compressed size** | 1,811.1 KB (1.8 MB) | **1,239.7 KB (1.2 MB)** |
+| **Compression ratio (DCT layers)** | 23.7x | **34.6x** |
+
+Longer training improves both accuracy (+4.03%) and compression ratio (+46%), as the rate proxy has more time to push coefficients toward representations that H.265 encodes efficiently.
 
 ### 4.2 CTNet-50
 
@@ -181,7 +183,8 @@ The following table compares CTNet against established neural network compressio
 
 | Method | Reference | Model | Compression | Top-1 Acc | Acc Drop |
 |--------|-----------|-------|-------------|-----------|----------|
-| **CTNet-18 (ours)** | -- | ResNet-18 | **23.7x** | 83.72%* | ~12% from baseline* |
+| **CTNet-18 (ours, 128ep)** | -- | ResNet-18 | **34.6x** | 87.75%* | ~8% from baseline* |
+| CTNet-18 (ours, 30ep) | -- | ResNet-18 | 23.7x | 83.72%* | ~12% from baseline* |
 | Deep Compression | Han et al., 2016 | VGG-16 | 49x | 68.3%** | ~0%** |
 | Deep Compression | Han et al., 2016 | AlexNet | 35x | 57.2%** | ~0%** |
 | Deep Compression (est.) | -- | ResNet-18 | 15-25x | ~68-69%** | 1-2%** |
@@ -203,7 +206,9 @@ The following table compares CTNet against established neural network compressio
 
 ### 4.4 Analysis
 
-**Compression ratio.** At 23.7x, CTNet-18's compression is competitive with the most aggressive published methods. Deep Compression achieves 35-49x on AlexNet/VGG-16, but these architectures have large fully-connected layers (~90% of parameters in AlexNet) that are trivially compressible. On ResNet-like architectures where parameters are predominantly in convolutional layers, estimated Deep Compression ratios are 15-25x -- directly comparable to CTNet-18's 23.7x.
+**Compression ratio.** At 34.6x (128 epochs), CTNet-18's compression exceeds estimated Deep Compression ratios on ResNet-class architectures (15-25x) and approaches Deep Compression's results on VGG-16 (49x) -- architectures with large fully-connected layers (~90% of parameters in AlexNet) that are trivially compressible. Notably, CTNet-18 achieves this on a pure-convolutional architecture where traditional methods struggle most.
+
+**Training duration matters.** Extending training from 30 to 128 epochs improved both accuracy (83.72% to 87.75%) and compression (23.7x to 34.6x) simultaneously. This suggests the rate proxy benefits from longer optimization to gradually reshape the DCT coefficient landscape toward patterns that H.265 encodes efficiently, without sacrificing classification performance.
 
 **Rate-distortion tradeoff.** CTNet offers a continuous rate-distortion tradeoff controlled by $\lambda$, $q$, CRF, and bit depth. Increasing $\lambda$ during training encourages sparser DCT representations; increasing CRF during export trades accuracy for smaller files. This is analogous to how video codecs offer smooth quality-vs-bitrate curves.
 
@@ -241,9 +246,9 @@ The following table compares CTNet against established neural network compressio
 pip install -r requirements.txt
 ./download_imagenette.sh ./imagenette2-320
 
-# Train
+# Train (128 epochs for best results; 30 epochs for a quick run)
 python train_imagenet.py ./imagenette2-320 \
-    --arch resnet18 --epochs 30 --pretrained \
+    --arch resnet18 --epochs 128 --pretrained \
     --lambda-rate 1e-4 --qstep 0.1
 
 # Export to H.265
@@ -287,7 +292,7 @@ python export_h265.py encode --arch resnet50 --qstep 0.1 --profile
 
 ## 7. Conclusion
 
-CTNet demonstrates that modern video codecs are surprisingly effective neural network compressors. By reparameterizing convolutional layers into the DCT domain and training with a differentiable H.265 rate proxy, CTNet-18 achieves 23.7x compression on ResNet-18 -- competitive with the most aggressive traditional compression pipelines. The approach requires no custom entropy coding implementation, leverages decades of video codec optimization, and offers continuous rate-distortion control via standard codec parameters.
+CTNet demonstrates that modern video codecs are surprisingly effective neural network compressors. By reparameterizing convolutional layers into the DCT domain and training with a differentiable H.265 rate proxy, CTNet-18 achieves 34.6x compression on ResNet-18 at 87.75% Top-1 accuracy on ImageNette2 -- exceeding estimated Deep Compression ratios on ResNet-class architectures. The approach requires no custom entropy coding implementation, leverages decades of video codec optimization, and offers continuous rate-distortion control via standard codec parameters.
 
 CTNet-50 extends the framework to deeper bottleneck architectures, revealing that the approach is most effective when spatial convolutions dominate the parameter budget. For architectures with many 1x1 convolutions, CTNet naturally combines with standard quantization for a hybrid compression strategy.
 

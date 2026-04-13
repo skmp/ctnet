@@ -1,0 +1,15 @@
+```
+python train_imagenet.py ./imagenette2-320 --arch resnet18 --epochs 128 --pretrained  --lambda-rate 1e-4 --qstep 0.1
+python export_h265.py encode --arch resnet18 --crf 0 --bit-depth 8 --dither 0.1 --preset slower --qstep 0.1 --output-dir ./h265_test
+python export_h265.py decode --h265-dir ./h265_test --data ./imagenette2-320 --non-dct-weights ./checkpoints/best.pth
+```
+
+--- Decoded Model Evaluation ---
+  Loss:  0.4144
+  Acc@1: 87.75%
+  Acc@5: 98.78%
+  (After H.265 decode: Acc@1 87.75%)
+
+  H.265 total size:    1239.7 KB
+  Float32 model size:  42948.8 KB
+  Compression ratio:   34.6x
