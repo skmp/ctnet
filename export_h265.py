@@ -69,6 +69,9 @@ def parse_args():
     enc.add_argument("--quantize", action="store_true",
                      help="quantize to integer levels before encoding "
                           "(default: encode raw float coefficients via center+normalization)")
+    enc.add_argument("--dither", default=0.0, type=float,
+                     help="subtractive dither amplitude in quantization-step units "
+                          "(0 = off, 0.5 = standard TPDF-like dither)")
 
     # --- decode subcommand ---
     dec = sub.add_parser("decode", help="Decode H.265 back to model and evaluate")
@@ -158,12 +161,30 @@ def slice_to_tiles(img: np.ndarray, tile_h: int, tile_w: int):
     return tiles
 
 
-def normalize_frame(frame: np.ndarray, bit_depth: int = 12):
+DITHER_BASE_SEED = 0xDC7C0EFF  # deterministic seed for reproducible dither
+
+
+def _dither_noise(shape: tuple, frame_index: int, amplitude: float) -> np.ndarray:
+    """
+    Generate deterministic white noise in [-amplitude, +amplitude) for
+    subtractive dither.  Same seed + frame_index → same noise on encode
+    and decode.
+    """
+    rng = np.random.default_rng(DITHER_BASE_SEED + frame_index)
+    return rng.uniform(-amplitude, amplitude, size=shape)
+
+
+def normalize_frame(frame: np.ndarray, bit_depth: int = 12,
+                    frame_index: int = 0, dither: float = 0.0):
     """
     Normalize a single frame to unsigned integer range [0, 2^bit_depth - 1].
 
+    If dither > 0, adds deterministic white noise of the given amplitude
+    (in quantization-step units) before rounding.  The same noise is
+    subtracted on decode, reducing correlated quantization error.
+
     Returns:
-        pixels: uint8 or uint16 array (uint16 for 10/12-bit, only low bits used)
+        pixels: uint8 or uint16 array
         center: float, the center value of the original data
         norm_factor: float, scale factor
     """
@@ -180,8 +201,14 @@ def normalize_frame(frame: np.ndarray, bit_depth: int = 12):
     else:
         norm_factor = max_val / span
 
-    dtype = np.uint8 if bit_depth == 8 else np.uint16
+    # Map to continuous pixel space
     p = (frame.astype(np.float64) - center) * norm_factor + half
+
+    # Add subtractive dither noise before rounding
+    if dither > 0:
+        p = p + _dither_noise(p.shape, frame_index, amplitude=dither)
+
+    dtype = np.uint8 if bit_depth == 8 else np.uint16
     p = np.clip(np.round(p), 0, max_val).astype(dtype)
 
     return p, center, norm_factor
@@ -189,7 +216,7 @@ def normalize_frame(frame: np.ndarray, bit_depth: int = 12):
 
 def encode_frames_to_h265(frames: list[np.ndarray], output_path: str,
                           crf: int = 0, preset: str = "veryslow",
-                          bit_depth: int = 16):
+                          bit_depth: int = 12, dither: float = 0.0):
     """
     Normalize (per-frame) and encode a list of 2D numpy arrays as an H.265 video.
 
@@ -206,8 +233,9 @@ def encode_frames_to_h265(frames: list[np.ndarray], output_path: str,
     # Normalize each frame independently
     pixels = []
     per_frame_norms = []
-    for frame in frames:
-        p, center, norm_factor = normalize_frame(frame, bit_depth)
+    for i, frame in enumerate(frames):
+        p, center, norm_factor = normalize_frame(frame, bit_depth,
+                                                 frame_index=i, dither=dither)
         pixels.append(p)
         per_frame_norms.append({"center": center, "norm_factor": norm_factor})
 
@@ -289,11 +317,12 @@ def decode_h265_frames(video_path: str, n_frames: int, width: int, height: int,
 
 def denormalize_frames(pixels: list[np.ndarray],
                        per_frame_norms: list[dict],
-                       bit_depth: int = 16,
-                       quantized: bool = True) -> list[np.ndarray]:
+                       bit_depth: int = 12,
+                       quantized: bool = True,
+                       dither: float = 0.0) -> list[np.ndarray]:
     """
     Convert pixel values back to original values using per-frame center/norm.
-    Inverse of normalize_frame:  value = (pixel - max_val/2) / norm_factor + center
+    If dither > 0, subtracts the same noise that was added during encoding.
 
     If quantized: rounds to int16 (integer levels).
     If not quantized: returns float64 (raw weight values).
@@ -302,10 +331,13 @@ def denormalize_frames(pixels: list[np.ndarray],
     half = max_val / 2.0
 
     results = []
-    for p, norms in zip(pixels, per_frame_norms):
+    for i, (p, norms) in enumerate(zip(pixels, per_frame_norms)):
         center = norms["center"]
         norm_factor = norms["norm_factor"]
-        val = (p.astype(np.float64) - half) / norm_factor + center
+        p_f = p.astype(np.float64)
+        if dither > 0:
+            p_f = p_f - _dither_noise(p.shape, frame_index=i, amplitude=dither)
+        val = (p_f - half) / norm_factor + center
         if quantized:
             val = np.round(val).astype(np.int16)
         results.append(val)
@@ -366,10 +398,12 @@ def decode_main(args):
     arch = manifest["arch"]
     bit_depth = manifest["bit_depth"]
     was_quantized = manifest.get("quantized", True)
+    dither = manifest.get("dither", 0.0)
 
     mode_str = "quantized (int levels)" if was_quantized else "float (center+norm)"
+    dither_str = f", dither={dither}" if dither > 0 else ""
     print(f"Decoding H.265 model: arch={arch}, qstep={qstep}, "
-          f"bit_depth={bit_depth}, mode={mode_str}")
+          f"bit_depth={bit_depth}, mode={mode_str}{dither_str}")
 
     # Decode all videos and denormalize back to levels/values
     layer_tiles = {}  # layer_name -> list of tile dicts
@@ -392,7 +426,7 @@ def decode_main(args):
         print(f"  Decoding {video_name}: {n} frames @ {w}x{h}...")
         pixels = decode_h265_frames(video_path, n, w, h, vbit)
         levels = denormalize_frames(pixels, per_frame_norms, vbit,
-                                    quantized=was_quantized)
+                                    quantized=was_quantized, dither=dither)
 
         for fi, finfo in enumerate(vinfo["frames"]):
             layer_name = finfo["layer_name"]
@@ -671,7 +705,8 @@ def _load_model_for_encode(args):
 
 
 def _encode_tile_groups(tile_groups: dict, output_dir: str, crf: int,
-                        preset: str, bit_depth: int, verbose: bool = True):
+                        preset: str, bit_depth: int, dither: float = 0.0,
+                        verbose: bool = True):
     """
     Encode all tile groups to H.265 videos under output_dir.
     Returns (total_raw_bytes, total_h265_bytes, manifest_videos dict).
@@ -692,7 +727,7 @@ def _encode_tile_groups(tile_groups: dict, output_dir: str, crf: int,
 
         ok, per_frame_norms = encode_frames_to_h265(
             frames, video_path,
-            crf=crf, preset=preset, bit_depth=bit_depth,
+            crf=crf, preset=preset, bit_depth=bit_depth, dither=dither,
         )
 
         if ok:
@@ -752,7 +787,7 @@ def encode_main(args):
             print(f"\n--- Preset: {preset} ---")
             total_raw, total_h265, _, elapsed = _encode_tile_groups(
                 tile_groups, preset_dir, args.crf, preset, args.bit_depth,
-                verbose=False,
+                dither=args.dither, verbose=False,
             )
             ratio_f32 = full_model_bytes / max(total_h265, 1)
             ratio_raw = total_raw / max(total_h265, 1)
@@ -787,6 +822,7 @@ def encode_main(args):
           f"(preset={args.preset})...")
     total_raw_bytes, total_h265_bytes, manifest_videos, elapsed = _encode_tile_groups(
         tile_groups, args.output_dir, args.crf, args.preset, args.bit_depth,
+        dither=args.dither,
     )
 
     manifest = {
@@ -794,6 +830,7 @@ def encode_main(args):
         "arch": args.arch,
         "bit_depth": args.bit_depth,
         "quantized": do_quantize,
+        "dither": args.dither,
         "reconstruction": (
             "level = (pixel - max_val/2) / norm_factor + center; weight = level * qstep"
             if do_quantize else
