@@ -33,8 +33,8 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torchvision.models as models
 
-from dct_layers import DCTConv2d, replace_with_dct_convs
-from dct_utils import calculate_group_lasso_penalty
+from dct_layers import DCTConv2d, replace_with_dct_convs, probe_sparsity, quantize_model, export_sparse_coefficients
+from dct_utils import calculate_hevc_rate_proxy
 
 
 def parse_args():
@@ -50,10 +50,12 @@ def parse_args():
     parser.add_argument("--lr", default=0.1, type=float, help="initial learning rate")
     parser.add_argument("--momentum", default=0.9, type=float)
     parser.add_argument("--weight-decay", default=1e-4, type=float)
-    parser.add_argument("--lambda-sparsity", default=1e-3, type=float,
-                        help="group lasso penalty weight for high-freq DCT coefficients")
-    parser.add_argument("--threshold-freq", default=1, type=int,
-                        help="DCT frequency index where penalty starts (default: 1 = penalize all except DC)")
+    parser.add_argument("--lambda-rate", default=1e-4, type=float,
+                        help="weight for HEVC rate proxy loss (rate-distortion tradeoff)")
+    parser.add_argument("--qstep", default=0.1, type=float,
+                        help="quantization step size for HEVC rate proxy (larger = more sparsity)")
+    parser.add_argument("--steepness", default=10.0, type=float,
+                        help="sigmoid steepness for soft significance threshold")
     parser.add_argument("-j", "--workers", default=4, type=int, help="data loading workers")
     parser.add_argument("--print-freq", default=100, type=int)
     parser.add_argument("--resume", default="", type=str, help="path to checkpoint")
@@ -89,8 +91,9 @@ def main():
         os.makedirs(args.output_dir, exist_ok=True)
         print(f"=> Architecture: {args.arch}")
         print(f"=> World size: {world_size}")
-        print(f"=> Lambda sparsity: {args.lambda_sparsity}")
-        print(f"=> Threshold freq: {args.threshold_freq}")
+        print(f"=> Lambda rate: {args.lambda_rate}")
+        print(f"=> Quantization step: {args.qstep}")
+        print(f"=> Sigmoid steepness: {args.steepness}")
 
     # ---------- Model ----------
     model_fn = getattr(models, args.arch)
@@ -224,6 +227,9 @@ def main():
         best_acc1 = max(acc1, best_acc1)
 
         if is_main:
+            base_model = model.module if hasattr(model, "module") else model
+            total, nonzero, sparsity = probe_sparsity(base_model, qstep=args.qstep)
+
             state = {
                 "epoch": epoch + 1,
                 "arch": args.arch,
@@ -236,7 +242,70 @@ def main():
             torch.save(state, path)
             if is_best:
                 torch.save(state, os.path.join(args.output_dir, "best.pth"))
-            print(f"=> Epoch {epoch}: Acc@1 {acc1:.2f}%  (best: {best_acc1:.2f}%)")
+            # Compute estimated total network bits and compression ratio
+            est_bits = 0.0
+            raw_bytes = 0
+            with torch.no_grad():
+                for m in base_model.modules():
+                    if isinstance(m, DCTConv2d):
+                        est_bits += calculate_hevc_rate_proxy(
+                            m.weight_dct, qstep=args.qstep, steepness=args.steepness
+                        ).item()
+                        raw_bytes += m.weight_dct.numel() * 4  # float32
+            est_kb = est_bits / 8 / 1024
+            raw_kb = raw_bytes / 1024
+            ratio = raw_kb / max(est_kb, 1e-6)
+
+            print(f"=> Epoch {epoch}: Acc@1 {acc1:.2f}%  (best: {best_acc1:.2f}%)  "
+                  f"Sparsity {sparsity*100:.1f}% ({nonzero}/{total} nonzero)  "
+                  f"EstSize {est_kb:.1f} KB / {raw_kb:.1f} KB raw  "
+                  f"Ratio {ratio:.1f}x")
+
+    # --- Post-training: quantize and export sparse coefficients ---
+    if is_main:
+        print("\n=> Quantizing DCT coefficients and exporting sparse model...")
+
+        # Load best model for quantization
+        best_path = os.path.join(args.output_dir, "best.pth")
+        if os.path.isfile(best_path):
+            ckpt = torch.load(best_path, map_location=device, weights_only=False)
+            base_model = model.module if hasattr(model, "module") else model
+            state = ckpt["state_dict"]
+            if any(k.startswith("module.") for k in state):
+                state = {k.removeprefix("module."): v for k, v in state.items()}
+            base_model.load_state_dict(state)
+            print(f"   Loaded best checkpoint (Acc@1 {ckpt['best_acc1']:.2f}%)")
+
+        base_model = model.module if hasattr(model, "module") else model
+        stats = quantize_model(base_model, qstep=args.qstep)
+        print(f"   Overall sparsity: {stats['overall_sparsity']*100:.1f}% "
+              f"({stats['nonzero_coeffs']}/{stats['total_coeffs']} coefficients retained)")
+        for ls in stats["layers"]:
+            print(f"     {ls['name']}: {ls['sparsity']*100:.1f}% sparse "
+                  f"({ls['nonzero_coeffs']}/{ls['total_coeffs']} nonzero)")
+
+        # Evaluate quantized model
+        print("\n=> Evaluating quantized model...")
+        q_acc1 = validate(val_loader, model, criterion, device, args)
+        print(f"   Quantized Acc@1: {q_acc1:.2f}% (was {best_acc1:.2f}% before quantization)")
+
+        # Save quantized model
+        q_path = os.path.join(args.output_dir, "quantized.pth")
+        torch.save({
+            "arch": args.arch,
+            "qstep": args.qstep,
+            "state_dict": base_model.state_dict(),
+            "acc1_before_quant": best_acc1,
+            "acc1_after_quant": q_acc1,
+            "sparsity_stats": stats,
+        }, q_path)
+        print(f"   Saved quantized model to {q_path}")
+
+        # Export sparse coefficients
+        sparse_data = export_sparse_coefficients(base_model, qstep=args.qstep)
+        sparse_path = os.path.join(args.output_dir, "sparse_coefficients.pt")
+        torch.save(sparse_data, sparse_path)
+        print(f"   Saved sparse coefficients to {sparse_path}")
 
     if distributed:
         dist.destroy_process_group()
@@ -246,7 +315,7 @@ def train_one_epoch(train_loader, model, criterion, optimizer, epoch, device, ar
     batch_time = AverageMeter()
     data_time = AverageMeter()
     task_losses = AverageMeter()
-    sparsity_losses = AverageMeter()
+    rate_losses = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
 
@@ -254,6 +323,11 @@ def train_one_epoch(train_loader, model, criterion, optimizer, epoch, device, ar
     end = time.time()
 
     base_model = model.module if hasattr(model, "module") else model
+
+    # Raw weight size (float32) for compression ratio
+    raw_kb = sum(
+        m.weight_dct.numel() * 4 for m in base_model.modules() if isinstance(m, DCTConv2d)
+    ) / 1024
 
     for i, (images, targets) in enumerate(train_loader):
         data_time.update(time.time() - end)
@@ -265,20 +339,20 @@ def train_one_epoch(train_loader, model, criterion, optimizer, epoch, device, ar
         outputs = model(images)
         task_loss = criterion(outputs, targets)
 
-        # Group Lasso sparsity on DCT coefficients
-        sparsity_loss = torch.tensor(0.0, device=device)
+        # HEVC rate proxy: differentiable estimate of compressed size
+        rate_loss = torch.tensor(0.0, device=device)
         for m in base_model.modules():
             if isinstance(m, DCTConv2d):
-                sparsity_loss = sparsity_loss + calculate_group_lasso_penalty(
-                    m.weight_dct, threshold_freq=args.threshold_freq
+                rate_loss = rate_loss + calculate_hevc_rate_proxy(
+                    m.weight_dct, qstep=args.qstep, steepness=args.steepness
                 )
 
-        total_loss = task_loss + args.lambda_sparsity * sparsity_loss
+        total_loss = task_loss + args.lambda_rate * rate_loss
 
         # Metrics
         acc1, acc5 = accuracy(outputs, targets, topk=(1, 5))
         task_losses.update(task_loss.item(), images.size(0))
-        sparsity_losses.update(sparsity_loss.item(), images.size(0))
+        rate_losses.update(rate_loss.item(), images.size(0))
         top1.update(acc1, images.size(0))
         top5.update(acc5, images.size(0))
 
@@ -295,12 +369,15 @@ def train_one_epoch(train_loader, model, criterion, optimizer, epoch, device, ar
         if i % args.print_freq == 0:
             rank = int(os.environ.get("RANK", 0))
             if rank == 0:
+                est_kb = rate_losses.val / 8 / 1024
+                ratio = raw_kb / max(est_kb, 1e-6)
                 print(
                     f"Epoch [{epoch}][{i}/{len(train_loader)}]  "
                     f"Time {batch_time.val:.3f} ({batch_time.avg:.3f})  "
                     f"Data {data_time.val:.3f} ({data_time.avg:.3f})  "
                     f"TaskLoss {task_losses.val:.4f} ({task_losses.avg:.4f})  "
-                    f"SparsLoss {sparsity_losses.val:.4f} ({sparsity_losses.avg:.4f})  "
+                    f"RateLoss {rate_losses.val:.1f} ({rate_losses.avg:.1f})  "
+                    f"EstSize {est_kb:.1f}/{raw_kb:.0f} KB ({ratio:.1f}x)  "
                     f"Acc@1 {top1.val:.2f} ({top1.avg:.2f})  "
                     f"Acc@5 {top5.val:.2f} ({top5.avg:.2f})"
                 )
