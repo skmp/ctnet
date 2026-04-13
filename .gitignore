@@ -1,4 +1,5 @@
-__pycache__
-.claude
+__pycache__/
+.claude/
+.venv/
 checkpoints
 imagenette2-320
