@@ -72,6 +72,10 @@ def parse_args():
     enc.add_argument("--dither", default=0.0, type=float,
                      help="subtractive dither amplitude in quantization-step units "
                           "(0 = off, 0.5 = standard TPDF-like dither)")
+    enc.add_argument("--yuv", action="store_true",
+                     help="encode as YUV 4:2:0 (Main/Main10 profile) for hardware "
+                          "decoder compatibility on phones, Mac, Windows, etc. "
+                          "Data goes in luma channel only.")
 
     # --- decode subcommand ---
     dec = sub.add_parser("decode", help="Decode H.265 back to model and evaluate")
@@ -214,14 +218,66 @@ def normalize_frame(frame: np.ndarray, bit_depth: int = 12,
     return p, center, norm_factor
 
 
+def _pad_to_even(frames_list: list[np.ndarray]) -> tuple[list[np.ndarray], int, int]:
+    """Pad frames to even dimensions (required for YUV 4:2:0 chroma subsampling)."""
+    h, w = frames_list[0].shape
+    new_h = h + (h % 2)
+    new_w = w + (w % 2)
+    if new_h == h and new_w == w:
+        return frames_list, h, w
+    padded = []
+    for f in frames_list:
+        p = np.zeros((new_h, new_w), dtype=f.dtype)
+        p[:h, :w] = f
+        # Circular pad the extra row/col
+        if new_h > h:
+            p[h, :w] = f[0, :]
+            if new_w > w:
+                p[h, w] = f[0, 0]
+        if new_w > w:
+            p[:h, w] = f[:, 0]
+        padded.append(p)
+    return padded, new_h, new_w
+
+
+def _gray_to_yuv420(frame: np.ndarray, bit_depth: int) -> bytes:
+    """
+    Convert a grayscale frame to YUV 4:2:0 planar format.
+    Luma (Y) = the data. Chroma (U, V) = neutral gray (2^(bit_depth-1)).
+    """
+    h, w = frame.shape
+    assert h % 2 == 0 and w % 2 == 0, "YUV 4:2:0 requires even dimensions"
+
+    chroma_h = h // 2
+    chroma_w = w // 2
+    neutral = 1 << (bit_depth - 1)
+
+    if bit_depth == 8:
+        y_plane = frame.astype(np.uint8).tobytes()
+        uv_val = np.full((chroma_h, chroma_w), neutral, dtype=np.uint8)
+    else:
+        y_plane = frame.astype(np.uint16).tobytes()
+        uv_val = np.full((chroma_h, chroma_w), neutral, dtype=np.uint16)
+
+    u_plane = uv_val.tobytes()
+    v_plane = uv_val.tobytes()
+
+    return y_plane + u_plane + v_plane
+
+
 def encode_frames_to_h265(frames: list[np.ndarray], output_path: str,
                           crf: int = 0, preset: str = "veryslow",
-                          bit_depth: int = 12, dither: float = 0.0):
+                          bit_depth: int = 12, dither: float = 0.0,
+                          yuv: bool = False):
     """
     Normalize (per-frame) and encode a list of 2D numpy arrays as an H.265 video.
 
     Each frame gets its own center and norm_factor so that layers with
     different value ranges don't lose precision.
+
+    If yuv=True, encodes as YUV 4:2:0 (Main/Main10 profile) for hardware
+    decoder compatibility. Data is placed in the luma channel; chroma is
+    neutral gray.
 
     Returns:
         (success, per_frame_norms) or (False, []) on failure.
@@ -229,6 +285,12 @@ def encode_frames_to_h265(frames: list[np.ndarray], output_path: str,
     """
     h, w = frames[0].shape
     assert all(f.shape == (h, w) for f in frames), "All frames must have same dimensions"
+
+    # YUV 4:2:0 only supports 8 and 10 bit
+    if yuv and bit_depth not in (8, 10):
+        print(f"  WARNING: --yuv forces bit-depth to 10 (was {bit_depth}). "
+              f"Main10 profile supports up to 10-bit.")
+        bit_depth = 10
 
     # Normalize each frame independently
     pixels = []
@@ -239,32 +301,71 @@ def encode_frames_to_h265(frames: list[np.ndarray], output_path: str,
         pixels.append(p)
         per_frame_norms.append({"center": center, "norm_factor": norm_factor})
 
-    pix_fmt_map = {8: "gray", 10: "gray10le", 12: "gray12le"}
-    pix_fmt = pix_fmt_map[bit_depth]
+    if yuv:
+        # Pad to even dimensions for 4:2:0 chroma subsampling
+        pixels, enc_h, enc_w = _pad_to_even(pixels)
 
-    # x265 params: full range, lossless if CRF=0
-    x265_params = "log-level=error:range=full"
-    if crf == 0:
-        x265_params += ":lossless=1"
+        if bit_depth == 8:
+            in_pix_fmt = "yuv420p"
+            out_pix_fmt = "yuv420p"
+            h265_profile = "main"
+        else:
+            in_pix_fmt = "yuv420p10le"
+            out_pix_fmt = "yuv420p10le"
+            h265_profile = "main10"
 
-    cmd = [
-        "ffmpeg", "-y",
-        "-f", "rawvideo",
-        "-pixel_format", pix_fmt,
-        "-video_size", f"{w}x{h}",
-        "-framerate", "1",
-        "-i", "pipe:",
-        "-c:v", "libx265",
-        "-preset", preset,
-        "-pix_fmt", pix_fmt,
-        "-x265-params", x265_params,
-        "-color_range", "pc",
-    ]
-    if crf > 0:
-        cmd += ["-crf", str(crf)]
-    cmd.append(output_path)
+        # x265 params: full range
+        x265_params = "log-level=error:range=full"
+        if crf == 0:
+            x265_params += ":lossless=1"
 
-    raw_data = b"".join(p.tobytes() for p in pixels)
+        cmd = [
+            "ffmpeg", "-y",
+            "-f", "rawvideo",
+            "-pixel_format", in_pix_fmt,
+            "-video_size", f"{enc_w}x{enc_h}",
+            "-framerate", "1",
+            "-i", "pipe:",
+            "-c:v", "libx265",
+            "-preset", preset,
+            "-pix_fmt", out_pix_fmt,
+            "-profile:v", h265_profile,
+            "-x265-params", x265_params,
+            "-color_range", "pc",
+        ]
+        if crf > 0:
+            cmd += ["-crf", str(crf)]
+        cmd.append(output_path)
+
+        raw_data = b"".join(_gray_to_yuv420(p, bit_depth) for p in pixels)
+    else:
+        enc_h, enc_w = h, w
+        pix_fmt_map = {8: "gray", 10: "gray10le", 12: "gray12le"}
+        pix_fmt = pix_fmt_map[bit_depth]
+
+        # x265 params: full range, lossless if CRF=0
+        x265_params = "log-level=error:range=full"
+        if crf == 0:
+            x265_params += ":lossless=1"
+
+        cmd = [
+            "ffmpeg", "-y",
+            "-f", "rawvideo",
+            "-pixel_format", pix_fmt,
+            "-video_size", f"{enc_w}x{enc_h}",
+            "-framerate", "1",
+            "-i", "pipe:",
+            "-c:v", "libx265",
+            "-preset", preset,
+            "-pix_fmt", pix_fmt,
+            "-x265-params", x265_params,
+            "-color_range", "pc",
+        ]
+        if crf > 0:
+            cmd += ["-crf", str(crf)]
+        cmd.append(output_path)
+
+        raw_data = b"".join(p.tobytes() for p in pixels)
 
     proc = subprocess.run(cmd, input=raw_data, capture_output=True)
 
@@ -275,14 +376,25 @@ def encode_frames_to_h265(frames: list[np.ndarray], output_path: str,
 
 
 def decode_h265_frames(video_path: str, n_frames: int, width: int, height: int,
-                       bit_depth: int = 16) -> list[np.ndarray]:
+                       bit_depth: int = 12, yuv: bool = False) -> list[np.ndarray]:
     """
-    Decode an H.265 video back to a list of 2D numpy arrays (pixels).
+    Decode an H.265 video back to a list of 2D numpy arrays (luma pixels).
+    If yuv=True, decodes as YUV 4:2:0 and extracts just the Y plane.
     """
-    pix_fmt_map = {8: "gray", 10: "gray10le", 12: "gray12le"}
-    pix_fmt = pix_fmt_map.get(bit_depth, "gray12le")
     dtype = np.uint8 if bit_depth == 8 else np.uint16
     bpp = 1 if bit_depth == 8 else 2
+
+    if yuv:
+        pix_fmt = "yuv420p" if bit_depth == 8 else "yuv420p10le"
+        # YUV 4:2:0: Y = w*h, U = w/2*h/2, V = w/2*h/2
+        # Total = w*h * 1.5 (in samples)
+        y_samples = width * height
+        uv_samples = (width // 2) * (height // 2)
+        frame_bytes = (y_samples + 2 * uv_samples) * bpp
+    else:
+        pix_fmt_map = {8: "gray", 10: "gray10le", 12: "gray12le"}
+        pix_fmt = pix_fmt_map.get(bit_depth, "gray12le")
+        frame_bytes = width * height * bpp
 
     cmd = [
         "ffmpeg", "-y",
@@ -297,18 +409,19 @@ def decode_h265_frames(video_path: str, n_frames: int, width: int, height: int,
         raise RuntimeError(f"ffmpeg decode failed for {video_path}: {proc.stderr.decode()}")
 
     raw = proc.stdout
-    frame_bytes = width * height * bpp
     expected = n_frames * frame_bytes
     if len(raw) != expected:
         raise RuntimeError(
             f"Decoded size mismatch for {video_path}: "
             f"got {len(raw)} bytes, expected {expected} "
-            f"({n_frames} frames x {width}x{height}x{bpp})"
+            f"({n_frames} frames x {width}x{height}, "
+            f"{'yuv420' if yuv else 'gray'} {bit_depth}bit)"
         )
 
     frames = []
+    y_bytes = width * height * bpp
     for i in range(n_frames):
-        buf = raw[i * frame_bytes:(i + 1) * frame_bytes]
+        buf = raw[i * frame_bytes:i * frame_bytes + y_bytes]
         frame = np.frombuffer(buf, dtype=dtype).reshape(height, width)
         frames.append(frame)
 
@@ -399,11 +512,13 @@ def decode_main(args):
     bit_depth = manifest["bit_depth"]
     was_quantized = manifest.get("quantized", True)
     dither = manifest.get("dither", 0.0)
+    use_yuv = manifest.get("yuv", False)
 
     mode_str = "quantized (int levels)" if was_quantized else "float (center+norm)"
     dither_str = f", dither={dither}" if dither > 0 else ""
+    yuv_str = ", yuv420" if use_yuv else ""
     print(f"Decoding H.265 model: arch={arch}, qstep={qstep}, "
-          f"bit_depth={bit_depth}, mode={mode_str}{dither_str}")
+          f"bit_depth={bit_depth}, mode={mode_str}{dither_str}{yuv_str}")
 
     # Decode all videos and denormalize back to levels/values
     layer_tiles = {}  # layer_name -> list of tile dicts
@@ -424,7 +539,7 @@ def decode_main(args):
             })
 
         print(f"  Decoding {video_name}: {n} frames @ {w}x{h}...")
-        pixels = decode_h265_frames(video_path, n, w, h, vbit)
+        pixels = decode_h265_frames(video_path, n, w, h, vbit, yuv=use_yuv)
         levels = denormalize_frames(pixels, per_frame_norms, vbit,
                                     quantized=was_quantized, dither=dither)
 
@@ -706,7 +821,7 @@ def _load_model_for_encode(args):
 
 def _encode_tile_groups(tile_groups: dict, output_dir: str, crf: int,
                         preset: str, bit_depth: int, dither: float = 0.0,
-                        verbose: bool = True):
+                        yuv: bool = False, verbose: bool = True):
     """
     Encode all tile groups to H.265 videos under output_dir.
     Returns (total_raw_bytes, total_h265_bytes, manifest_videos dict).
@@ -727,7 +842,7 @@ def _encode_tile_groups(tile_groups: dict, output_dir: str, crf: int,
 
         ok, per_frame_norms = encode_frames_to_h265(
             frames, video_path,
-            crf=crf, preset=preset, bit_depth=bit_depth, dither=dither,
+            crf=crf, preset=preset, bit_depth=bit_depth, dither=dither, yuv=yuv,
         )
 
         if ok:
@@ -787,7 +902,7 @@ def encode_main(args):
             print(f"\n--- Preset: {preset} ---")
             total_raw, total_h265, _, elapsed = _encode_tile_groups(
                 tile_groups, preset_dir, args.crf, preset, args.bit_depth,
-                dither=args.dither, verbose=False,
+                dither=args.dither, yuv=args.yuv, verbose=False,
             )
             ratio_f32 = full_model_bytes / max(total_h265, 1)
             ratio_raw = total_raw / max(total_h265, 1)
@@ -822,7 +937,7 @@ def encode_main(args):
           f"(preset={args.preset})...")
     total_raw_bytes, total_h265_bytes, manifest_videos, elapsed = _encode_tile_groups(
         tile_groups, args.output_dir, args.crf, args.preset, args.bit_depth,
-        dither=args.dither,
+        dither=args.dither, yuv=args.yuv,
     )
 
     manifest = {
@@ -831,6 +946,7 @@ def encode_main(args):
         "bit_depth": args.bit_depth,
         "quantized": do_quantize,
         "dither": args.dither,
+        "yuv": args.yuv,
         "reconstruction": (
             "level = (pixel - max_val/2) / norm_factor + center; weight = level * qstep"
             if do_quantize else

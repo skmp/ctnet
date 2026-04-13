@@ -37,6 +37,29 @@ from dct_layers import DCTConv2d, replace_with_dct_convs, probe_sparsity, quanti
 from dct_utils import calculate_hevc_rate_proxy, estimate_h265_size_bits
 
 
+class CachedDataset(torch.utils.data.Dataset):
+    """Cache raw PIL images in RAM, apply transforms on-the-fly."""
+
+    def __init__(self, image_folder, transform):
+        self.transform = transform
+        self.targets = image_folder.targets
+        # Cache raw PIL images (before transform)
+        # Re-read with the loader but no transform
+        self._images = []
+        for path, target in image_folder.imgs:
+            img = image_folder.loader(path)
+            self._images.append((img, target))
+
+    def __len__(self):
+        return len(self._images)
+
+    def __getitem__(self, idx):
+        img, target = self._images[idx]
+        if self.transform is not None:
+            img = self.transform(img)
+        return img, target
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description="ImageNet DCT-Conv Training")
     parser.add_argument("data", metavar="DIR", help="path to ImageNet dataset")
@@ -61,6 +84,8 @@ def parse_args():
     parser.add_argument("--steepness", default=10.0, type=float,
                         help="sigmoid steepness for soft significance threshold")
     parser.add_argument("-j", "--workers", default=4, type=int, help="data loading workers")
+    parser.add_argument("--cache-dataset", action="store_true",
+                        help="cache entire dataset in RAM (fast for small datasets like ImageNette)")
     parser.add_argument("--print-freq", default=100, type=int)
     parser.add_argument("--resume", default="", type=str, help="path to checkpoint")
     parser.add_argument("--evaluate", action="store_true", help="evaluate only")
@@ -179,25 +204,28 @@ def main():
         std=[0.229, 0.224, 0.225],
     )
 
-    train_dataset = datasets.ImageFolder(
-        traindir,
-        transforms.Compose([
-            transforms.RandomResizedCrop(224),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            normalize,
-        ]),
-    )
+    train_transform = transforms.Compose([
+        transforms.RandomResizedCrop(224),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        normalize,
+    ])
 
-    val_dataset = datasets.ImageFolder(
-        valdir,
-        transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            normalize,
-        ]),
-    )
+    val_transform = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        normalize,
+    ])
+
+    train_dataset = datasets.ImageFolder(traindir, train_transform)
+    val_dataset = datasets.ImageFolder(valdir, val_transform)
+
+    if args.cache_dataset:
+        train_dataset = CachedDataset(train_dataset, train_transform)
+        val_dataset = CachedDataset(val_dataset, val_transform)
+        if is_main:
+            print(f"=> Cached {len(train_dataset)} train + {len(val_dataset)} val images in RAM")
 
     if distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
