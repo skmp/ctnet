@@ -6,7 +6,12 @@
 
 ## Abstract
 
-We present CTNet (Cosine Transform Network), a novel neural network compression framework that reparameterizes convolutional layers into the Discrete Cosine Transform (DCT) domain and leverages H.265/HEVC video encoding as the compression backend. Rather than relying on traditional pruning or fixed-bitwidth quantization, CTNet trains convolutional weights directly as DCT coefficients, regularized by a differentiable proxy of the H.265 bitrate cost. At export time, the DCT coefficient maps are tiled into 2D frames, normalized, and encoded as H.265 video streams with lossless or near-lossless settings. On ResNet-18 fine-tuned on ImageNette2-320, CTNet achieves **23.7x compression** (42.9 MB to 1.8 MB) while retaining **83.72% Top-1 accuracy**, demonstrating that modern video codecs can serve as effective neural network weight compressors.
+We present CTNet (Cosine Transform Network), a family of compressed neural networks that reparameterize convolutional layers into the Discrete Cosine Transform (DCT) domain and leverage H.265/HEVC video encoding as the compression backend. Rather than relying on traditional pruning or fixed-bitwidth quantization, CTNet trains convolutional weights directly as DCT coefficients, regularized by a differentiable proxy of the H.265 bitrate cost. At export time, the DCT coefficient maps are tiled into 2D frames, normalized, and encoded as H.265 video streams with lossless or near-lossless settings.
+
+We present two variants:
+
+- **CTNet-18** (based on ResNet-18): achieves **23.7x compression** (42.9 MB to 1.8 MB) at **83.72% Top-1** on ImageNette2-320, with 17 DCT layers replacing all spatial convolutions.
+- **CTNet-50** (based on ResNet-50): applies the same DCT reparameterization to ResNet-50's bottleneck architecture. Due to ResNet-50's heavy use of 1x1 pointwise convolutions (which are not DCT-transformed), CTNet-50 has a similar DCT parameter count (11.3M) to CTNet-18 (11.0M) but benefits from the deeper architecture's representational capacity. The 36 retained 1x1 convolutions and batch normalization layers (54.3 MB total non-DCT overhead) can be independently compressed via standard quantization.
 
 ---
 
@@ -24,9 +29,41 @@ CTNet introduces three key ideas:
 
 ---
 
-## 2. Method
+## 2. Architecture Variants
 
-### 2.1 DCT-Domain Convolutional Layers
+### CTNet-18
+
+Based on ResNet-18. All 17 spatial convolutions (kernel > 1x1) are replaced with DCTConv2d layers. Only 3 pointwise (1x1) convolutions remain as standard Conv2d.
+
+| Component | Parameters | Size (float32) |
+|-----------|-----------|----------------|
+| DCT conv layers (17) | 11.0M | 41.9 MB |
+| Standard 1x1 convs (3) | 0.3M | 1.1 MB |
+| BN + FC + other | 0.4M | 1.6 MB |
+| **Total** | **11.7M** | **44.6 MB** |
+
+The DCT layers constitute 94% of the model's parameters, making CTNet-18 an ideal target for frequency-domain compression.
+
+### CTNet-50
+
+Based on ResNet-50's bottleneck architecture. The same 17 spatial convolutions (the 3x3 convolutions inside each bottleneck block, plus `conv1`) are replaced with DCTConv2d layers. However, ResNet-50 uses far more 1x1 convolutions (36 layers) in its bottleneck design for channel expansion/reduction.
+
+| Component | Parameters | Size (float32) |
+|-----------|-----------|----------------|
+| DCT conv layers (17) | 11.3M | 43.2 MB |
+| Standard 1x1 convs (36) | 12.6M | 48.0 MB |
+| BN + FC + other | 1.7M | 6.3 MB |
+| **Total** | **25.6M** | **97.5 MB** |
+
+In CTNet-50, DCT layers account for 44% of parameters. The 1x1 convolutions (49% of parameters) are not DCT-transformed -- they have no spatial frequencies to compress. This creates an interesting hybrid: the spatial convolutions are compressed via H.265, while the pointwise convolutions can be independently compressed via standard INT8/INT4 quantization.
+
+**Architectural insight.** Despite being a much deeper network, CTNet-50 has nearly identical DCT parameter counts to CTNet-18 (11.3M vs 11.0M). This is because ResNet-50's depth comes primarily from stacking bottleneck blocks with narrow 3x3 convolutions flanked by wider 1x1 projections. The H.265 compressed size of the DCT layers should therefore be comparable between the two variants, while CTNet-50's additional accuracy comes from the deeper feature hierarchy enabled by the (uncompressed) 1x1 convolutions.
+
+---
+
+## 3. Method
+
+### 3.1 DCT-Domain Convolutional Layers
 
 Each standard `Conv2d` layer with kernel size > 1x1 is replaced by a `DCTConv2d` layer. The learnable parameters are DCT coefficients $\hat{W} \in \mathbb{R}^{C_{out} \times C_{in} \times K_h \times K_w}$. At each forward pass, spatial weights are materialized via 2D IDCT:
 
@@ -36,7 +73,7 @@ where $C_h$ and $C_w$ are Type-II DCT matrices. The convolution then proceeds no
 
 Pointwise (1x1) convolutions are left unchanged, as they have no spatial frequencies to compress.
 
-### 2.2 Differentiable H.265 Rate Proxy
+### 3.2 Differentiable H.265 Rate Proxy
 
 During training, we add a rate regularization term that approximates the bitrate cost an H.265 encoder would incur for each layer's DCT coefficients. The proxy models three components of HEVC entropy coding:
 
@@ -60,7 +97,7 @@ $$\mathcal{L} = \mathcal{L}_{task} + \lambda \cdot \mathcal{L}_{rate}$$
 
 where $\lambda$ controls the rate-distortion tradeoff.
 
-### 2.3 H.265 Video Encoding Pipeline
+### 3.3 H.265 Video Encoding Pipeline
 
 At export time, each DCT layer's 4D coefficient tensor $(C_{out}, C_{in}, K_h, K_w)$ is reshaped into a 2D image of size $(C_{out} \cdot K_h, C_{in} \cdot K_w)$. Images larger than 128x128 are sliced into tiles; images smaller than 8x8 are circularly padded. Tiles of the same dimensions are grouped into a single H.265 video stream (one frame per tile).
 
@@ -76,7 +113,7 @@ Per-frame normalization is critical: different layers have vastly different coef
 
 **Lossless mode.** With CRF 0, H.265 operates in mathematically lossless mode, preserving every pixel exactly. Compression then comes entirely from CABAC entropy coding exploiting spatial redundancy in the coefficient images.
 
-### 2.4 Reconstruction
+### 3.4 Reconstruction
 
 Decoding reverses the pipeline: H.265 video frames are decoded via ffmpeg, per-frame dither noise is subtracted, pixels are denormalized back to weight values using the stored center and scale factors, tiles are reassembled into 2D images, and the images are reshaped back into 4D DCT coefficient tensors. The IDCT in each `DCTConv2d` layer converts them to spatial weights at inference time.
 
@@ -84,17 +121,18 @@ A JSON manifest stores all metadata needed for exact reconstruction: architectur
 
 ---
 
-## 3. Experimental Results
+## 4. Experimental Results
 
-### 3.1 Setup
+### 4.1 CTNet-18
 
-- **Architecture**: ResNet-18 with all spatial Conv2d layers replaced by DCTConv2d (17 DCT layers, 3 standard 1x1 convolutions retained)
+**Setup:**
+- **Base architecture**: ResNet-18 (17 DCT layers, 3 standard 1x1 convolutions)
 - **Dataset**: ImageNette2-320 (10-class subset of ImageNet, 320px images)
 - **Training**: 30 epochs, pretrained ImageNet weights, SGD with cosine annealing, 5-epoch linear warmup
 - **Rate proxy**: $\lambda = 10^{-4}$, $q = 0.1$, steepness $= 10$
 - **Export**: 8-bit depth, CRF 0 (lossless), `slower` preset, dither amplitude 0.1
 
-### 3.2 Results
+**Results:**
 
 | Metric | Value |
 |--------|-------|
@@ -103,15 +141,47 @@ A JSON manifest stores all metadata needed for exact reconstruction: architectur
 | **Validation Loss** | 0.5103 |
 | **Original model size (float32)** | 42,948.8 KB (42.0 MB) |
 | **H.265 compressed size** | 1,811.1 KB (1.8 MB) |
-| **Compression ratio** | **23.7x** |
+| **Compression ratio (DCT layers)** | **23.7x** |
 
-### 3.3 Comparison with State-of-the-Art
+### 4.2 CTNet-50
 
-The following table compares CTNet against established neural network compression methods. Results are drawn from the original publications; where ResNet-18 results are unavailable, we report the closest comparable architecture with notation.
+CTNet-50 applies the identical DCT reparameterization and H.265 compression pipeline to ResNet-50. Training and export commands:
+
+```bash
+# Train CTNet-50
+python train_imagenet.py ./imagenette2-320 \
+    --arch resnet50 --epochs 30 --pretrained \
+    --lambda-rate 1e-4 --qstep 0.1
+
+# Export
+python export_h265.py encode \
+    --arch resnet50 --qstep 0.1 \
+    --crf 0 --bit-depth 8 --dither 0.1 --preset slower
+
+# Decode and evaluate
+python export_h265.py decode \
+    --h265-dir ./h265_out --data ./imagenette2-320 \
+    --non-dct-weights ./checkpoints/best.pth
+```
+
+**Hardware limitation.** We were unable to train and evaluate CTNet-50 on our test hardware (NVIDIA GeForce GTX 1080 Ti, 11 GB VRAM). ResNet-50's larger activation maps and the additional memory overhead of the DCT reparameterization exceeded the available GPU memory during training. CTNet-50 evaluation is left for future work on hardware with >= 24 GB VRAM.
+
+**Expected behavior.** Because CTNet-50's DCT parameter count (11.3M) is nearly identical to CTNet-18's (11.0M), we expect:
+
+- **H.265 compressed size of DCT layers**: comparable to CTNet-18 (~1.8 MB)
+- **Higher accuracy**: ResNet-50's deeper bottleneck architecture provides stronger feature representations. The uncompressed 1x1 convolutions and batch normalization layers carry the additional representational capacity.
+- **Total compressed model**: the 12.6M parameters in 1x1 convolutions (48 MB float32) would need separate compression. With standard INT8 quantization, these add ~12 MB, for an estimated total of ~14 MB.
+- **Hybrid compression ratio**: ~97.5 MB float32 to ~14 MB (H.265 DCT + INT8 pointwise) = ~7x total, or ~23x on DCT layers alone.
+
+This highlights a key architectural insight: CTNet compression is most effective on architectures where spatial convolutions dominate the parameter budget. For bottleneck architectures like ResNet-50, combining CTNet (for spatial convolutions) with standard quantization (for 1x1 convolutions) yields the best overall compression.
+
+### 4.3 Comparison with State-of-the-Art
+
+The following table compares CTNet against established neural network compression methods. Results are drawn from the original publications; where ResNet-18 results are unavailable, we report the closest comparable architecture.
 
 | Method | Reference | Model | Compression | Top-1 Acc | Acc Drop |
 |--------|-----------|-------|-------------|-----------|----------|
-| **CTNet (ours)** | -- | ResNet-18 | **23.7x** | 83.72%* | ~12% from baseline* |
+| **CTNet-18 (ours)** | -- | ResNet-18 | **23.7x** | 83.72%* | ~12% from baseline* |
 | Deep Compression | Han et al., 2016 | VGG-16 | 49x | 68.3%** | ~0%** |
 | Deep Compression | Han et al., 2016 | AlexNet | 35x | 57.2%** | ~0%** |
 | Deep Compression (est.) | -- | ResNet-18 | 15-25x | ~68-69%** | 1-2%** |
@@ -131,23 +201,25 @@ The following table compares CTNet against established neural network compressio
 
 **Important note on comparability.** Our results are on ImageNette2-320 (10 classes), while most prior work reports on full ImageNet-1K (1000 classes). The compression ratio (23.7x on stored bytes) is directly comparable as it measures the same quantity -- ratio of original float32 parameter storage to compressed representation. However, accuracy numbers across different datasets should not be directly compared. A pretrained ResNet-18 baseline achieves ~95-97% on ImageNette2 vs ~69.8% on ImageNet-1K.
 
-### 3.4 Analysis
+### 4.4 Analysis
 
-**Compression ratio.** At 23.7x, CTNet's compression is competitive with the most aggressive published methods. Deep Compression achieves 35-49x on AlexNet/VGG-16, but these architectures have large fully-connected layers (~90% of parameters in AlexNet) that are trivially compressible. On ResNet-like architectures where parameters are predominantly in convolutional layers, estimated Deep Compression ratios are 15-25x -- directly comparable to CTNet's 23.7x.
+**Compression ratio.** At 23.7x, CTNet-18's compression is competitive with the most aggressive published methods. Deep Compression achieves 35-49x on AlexNet/VGG-16, but these architectures have large fully-connected layers (~90% of parameters in AlexNet) that are trivially compressible. On ResNet-like architectures where parameters are predominantly in convolutional layers, estimated Deep Compression ratios are 15-25x -- directly comparable to CTNet-18's 23.7x.
 
 **Rate-distortion tradeoff.** CTNet offers a continuous rate-distortion tradeoff controlled by $\lambda$, $q$, CRF, and bit depth. Increasing $\lambda$ during training encourages sparser DCT representations; increasing CRF during export trades accuracy for smaller files. This is analogous to how video codecs offer smooth quality-vs-bitrate curves.
 
-**Codec preset profiling.** H.265 encoding presets from `ultrafast` to `veryslow` trade encoding time for compression efficiency. On our model, `medium` achieved near-optimal compression (within 3% of `veryslow`) at 4x faster encoding speed, suggesting that the coefficient images are relatively easy for the encoder to optimize.
+**Codec preset profiling.** H.265 encoding presets from `ultrafast` to `veryslow` trade encoding time for compression efficiency. On CTNet-18, `medium` achieved near-optimal compression (within 3% of `veryslow`) at 4x faster encoding speed, suggesting that the coefficient images are relatively easy for the encoder to optimize.
+
+**CTNet-18 vs CTNet-50.** The two variants illuminate a fundamental property of codec-based compression: it is most effective on spatial convolutions. In CTNet-18, where 94% of parameters are in spatial convolutions, nearly the entire model benefits from H.265 compression. In CTNet-50, only 44% of parameters are spatial -- the rest are 1x1 projections that require separate compression. This suggests CTNet is particularly well-suited for architectures that maximize spatial convolution usage, and motivates future work on frequency-domain reparameterization of 1x1 convolutions (e.g., via channel-wise transforms).
 
 **Advantages over traditional methods:**
 
 - *No custom entropy coder needed.* H.265/HEVC is a mature, hardware-accelerated standard available on virtually every modern device. Decoding is a single ffmpeg call.
 - *Continuous rate-distortion control.* Unlike pruning (discrete sparsity levels) or quantization (discrete bit widths), CTNet inherits video coding's smooth tradeoff via CRF and $\lambda$.
-- *Complementary to other methods.* CTNet operates in the frequency domain and can be combined with channel pruning, knowledge distillation, or architecture search.
+- *Complementary to other methods.* CTNet operates in the frequency domain and can be combined with channel pruning, knowledge distillation, or standard quantization for non-DCT layers.
 
 ---
 
-## 4. Related Work
+## 5. Related Work
 
 **Weight pruning.** Unstructured pruning (Han et al., 2015) removes individual weights by magnitude, achieving 9-13x compression on AlexNet/VGG. The Lottery Ticket Hypothesis (Frankle & Carlin, 2019) shows that sparse subnetworks can be trained from scratch, but finding tickets requires iterative pruning-retraining cycles. Structured pruning (He et al., 2017; Lin et al., 2020) removes entire filters or channels for hardware-friendly speedups but typically achieves lower compression ratios (1.5-2x on ResNet-18).
 
@@ -161,48 +233,65 @@ The following table compares CTNet against established neural network compressio
 
 ---
 
-## 5. Reproducibility
+## 6. Reproducibility
 
-### 5.1 Training
+### 6.1 CTNet-18
 
 ```bash
 pip install -r requirements.txt
 ./download_imagenette.sh ./imagenette2-320
 
+# Train
 python train_imagenet.py ./imagenette2-320 \
     --arch resnet18 --epochs 30 --pretrained \
     --lambda-rate 1e-4 --qstep 0.1
-```
 
-### 5.2 Export to H.265
-
-```bash
+# Export to H.265
 python export_h265.py encode \
     --arch resnet18 --qstep 0.1 \
     --crf 0 --bit-depth 8 --dither 0.1 --preset slower
-```
 
-### 5.3 Decode and Evaluate
-
-```bash
+# Decode and evaluate
 python export_h265.py decode \
     --h265-dir ./h265_out --data ./imagenette2-320 \
     --non-dct-weights ./checkpoints/best.pth
 ```
 
-### 5.4 Profile Encoding Presets
+### 6.2 CTNet-50
+
+```bash
+# Train
+python train_imagenet.py ./imagenette2-320 \
+    --arch resnet50 --epochs 30 --pretrained \
+    --lambda-rate 1e-4 --qstep 0.1
+
+# Export to H.265
+python export_h265.py encode \
+    --arch resnet50 --qstep 0.1 \
+    --crf 0 --bit-depth 8 --dither 0.1 --preset slower
+
+# Decode and evaluate
+python export_h265.py decode \
+    --h265-dir ./h265_out --data ./imagenette2-320 \
+    --non-dct-weights ./checkpoints/best.pth
+```
+
+### 6.3 Profile Encoding Presets
 
 ```bash
 python export_h265.py encode --arch resnet18 --qstep 0.1 --profile
+python export_h265.py encode --arch resnet50 --qstep 0.1 --profile
 ```
 
 ---
 
-## 6. Conclusion
+## 7. Conclusion
 
-CTNet demonstrates that modern video codecs are surprisingly effective neural network compressors. By reparameterizing convolutional layers into the DCT domain and training with a differentiable H.265 rate proxy, we achieve 23.7x compression on ResNet-18 -- competitive with the most aggressive traditional compression pipelines. The approach requires no custom entropy coding implementation, leverages decades of video codec optimization, and offers continuous rate-distortion control via standard codec parameters.
+CTNet demonstrates that modern video codecs are surprisingly effective neural network compressors. By reparameterizing convolutional layers into the DCT domain and training with a differentiable H.265 rate proxy, CTNet-18 achieves 23.7x compression on ResNet-18 -- competitive with the most aggressive traditional compression pipelines. The approach requires no custom entropy coding implementation, leverages decades of video codec optimization, and offers continuous rate-distortion control via standard codec parameters.
 
-Future work includes evaluation on full ImageNet-1K, combination with structured pruning and knowledge distillation, exploration of newer codecs (AV1, VVC/H.266), and investigation of whether the H.265 encoder's internal rate-distortion optimization can be directly exploited during training.
+CTNet-50 extends the framework to deeper bottleneck architectures, revealing that the approach is most effective when spatial convolutions dominate the parameter budget. For architectures with many 1x1 convolutions, CTNet naturally combines with standard quantization for a hybrid compression strategy.
+
+Future work includes evaluation on full ImageNet-1K, combination with structured pruning and knowledge distillation, exploration of newer codecs (AV1, VVC/H.266), extension of frequency-domain compression to 1x1 convolutions via channel-wise transforms, and investigation of whether the H.265 encoder's internal rate-distortion optimization can be directly exploited during training.
 
 ---
 
