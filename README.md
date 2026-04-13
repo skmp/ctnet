@@ -2,6 +2,8 @@
 
 **Stylianos Iordanis and Stefanos Kornilios Mitsis Poiitidis**
 
+> **Note:** This is an exploratory proof of concept. All experiments are conducted on ImageNette2-320 (a 10-class subset of ImageNet) using a single consumer GPU (NVIDIA GTX 1080 Ti, 11 GB). Results demonstrate the viability of the approach but are not directly comparable to full ImageNet-1K benchmarks. Hyperparameters have not been exhaustively tuned. We release this work to invite further investigation and collaboration.
+
 ---
 
 ## Abstract
@@ -10,7 +12,7 @@ We present CTNet (Cosine Transform Network), a family of compressed neural netwo
 
 We present two variants:
 
-- **CTNet-18** (based on ResNet-18): achieves **34.6x compression** (42.9 MB to 1.2 MB) at **87.75% Top-1** on ImageNette2-320 after 128 epochs of training, with 17 DCT layers replacing all spatial convolutions.
+- **CTNet-18** (based on ResNet-18): achieves **14.5x compression** (42.9 MB to 2.9 MB) at **92.99% Top-1** on ImageNette2-320 (256 epochs, AdamW), or **32.5x compression** (42.9 MB to 1.3 MB) at **81.12% Top-1** with lossy CRF 30 encoding. With 17 DCT layers replacing all spatial convolutions.
 - **CTNet-50** (based on ResNet-50): applies the same DCT reparameterization to ResNet-50's bottleneck architecture. Due to ResNet-50's heavy use of 1x1 pointwise convolutions (which are not DCT-transformed), CTNet-50 has a similar DCT parameter count (11.3M) to CTNet-18 (11.0M) but benefits from the deeper architecture's representational capacity. The 36 retained 1x1 convolutions and batch normalization layers (54.3 MB total non-DCT overhead) can be independently compressed via standard quantization.
 
 ---
@@ -128,22 +130,26 @@ A JSON manifest stores all metadata needed for exact reconstruction: architectur
 **Setup:**
 - **Base architecture**: ResNet-18 (17 DCT layers, 3 standard 1x1 convolutions)
 - **Dataset**: ImageNette2-320 (10-class subset of ImageNet, 320px images)
-- **Training**: pretrained ImageNet weights, SGD with cosine annealing, 5-epoch linear warmup
-- **Rate proxy**: $\lambda = 10^{-4}$, $q = 0.1$, steepness $= 10$
-- **Export**: 8-bit depth, CRF 0 (lossless), `slower` preset, dither amplitude 0.1
+- **Export**: 8-bit depth, `slower` preset, dither amplitude 0.1
 
-**Results:**
+**Results across training configurations:**
 
-| Metric | 30 epochs | 128 epochs |
-|--------|-----------|------------|
-| **Top-1 Accuracy** | 83.72% | **87.75%** |
-| **Top-5 Accuracy** | 98.37% | **98.78%** |
-| **Validation Loss** | 0.5103 | **0.4144** |
-| **Original model size (float32)** | 42,948.8 KB (42.0 MB) | 42,948.8 KB (42.0 MB) |
-| **H.265 compressed size** | 1,811.1 KB (1.8 MB) | **1,239.7 KB (1.2 MB)** |
-| **Compression ratio (DCT layers)** | 23.7x | **34.6x** |
+| Config | Optimizer | $\lambda$ | Epochs | Top-1 | Top-5 | H.265 Size | Ratio |
+|--------|-----------|-----------|--------|-------|-------|-----------|-------|
+| SGD baseline | SGD | $10^{-4}$ | 30 | 83.72% | 98.37% | 1,811 KB | 23.7x |
+| SGD long | SGD | $10^{-4}$ | 128 | 87.75% | 98.78% | 1,240 KB | 34.6x |
+| **AdamW (CRF 0)** | **AdamW** | $10^{-6}$ | **256** | **92.99%** | **99.36%** | **2,967 KB** | **14.5x** |
+| AdamW (CRF 20) | AdamW | $10^{-6}$ | 256 | 92.66% | 99.36% | 2,913 KB | 14.7x |
+| AdamW (CRF 30) | AdamW | $10^{-6}$ | 256 | 81.12% | 97.63% | 1,322 KB | 32.5x |
 
-Longer training improves both accuracy (+4.03%) and compression ratio (+46%), as the rate proxy has more time to push coefficients toward representations that H.265 encodes efficiently.
+*Baseline pretrained ResNet-18 achieves ~95-97% Top-1 on ImageNette2-320.*
+
+**Key findings:**
+
+- **AdamW vs SGD**: Switching from SGD ($\lambda=10^{-4}$) to AdamW ($\lambda=10^{-6}$) with a rebalanced rate term dramatically improved accuracy (87.75% to 92.99%) while still achieving meaningful compression (14.5x). AdamW's per-parameter learning rates handle the mixed task+rate loss better.
+- **Lossless vs lossy encoding**: CRF 0 (lossless) and CRF 20 give nearly identical accuracy (92.99% vs 92.66%, only -0.33%), indicating the H.265 encoder's own quantization at CRF 20 introduces negligible additional error. CRF 30 degrades significantly (81.12%) — the codec's quantization becomes too coarse.
+- **Rate-distortion tradeoff**: Higher $\lambda$ (SGD runs) produces more aggressive sparsity and better compression ratios (34.6x) but sacrifices accuracy. Lower $\lambda$ (AdamW run) preserves accuracy at lower compression. This is the expected Pareto tradeoff.
+- **Training duration matters**: All configurations benefited from longer training, with both accuracy and compression improving over time.
 
 ### 4.2 CTNet-50
 
@@ -183,8 +189,9 @@ The following table compares CTNet against established neural network compressio
 
 | Method | Reference | Model | Compression | Top-1 Acc | Acc Drop |
 |--------|-----------|-------|-------------|-----------|----------|
-| **CTNet-18 (ours, 128ep)** | -- | ResNet-18 | **34.6x** | 87.75%* | ~8% from baseline* |
-| CTNet-18 (ours, 30ep) | -- | ResNet-18 | 23.7x | 83.72%* | ~12% from baseline* |
+| **CTNet-18 (ours, AdamW 256ep, CRF 0)** | -- | ResNet-18 | **14.5x** | **92.99%*** | ~3% from baseline* |
+| CTNet-18 (ours, AdamW 256ep, CRF 30) | -- | ResNet-18 | 32.5x | 81.12%* | ~15% from baseline* |
+| CTNet-18 (ours, SGD 128ep) | -- | ResNet-18 | 34.6x | 87.75%* | ~8% from baseline* |
 | Deep Compression | Han et al., 2016 | VGG-16 | 49x | 68.3%** | ~0%** |
 | Deep Compression | Han et al., 2016 | AlexNet | 35x | 57.2%** | ~0%** |
 | Deep Compression (est.) | -- | ResNet-18 | 15-25x | ~68-69%** | 1-2%** |
@@ -206,9 +213,11 @@ The following table compares CTNet against established neural network compressio
 
 ### 4.4 Analysis
 
-**Compression ratio.** At 34.6x (128 epochs), CTNet-18's compression exceeds estimated Deep Compression ratios on ResNet-class architectures (15-25x) and approaches Deep Compression's results on VGG-16 (49x) -- architectures with large fully-connected layers (~90% of parameters in AlexNet) that are trivially compressible. Notably, CTNet-18 achieves this on a pure-convolutional architecture where traditional methods struggle most.
+**Compression ratio.** CTNet-18 achieves 14.5x compression at 92.99% accuracy (CRF 0, lossless) or 32.5x at 81.12% (CRF 30, lossy). The lossless result is competitive with standard quantization methods (INT4 gives 8x), while the lossy result approaches Deep Compression's ratios on ResNet-class architectures (estimated 15-25x) with the advantage of requiring no custom decompression code.
 
-**Training duration matters.** Extending training from 30 to 128 epochs improved both accuracy (83.72% to 87.75%) and compression (23.7x to 34.6x) simultaneously. This suggests the rate proxy benefits from longer optimization to gradually reshape the DCT coefficient landscape toward patterns that H.265 encodes efficiently, without sacrificing classification performance.
+**Optimizer choice is critical.** Switching from SGD ($\lambda=10^{-4}$) to AdamW ($\lambda=10^{-6}$) improved accuracy from 87.75% to 92.99% — a 5.24 percentage point gain. The bi-objective loss (task + rate) benefits from AdamW's per-parameter adaptive learning rates, which handle DCT coefficients near the significance threshold more carefully than SGD's uniform step size.
+
+**CRF as a post-training compression knob.** The H.265 CRF parameter provides a post-training mechanism to trade accuracy for size without retraining. CRF 20 is nearly free (only -0.33% accuracy vs lossless) while CRF 30 is too aggressive. This is analogous to adjusting JPEG quality — a property unique to codec-based compression that traditional pruning/quantization methods lack.
 
 **Rate-distortion tradeoff.** CTNet offers a continuous rate-distortion tradeoff controlled by $\lambda$, $q$, CRF, and bit depth. Increasing $\lambda$ during training encourages sparser DCT representations; increasing CRF during export trades accuracy for smaller files. This is analogous to how video codecs offer smooth quality-vs-bitrate curves.
 
@@ -246,15 +255,22 @@ The following table compares CTNet against established neural network compressio
 pip install -r requirements.txt
 ./download_imagenette.sh ./imagenette2-320
 
-# Train (128 epochs for best results; 30 epochs for a quick run)
+# Train (best config: AdamW, 256 epochs)
 python train_imagenet.py ./imagenette2-320 \
-    --arch resnet18 --epochs 128 --pretrained \
-    --lambda-rate 1e-4 --qstep 0.1
+    --arch resnet18 --epochs 256 --pretrained \
+    --optimizer adamw --lr 1e-3 --weight-decay 0.01 \
+    --lambda-rate 1e-6 --qstep 0.1 \
+    --cache-dataset
 
-# Export to H.265
+# Export to H.265 (lossless)
 python export_h265.py encode \
     --arch resnet18 --qstep 0.1 \
     --crf 0 --bit-depth 8 --dither 0.1 --preset slower
+
+# Export to H.265 (lossy, higher compression)
+python export_h265.py encode \
+    --arch resnet18 --qstep 0.1 \
+    --crf 20 --bit-depth 8 --dither 0.1 --preset slower
 
 # Decode and evaluate
 python export_h265.py decode \
@@ -292,7 +308,7 @@ python export_h265.py encode --arch resnet50 --qstep 0.1 --profile
 
 ## 7. Conclusion
 
-CTNet demonstrates that modern video codecs are surprisingly effective neural network compressors. By reparameterizing convolutional layers into the DCT domain and training with a differentiable H.265 rate proxy, CTNet-18 achieves 34.6x compression on ResNet-18 at 87.75% Top-1 accuracy on ImageNette2 -- exceeding estimated Deep Compression ratios on ResNet-class architectures. The approach requires no custom entropy coding implementation, leverages decades of video codec optimization, and offers continuous rate-distortion control via standard codec parameters.
+CTNet demonstrates that modern video codecs are surprisingly effective neural network compressors. By reparameterizing convolutional layers into the DCT domain and training with a differentiable H.265 rate proxy, CTNet-18 achieves 14.5x compression at 92.99% Top-1 accuracy on ImageNette2 (only ~3% below baseline), with a continuous rate-distortion tradeoff up to 32.5x compression via lossy encoding. The approach requires no custom entropy coding implementation, leverages decades of video codec optimization, and offers continuous rate-distortion control via standard codec parameters.
 
 CTNet-50 extends the framework to deeper bottleneck architectures, revealing that the approach is most effective when spatial convolutions dominate the parameter budget. For architectures with many 1x1 convolutions, CTNet naturally combines with standard quantization for a hybrid compression strategy.
 

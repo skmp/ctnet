@@ -4,7 +4,7 @@ python export_h265.py encode --arch resnet18 --crf 0 --bit-depth 8 --dither 0.1 
 python export_h265.py decode --h265-dir ./h265_256 --data ./imagenette2-320 --non-dct-weights ./checkpoints/best.pth
 ```
 
---- Decoded Model Evaluation ---
+--- Decoded Model Evaluation @ crf 0 ---
   Loss:  0.3313
   Acc@1: 92.99%
   Acc@5: 99.36%
@@ -13,3 +13,24 @@ python export_h265.py decode --h265-dir ./h265_256 --data ./imagenette2-320 --no
   H.265 total size:    2966.8 KB
   Float32 model size:  42948.8 KB
   Compression ratio:   14.5x
+
+
+  --- Decoded Model Evaluation @ crf 20 ---
+  Loss:  0.3215
+  Acc@1: 92.66%
+  Acc@5: 99.36%
+  (After H.265 decode: Acc@1 92.66%)
+
+  H.265 total size:    2913.2 KB
+  Float32 model size:  42948.8 KB
+  Compression ratio:   14.7x
+
+  --- Decoded Model Evaluation @ crf 30 ---
+  Loss:  0.7923
+  Acc@1: 81.12%
+  Acc@5: 97.63%
+  (After H.265 decode: Acc@1 81.12%)
+
+  H.265 total size:    1322.2 KB
+  Float32 model size:  42948.8 KB
+  Compression ratio:   32.5x
