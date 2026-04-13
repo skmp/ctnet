@@ -47,9 +47,13 @@ def parse_args():
     parser.add_argument("--epochs", default=90, type=int)
     parser.add_argument("-b", "--batch-size", default=256, type=int,
                         help="total batch size across all GPUs")
-    parser.add_argument("--lr", default=0.1, type=float, help="initial learning rate")
+    parser.add_argument("--optimizer", default="sgd", choices=["sgd", "adamw"],
+                        help="optimizer (default: sgd)")
+    parser.add_argument("--lr", default=None, type=float,
+                        help="initial learning rate (default: 0.1 for sgd, 1e-3 for adamw)")
     parser.add_argument("--momentum", default=0.9, type=float)
-    parser.add_argument("--weight-decay", default=1e-4, type=float)
+    parser.add_argument("--weight-decay", default=None, type=float,
+                        help="weight decay (default: 1e-4 for sgd, 0.01 for adamw)")
     parser.add_argument("--lambda-rate", default=1e-4, type=float,
                         help="weight for HEVC rate proxy loss (rate-distortion tradeoff)")
     parser.add_argument("--qstep", default=0.1, type=float,
@@ -91,6 +95,7 @@ def main():
         os.makedirs(args.output_dir, exist_ok=True)
         print(f"=> Architecture: {args.arch}")
         print(f"=> World size: {world_size}")
+        print(f"=> Optimizer: {args.optimizer} (lr={args.lr}, wd={args.weight_decay})")
         print(f"=> Lambda rate: {args.lambda_rate}")
         print(f"=> Quantization step: {args.qstep}")
         print(f"=> Sigmoid steepness: {args.steepness}")
@@ -113,12 +118,25 @@ def main():
     # ---------- Loss / Optimizer / Scheduler ----------
     criterion = nn.CrossEntropyLoss().to(device)
 
-    optimizer = torch.optim.SGD(
-        model.parameters(),
-        lr=args.lr,
-        momentum=args.momentum,
-        weight_decay=args.weight_decay,
-    )
+    # Set optimizer-specific defaults
+    if args.lr is None:
+        args.lr = {"sgd": 0.1, "adamw": 1e-3}[args.optimizer]
+    if args.weight_decay is None:
+        args.weight_decay = {"sgd": 1e-4, "adamw": 0.01}[args.optimizer]
+
+    if args.optimizer == "adamw":
+        optimizer = torch.optim.AdamW(
+            model.parameters(),
+            lr=args.lr,
+            weight_decay=args.weight_decay,
+        )
+    else:
+        optimizer = torch.optim.SGD(
+            model.parameters(),
+            lr=args.lr,
+            momentum=args.momentum,
+            weight_decay=args.weight_decay,
+        )
 
     # Cosine annealing with warmup (5 epochs linear warmup)
     warmup_epochs = 5
