@@ -3,3 +3,4 @@ __pycache__/
 .venv/
 checkpoints
 imagenette2-320
+h265_*/
