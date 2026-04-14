@@ -1,0 +1,35 @@
+```
+./train-ctnet-18.sh
+```
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=> Epoch 78: Acc@1 85.48%  (best: 86.14%)  Sparsity 99.9% (12024/11166912 nonzero)  Est[8b:3658KB(12x)  10b:6338KB(7x)  12b:9430KB(5x)] / 45700KB raw
+Epoch [79][0/37]  Time 2.205 (2.205)  Data 2.010 (2.010)  TaskLoss 0.7375 (0.7375)  RateLoss 465079.2 (465079.2)  Est[8b:3658KB(12x)  10b:6338KB(7x)  12b:9430KB(5x)]  Acc@1 75.39 (75.39)  Acc@5 96.09 (96.09)
+  * Val:  Loss 0.4326  Acc@1 86.42  Acc@5 98.78
+=> Epoch 79: Acc@1 86.42%  (best: 86.42%)  Sparsity 99.9% (11976/11166912 nonzero)  Est[8b:3610KB(13x)  10b:6230KB(7x)  12b:9299KB(5x)] / 45700KB raw *best* *smallest*
+Epoch [80][0/37]  Time 1.708 (1.708)  Data 1.526 (1.526)  TaskLoss 0.6496 (0.6496)  RateLoss 464209.3 (464209.3)  Est[8b:3610KB(12x)  10b:6230KB(7x)  12b:9299KB(5x)]  Acc@1 78.52 (78.52)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.4770  Acc@1 85.43  Acc@5 98.55
+
+> python export_h265.py encode --arch resnet18  --preset slower --model ./checkpoints/smallest.pth
+
+Encoding 9 video(s) at 8-bit (preset=slower)...
+  bn_16x64.hevc: 5 frames @ 64x16  raw=5.0 KB  h265=10.9 KB  ratio=0.5x (12bit)
+  dct_16x126.hevc: 8 frames @ 126x16  raw=15.8 KB  h265=14.5 KB  ratio=1.1x (8bit)
+  bn_16x128.hevc: 35 frames @ 128x16  raw=70.0 KB  h265=119.9 KB  ratio=0.6x (12bit)
+  dct_96x96.hevc: 16 frames @ 96x96  raw=144.0 KB  h265=46.1 KB  ratio=3.1x (8bit)
+  dct_112x22.hevc: 4 frames @ 22x112  raw=9.6 KB  h265=5.2 KB  ratio=1.9x (8bit)
+  dct_126x128.hevc: 32 frames @ 128x126  raw=504.0 KB  h265=462.6 KB  ratio=1.1x (8bit)
+  dct_128x64.hevc: 1 frames @ 64x128  raw=8.0 KB  h265=2.8 KB  ratio=2.8x (8bit)
+  dct_128x96.hevc: 6 frames @ 96x128  raw=72.0 KB  h265=28.5 KB  ratio=2.5x (8bit)
+  dct_128x128.hevc: 667 frames @ 128x128  raw=10672.0 KB  h265=2879.2 KB  ratio=3.7x (8bit)
+
+--- Summary (preset=slower, 92.6s) ---
+Full model DCT weights (float32): 45699.7 KB
+Pixel frames raw:                 11500.4 KB
+H.265 encoded:                    3569.7 KB
+Compression vs float32:           12.8x
+Compression vs pixel raw:         3.2x
+
+Total compressed model (H.265 only): 3569.7 KB
+Compression ratio:                   12.8x
+Manifest saved to ./h265_out/manifest.json

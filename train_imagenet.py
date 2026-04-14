@@ -281,6 +281,70 @@ def main():
     train_dataset = datasets.ImageFolder(traindir, train_transform)
     val_dataset = datasets.ImageFolder(valdir, val_transform)
 
+    # Label remapping for subset datasets (e.g. ImageNette → ImageNet indices)
+    # When using --pretrained with a 1000-class model on a subset, the folder
+    # names are WordNet IDs (e.g. n01440764) that map to specific ImageNet
+    # class indices, not sequential 0..N-1.  ImageNet orders classes by
+    # alphabetically sorted WordNet IDs, so wnid → sorted position = index.
+    num_classes = len(train_dataset.classes)
+    label_map = None
+    if args.pretrained and num_classes < 1000:
+        # The dataset folder names should be WordNet IDs
+        subset_wnids = sorted(train_dataset.class_to_idx.keys())
+        if all(w.startswith("n") and len(w) == 9 for w in subset_wnids):
+            # Build full ImageNet wnid list from torchvision
+            # torchvision models expect alphabetically sorted wnid order
+            try:
+                from torchvision.models import ResNet18_Weights
+                meta = ResNet18_Weights.DEFAULT.meta
+                # meta["categories"] is in ImageNet class order
+                # We need wnid ordering — get from the dataset class_to_idx
+                # which ImageFolder creates from sorted folder names.
+                # The ImageNet-pretrained model uses the same sorted order.
+                # For a subset: the local index is the position in the subset's
+                # sorted folder list, but the model expects the position in the
+                # full 1000-class sorted list.
+
+                # Since we can't easily get the full 1000-wnid list from
+                # torchvision, use a known mapping for common subsets.
+                pass
+            except ImportError:
+                pass
+
+            # Hardcoded ImageNette wnid → ImageNet index mapping
+            # (verified empirically against pretrained ResNet-18)
+            IMAGENET_WNID_TO_IDX = {
+                "n01440764": 0,    # tench
+                "n02102040": 217,  # English springer
+                "n02979186": 482,  # cassette player
+                "n03000684": 491,  # chain saw
+                "n03028079": 497,  # church
+                "n03394916": 566,  # French horn
+                "n03417042": 569,  # garbage truck
+                "n03425413": 571,  # gas pump
+                "n03445777": 574,  # golf ball
+                "n03888257": 701,  # parachute
+            }
+
+            local_to_imagenet = {}
+            for wnid, local_idx in train_dataset.class_to_idx.items():
+                if wnid in IMAGENET_WNID_TO_IDX:
+                    local_to_imagenet[local_idx] = IMAGENET_WNID_TO_IDX[wnid]
+
+            if len(local_to_imagenet) == num_classes:
+                label_map = local_to_imagenet
+                if is_main:
+                    print(f"=> Subset dataset ({num_classes} classes), "
+                          f"remapping labels to ImageNet indices")
+
+                for ds in [train_dataset, val_dataset]:
+                    if hasattr(ds, "targets"):
+                        ds.targets = [label_map[t] for t in ds.targets]
+                    if hasattr(ds, "samples"):
+                        ds.samples = [(p, label_map[t]) for p, t in ds.samples]
+                    if hasattr(ds, "imgs"):
+                        ds.imgs = ds.samples
+
     if args.cache_dataset:
         if is_main:
             print("=> Caching dataset in RAM...")

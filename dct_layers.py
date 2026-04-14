@@ -254,6 +254,15 @@ def replace_with_dct_convs(module: nn.Module, block_size: int = 0) -> None:
                     bias=(child.bias is not None),
                     block_size=block_size,
                 )
+                # Initialize from pretrained weights via forward DCT
+                if child.weight is not None:
+                    with torch.no_grad():
+                        w_2d = child.weight.data.squeeze(-1).squeeze(-1)
+                        C_out = get_1d_dct_matrix(child.out_channels).to(w_2d)
+                        C_in = get_1d_dct_matrix(child.in_channels // child.groups).to(w_2d)
+                        ch_dct.weight_dct.data.copy_(C_out @ w_2d @ C_in.t())
+                if child.bias is not None:
+                    ch_dct.bias.data.copy_(child.bias.data)
                 setattr(module, name, ch_dct)
             else:
                 dct_conv = DCTConv2d(
@@ -267,6 +276,19 @@ def replace_with_dct_convs(module: nn.Module, block_size: int = 0) -> None:
                     bias=(child.bias is not None),
                     padding_mode=child.padding_mode,
                 )
+                # Initialize from pretrained weights via forward DCT
+                # forward() computes C_h^T @ weight_dct @ C^T (IDCT)
+                # so weight_dct = C_h @ weight @ C_w
+                if child.weight is not None:
+                    with torch.no_grad():
+                        w = child.weight.data  # (out, in, K_h, K_w)
+                        C_h = dct_conv.C_h_T.t()  # C_h
+                        C_w = dct_conv.C_w          # C_w
+                        dct_conv.weight_dct.data.copy_(
+                            torch.einsum("ab, oibc, cd -> oiad", C_h, w, C_w)
+                        )
+                if child.bias is not None:
+                    dct_conv.bias.data.copy_(child.bias.data)
                 setattr(module, name, dct_conv)
         else:
             replace_with_dct_convs(child, block_size=block_size)

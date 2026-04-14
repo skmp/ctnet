@@ -228,14 +228,13 @@ def encode_frames_to_h265(frames: list[np.ndarray], output_path: str,
     """
     Normalize (per-frame center+scale) and encode as H.265 video.
 
-    Returns: (success, per_frame_norms) or (False, []) on failure.
+    Returns: (success, per_frame_norms, actual_bit_depth) or (False, [], 0).
     """
     h, w = frames[0].shape
     assert all(f.shape == (h, w) for f in frames), "All frames must have same dimensions"
 
-    # YUV 4:2:0 only supports 8 and 10 bit
+    # YUV 4:2:0 only supports up to 10-bit
     if yuv and bit_depth not in (8, 10):
-        print(f"  WARNING: --yuv forces bit-depth to 10 (was {bit_depth}).")
         bit_depth = 10
 
     # Normalize each frame independently
@@ -254,9 +253,11 @@ def encode_frames_to_h265(frames: list[np.ndarray], output_path: str,
         else:
             in_pix_fmt, out_pix_fmt, h265_profile = "yuv420p10le", "yuv420p10le", "main10"
 
-        x265_params = "log-level=error:range=full:keyint=-1:bframes=16:ref=16:b-adapt=2:rc-lookahead=250"
         if crf == 0:
-            x265_params += ":lossless=1"
+            x265_params = ("log-level=error:range=full:lossless=1"
+                           ":keyint=-1:bframes=16:ref=16:b-adapt=2:rc-lookahead=250")
+        else:
+            x265_params = "log-level=error:range=full"
 
         cmd = [
             "ffmpeg", "-y",
@@ -276,9 +277,11 @@ def encode_frames_to_h265(frames: list[np.ndarray], output_path: str,
         pix_fmt_map = {8: "gray", 10: "gray10le", 12: "gray12le"}
         pix_fmt = pix_fmt_map[bit_depth]
 
-        x265_params = "log-level=error:range=full:keyint=-1:bframes=16:ref=16:b-adapt=2:rc-lookahead=250"
         if crf == 0:
-            x265_params += ":lossless=1"
+            x265_params = ("log-level=error:range=full:lossless=1"
+                           ":keyint=-1:bframes=16:ref=16:b-adapt=2:rc-lookahead=250")
+        else:
+            x265_params = "log-level=error:range=full"
 
         cmd = [
             "ffmpeg", "-y",
@@ -298,8 +301,8 @@ def encode_frames_to_h265(frames: list[np.ndarray], output_path: str,
 
     if proc.returncode != 0:
         print(f"  ffmpeg error for {output_path}: {proc.stderr.decode()}")
-        return False, []
-    return True, per_frame_norms
+        return False, [], 0
+    return True, per_frame_norms, bit_depth
 
 
 def decode_h265_frames(video_path: str, n_frames: int, width: int, height: int,
@@ -755,7 +758,7 @@ def _encode_tile_groups(tile_groups: dict, output_dir: str, crf: int,
         frames = [e["frame"] for e in entries]
         raw_bytes = sum(f.size * (use_bit_depth // 8) for f in frames)
 
-        ok, per_frame_norms = encode_frames_to_h265(
+        ok, per_frame_norms, actual_bit_depth = encode_frames_to_h265(
             frames, video_path,
             crf=use_crf, preset=preset, bit_depth=use_bit_depth,
             dither=dither, yuv=yuv,
@@ -763,18 +766,19 @@ def _encode_tile_groups(tile_groups: dict, output_dir: str, crf: int,
 
         if ok:
             h265_bytes = os.path.getsize(video_path)
+            raw_bytes = sum(f.size * (actual_bit_depth // 8) for f in frames)
             ratio = raw_bytes / max(h265_bytes, 1)
             if verbose:
                 print(f"  {video_name}: {len(frames)} frames @ {tw}x{th}  "
                       f"raw={raw_bytes/1024:.1f} KB  "
                       f"h265={h265_bytes/1024:.1f} KB  "
-                      f"ratio={ratio:.1f}x")
+                      f"ratio={ratio:.1f}x ({actual_bit_depth}bit)")
             total_raw_bytes += raw_bytes
             total_h265_bytes += h265_bytes
 
             manifest_videos[video_name] = {
                 "frame_width": tw, "frame_height": th,
-                "bit_depth": use_bit_depth, "n_frames": len(frames),
+                "bit_depth": actual_bit_depth, "n_frames": len(frames),
                 "frames": [],
             }
             for i, e in enumerate(entries):
