@@ -19,6 +19,7 @@ python train_imagenet.py "$DATA_DIR" \
     --optimizer adamw --lr 5e-4 --weight-decay 0.001 \
     --lambda-rate 0 --qstep 0.5 \
     --lambda-alpha 0 \
+    --no-train-noise --dct-dropout 0 \
     --cache-dataset
 
 # Phase 2: Task + rate compression (462 more epochs, auto-resumes from checkpoint)
@@ -29,6 +30,7 @@ python train_imagenet.py "$DATA_DIR" \
     --optimizer adamw --lr 5e-4 --weight-decay 0.001 \
     --lambda-rate 1e-6 --qstep 0.5 \
     --lambda-alpha 0.5 \
+    --no-train-noise --dct-dropout 0 \
     --rate-warmup-epochs 55 \
     --cache-dataset
 

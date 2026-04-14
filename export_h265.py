@@ -47,6 +47,8 @@ def parse_args():
     enc.add_argument("--output-dir", default="./h265_out", help="output directory")
     enc.add_argument("--arch", default="resnet18",
                      choices=["resnet18", "resnet34", "resnet50", "resnet101"])
+    enc.add_argument("--dct-block-size", default=16, type=int,
+                     help="block size for channel-wise DCT (must match training, default: 16)")
     enc.add_argument("--crf", default=0, type=int,
                      help="H.265 CRF (0 = lossless, higher = more compression)")
     enc.add_argument("--bit-depth", default=8, type=int, choices=[8, 10, 12],
@@ -62,12 +64,7 @@ def parse_args():
     enc.add_argument("--yuv", action="store_true",
                      help="encode as YUV 4:2:0 (Main/Main10 profile) for hardware "
                           "decoder compatibility on phones, Mac, Windows, etc.")
-    enc.add_argument("--bn-crf", default=0, type=int,
-                     help="CRF for BN layers (default: 0 = lossless). BN running_var "
-                          "needs high precision; use 0 unless you know what you're doing.")
-    enc.add_argument("--bn-bit-depth", default=12, type=int, choices=[8, 10, 12],
-                     help="bit depth for BN layers (default: 12). Higher prevents "
-                          "near-zero running_var from going negative after roundtrip.")
+    # BN layers are stored as raw tensors (bn_state.pt), not H.265
 
     # --- decode subcommand ---
     dec = sub.add_parser("decode", help="Decode H.265 back to model and evaluate")
@@ -482,12 +479,20 @@ def decode_main(args):
                 "n_tile_cols": finfo["n_tile_cols"],
             })
 
-    # Build model — all weights will come from H.265 data
+    # Load BN state from raw file
+    bn_path = os.path.join(args.h265_dir, "bn_state.pt")
+    bn_state = {}
+    if os.path.isfile(bn_path):
+        bn_state = torch.load(bn_path, map_location="cpu", weights_only=False)
+        print(f"  Loaded {len(bn_state)} BN layers from {bn_path}")
+
+    # Build model — DCT/FC from H.265, BN from raw
+    dct_block_size = manifest.get("dct_block_size", 0)
     model_fn = getattr(models, arch)
     model = model_fn(weights=None)
-    replace_with_dct_convs(model)
+    replace_with_dct_convs(model, block_size=dct_block_size)
 
-    # Reassemble ALL weights from decoded tiles
+    # Reassemble weights
     for name, m in model.named_modules():
         if isinstance(m, DCTConv2d) and name in layer_tiles:
             weight = reassemble_spatial_dct(layer_tiles[name]["tiles"])
@@ -499,15 +504,13 @@ def decode_main(args):
             m.weight_dct.data.copy_(weight)
             print(f"  Loaded {name} (channel_dct): {list(weight.shape)}")
 
-        elif isinstance(m, nn.BatchNorm2d) and name in layer_tiles:
-            img = reassemble_2d(layer_tiles[name]["tiles"])
+        elif isinstance(m, nn.BatchNorm2d) and name in bn_state:
+            img = bn_state[name]
             m.weight.data.copy_(img[0])
             m.bias.data.copy_(img[1])
             m.running_mean.copy_(img[2])
-            # Clamp running_var to non-negative: 8-bit roundtrip can push
-            # near-zero variances slightly negative, causing nan in sqrt
-            m.running_var.copy_(img[3].clamp(min=0.0))
-            print(f"  Loaded {name} (bn): {list(img.shape)}")
+            m.running_var.copy_(img[3])
+            print(f"  Loaded {name} (bn, raw)")
 
         elif isinstance(m, nn.Linear):
             wkey = name + ".weight"
@@ -676,7 +679,7 @@ def _load_model_for_encode(args):
     """Load model and prepare tile groups for ALL layers."""
     model_fn = getattr(models, args.arch)
     model = model_fn(weights=None)
-    replace_with_dct_convs(model)
+    replace_with_dct_convs(model, block_size=args.dct_block_size)
 
     if not os.path.isfile(args.model):
         raise FileNotFoundError(f"No model found at {args.model}")
@@ -701,18 +704,24 @@ def _load_model_for_encode(args):
                   f"2D {e['img_shape'][0]}x{e['img_shape'][1]}  "
                   f"({e['layer_type']})")
 
-    # Build tiles, group by (height, width, is_bn)
-    # BN layers get their own groups so they can be encoded with different settings
-    tile_groups = {}
+    # Separate BN layers — save as raw tensors, not H.265
+    bn_state = {}
+    non_bn_images = []
     for li in layer_images:
+        if li["layer_type"] == "bn":
+            bn_state[li["name"]] = torch.from_numpy(li["img"])
+        else:
+            non_bn_images.append(li)
+
+    # Build tiles for non-BN layers
+    tile_groups = {}
+    for li in non_bn_images:
         img = li["img"]
         h, w = img.shape
-        is_bn = li["layer_type"] == "bn"
-
         if h <= MAX_TILE and w <= MAX_TILE:
             frame = pad_to_min(img)
             fh, fw = frame.shape
-            key = (fh, fw, is_bn)
+            key = (fh, fw, False)
             if key not in tile_groups:
                 tile_groups[key] = []
             tile_groups[key].append({
@@ -733,7 +742,7 @@ def _load_model_for_encode(args):
             tile_w = max(MIN_DIM, tile_w + (tile_w % 2))
 
             tiles = slice_to_tiles(img, tile_h, tile_w)
-            key = (tile_h, tile_w, is_bn)
+            key = (tile_h, tile_w, False)
             if key not in tile_groups:
                 tile_groups[key] = []
             for tile, row_idx, col_idx in tiles:
@@ -748,15 +757,13 @@ def _load_model_for_encode(args):
                     "n_tile_rows": n_tile_rows, "n_tile_cols": n_tile_cols,
                 })
 
-    return model, tile_groups, full_model_bytes
+    return model, tile_groups, full_model_bytes, bn_state
 
 
 def _encode_tile_groups(tile_groups: dict, output_dir: str, crf: int,
                         preset: str, bit_depth: int, dither: float = 0.0,
-                        yuv: bool = False, verbose: bool = True,
-                        bn_crf: int = 0, bn_bit_depth: int = 12):
-    """Encode all tile groups to H.265 videos.
-    BN groups (keyed with is_bn=True) use bn_crf and bn_bit_depth."""
+                        yuv: bool = False, verbose: bool = True):
+    """Encode all tile groups to H.265 videos."""
     import time as _time
 
     total_raw_bytes = 0
@@ -764,11 +771,10 @@ def _encode_tile_groups(tile_groups: dict, output_dir: str, crf: int,
     manifest_videos = {}
     t0 = _time.monotonic()
 
-    for (th, tw, is_bn), entries in sorted(tile_groups.items()):
-        tag = "bn" if is_bn else "dct"
-        video_name = f"{tag}_{th}x{tw}.hevc"
-        use_crf = bn_crf if is_bn else crf
-        use_bit_depth = bn_bit_depth if is_bn else bit_depth
+    for (th, tw, _), entries in sorted(tile_groups.items()):
+        video_name = f"dct_{th}x{tw}.hevc"
+        use_crf = crf
+        use_bit_depth = bit_depth
         video_path = os.path.join(output_dir, video_name)
 
         # Sort frames by similarity for better inter-frame prediction
@@ -823,7 +829,7 @@ def encode_main(args):
     """Encode DCT coefficients to H.265 videos."""
     os.makedirs(args.output_dir, exist_ok=True)
 
-    model, tile_groups, full_model_bytes = _load_model_for_encode(args)
+    model, tile_groups, full_model_bytes, bn_state = _load_model_for_encode(args)
 
     if args.profile:
         print(f"\n{'='*70}")
@@ -872,11 +878,11 @@ def encode_main(args):
     total_raw_bytes, total_h265_bytes, manifest_videos, elapsed = _encode_tile_groups(
         tile_groups, args.output_dir, args.crf, args.preset, args.bit_depth,
         dither=args.dither, yuv=args.yuv,
-        bn_crf=args.bn_crf, bn_bit_depth=args.bn_bit_depth,
     )
 
     manifest = {
         "arch": args.arch,
+        "dct_block_size": args.dct_block_size,
         "bit_depth": args.bit_depth,
         "dither": args.dither,
         "yuv": args.yuv,
@@ -892,14 +898,24 @@ def encode_main(args):
         print(f"Compression vs float32:           {full_model_bytes/total_h265_bytes:.1f}x")
         print(f"Compression vs pixel raw:         {total_raw_bytes/total_h265_bytes:.1f}x")
 
+    # Save BN layers as raw tensors (lossless, no H.265 quantization)
+    bn_path = os.path.join(args.output_dir, "bn_state.pt")
+    torch.save(bn_state, bn_path)
+    bn_bytes = os.path.getsize(bn_path)
+
+    total_bytes = total_h265_bytes + bn_bytes
     manifest["summary"] = {
         "full_model_float32_bytes": full_model_bytes,
         "pixel_raw_bytes": total_raw_bytes,
         "h265_encoded_bytes": total_h265_bytes,
+        "bn_raw_bytes": bn_bytes,
+        "total_compressed_bytes": total_bytes,
     }
 
-    print(f"\nTotal compressed model (H.265 only): {total_h265_bytes/1024:.1f} KB")
-    print(f"Compression ratio:                   {full_model_bytes/max(total_h265_bytes,1):.1f}x")
+    print(f"\nH.265 encoded:         {total_h265_bytes/1024:.1f} KB")
+    print(f"BN raw:                {bn_bytes/1024:.1f} KB")
+    print(f"Total compressed:      {total_bytes/1024:.1f} KB")
+    print(f"Compression ratio:     {full_model_bytes/max(total_bytes,1):.1f}x")
 
     manifest_path = os.path.join(args.output_dir, "manifest.json")
     with open(manifest_path, "w") as f:

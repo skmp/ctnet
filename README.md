@@ -12,7 +12,7 @@ We present CTNet (Cosine Transform Network), a family of compressed neural netwo
 
 We present two variants:
 
-- **CTNet-18** (based on ResNet-18): achieves **92.25% Top-1** on ImageNette2-320 with the entire model (44.6 MB) compressed to **3.5 MB via H.265** (12.3x lossless at 12-bit), or **2.1 MB** (21.7x at 8-bit). All layers — spatial DCT convolutions, channel-wise DCT 1x1 convolutions, batch normalization, and FC — are encoded as H.265 video frames. Only 551 of 11.2M DCT coefficients are nonzero (99.995% sparse).
+- **CTNet-18** (based on ResNet-18): achieves **88.10% Top-1** on ImageNette2-320 with the entire model (44.6 MB) compressed to **1.2 MB** (**35.6x compression**). DCT convolutions, channel-wise DCT 1x1 convolutions, and FC are encoded as H.265 video; BN layers stored as raw tensors. Only 8,634 of 11.2M DCT coefficients are nonzero (99.9% sparse).
 - **CTNet-50** (based on ResNet-50): applies the same DCT reparameterization to ResNet-50's bottleneck architecture. Due to ResNet-50's heavy use of 1x1 pointwise convolutions (which are not DCT-transformed), CTNet-50 has a similar DCT parameter count (11.3M) to CTNet-18 (11.0M) but benefits from the deeper architecture's representational capacity. The 36 retained 1x1 convolutions and batch normalization layers (54.3 MB total non-DCT overhead) can be independently compressed via standard quantization.
 
 ---
@@ -149,70 +149,50 @@ A JSON manifest stores all metadata needed for exact reconstruction: architectur
 - **Training**: AdamW, lr=1e-3, weight-decay=0.01, $\lambda=10^{-5}$, $q=0.1$, 256 epochs, pretrained
 - **Total model float32 size**: 45,700 KB (44.6 MB) — includes all parameters (DCT convolutions + 1x1 channel-DCT + BN + FC)
 
-**Results — Run 1 (without pretrained init, 256 epochs):**
+**Results — Run 2 (with all fixes, 256 epochs):**
 
-| Epoch | Best Acc@1 | H.265 Size | Compression | Nonzero DCT coeffs |
-|-------|-----------|-----------|-------------|---------------------|
-| 69 | 85.99% | 5,389 KB | 8.5x | 862 / 11.2M |
-| 105 | 87.03% | 4,566 KB | 10.0x | 849 / 11.2M |
-| 186 | 91.41% | 3,005 KB | 15.2x | 579 / 11.2M |
-| **230** | **92.23%** | **2,105 KB** | **21.7x** | **551 / 11.2M** |
+Training: AdamW, lr=1e-3, wd=0.01, $\lambda=10^{-5}$, $q=0.1$, pretrained init, label remapping, ECRF noise+L2, DCT-Conv dropout, block DCT 16.
 
-**Results — Run 2 (with pretrained init fix, in progress):**
+| Epoch | Best Acc@1 | Est 8b Size | Compression | Nonzero DCT coeffs |
+|-------|-----------|------------|-------------|---------------------|
+| 79 | 86.42% | 3,610 KB | 13x | 11,976 / 11.2M |
+| 170 | 88.71% | 2,258 KB | 20x | 8,950 / 11.2M |
+| 208 | 89.02% | 1,710 KB | 27x | 8,685 / 11.2M |
+| **255** | **89.10%** | **1,227 KB** | **37x** | **8,634 / 11.2M** |
 
-| Epoch | Best Acc@1 | H.265 Size | Compression | Nonzero DCT coeffs |
-|-------|-----------|-----------|-------------|---------------------|
-| **79** | **86.42%** | **3,570 KB** | **12.8x** | **11,976 / 11.2M** |
-
-*Baseline pretrained ResNet-18 achieves ~95-97% Top-1 on ImageNette2-320.*
-
-**Comparison at similar training stage (~epoch 70-80):**
-
-| | Run 1 (no pretrained init) | Run 2 (pretrained init) | Improvement |
-|---|---|---|---|
-| Best Acc@1 | 85.99% | **86.42%** | +0.43% |
-| H.265 Size | 5,389 KB | **3,570 KB** | **34% smaller** |
-| Compression | 8.5x | **12.8x** | **+50% better** |
-
-The pretrained initialization produces 50% better compression at the same epoch count. The model starts with meaningful features (78% accuracy at epoch 0 vs 10% without), allowing the rate proxy to focus on compressing already-useful representations rather than learning features from scratch. Run 2 is still in progress.
-
-**Algorithmic changes between Run 1 and Run 2:**
-
-*Bug fixes:*
-- **Pretrained weight transfer via forward DCT** (critical): `replace_with_dct_convs` now computes `weight_dct = C @ weight @ C` instead of random initialization, preserving pretrained features exactly through the DCT transform.
-- **ImageNette label remapping**: Subset dataset labels (0-9) remapped to ImageNet class indices (0, 217, 482, ...) so the pretrained FC head receives correct supervision.
-
-*Techniques from ECRF (Lee et al., 2023):*
-- **Training-time uniform noise**: Additive noise $u \sim \mathcal{U}(-\frac{1}{2}, \frac{1}{2}) \cdot q$ during training makes quantization differentiable, improving rate proxy gradient signal.
-- **L2 coefficient regularization**: $\|\hat{W}\|_2^2$ penalty coupled to rate loss via $\lambda_2 = \alpha \cdot \lambda_r$, directly shrinking coefficient magnitudes.
-- **Rate warmup**: Compression loss ramped from 0 to full strength over first 5 epochs, preventing rate pressure from fighting random/pretrained initialization.
-
-*Techniques from DCT-Conv (Checinski & Wawrzynski, 2020):*
-- **DCT dropout**: Random zeroing of DCT coefficients ($p = 0.05$) during training for frequency-domain regularization.
-- **Block DCT for 1x1 convolutions**: 16x16 block DCT instead of full N×N, matching H.265 CTU block structure and avoiding O(N²) memory.
-
-*Architecture and encoding improvements:*
-- **Channel-wise DCT for 1x1 convolutions**: All 1x1 Conv2d layers replaced with `ChannelDCTConv1x1`, bringing them under the DCT rate proxy.
-- **All layers encoded as H.265**: BN and FC parameters encoded as video frames alongside DCT weights, eliminating separate weight files.
-- **Per-layer-type encoding**: BN layers encoded at 12-bit lossless separately from DCT layers (8-bit), preventing BN `running_var` corruption.
-- **Similarity-sorted frames**: Greedy nearest-neighbor ordering within each video for better H.265 inter-frame prediction.
-- **Maximized inter-frame prediction**: `keyint=-1`, `bframes=16`, `ref=16` for lossless encoding (single I-frame, all others P/B).
-
-**Decoded model evaluation (Run 1, epoch 230 smallest checkpoint):**
+**Decoded model evaluation (Run 2, best checkpoint, after all fixes):**
 
 | Export settings | Acc@1 | Acc@5 | H.265 Size | Compression |
 |----------------|-------|-------|-----------|-------------|
-| **CRF 0, 12-bit** | **92.25%** | **99.39%** | **3,493 KB** | **12.3x** |
-| CRF 0, 10-bit | 90.11% | 98.98% | 2,513 KB | 17.1x |
+| **CRF 0, 8-bit (BN raw)** | **88.10%** | **98.80%** | **1,207 KB** | **35.6x** |
+| CRF 0, 10-bit (BN raw) | 82.17%* | 98.42%* | 1,975 KB | 21.7x |
+| CRF 0, 12-bit (BN raw) | 82.17%* | 98.42%* | 2,823 KB | 15.2x |
 
-**Key findings:**
+\* *10/12-bit results were measured before the block-DCT decode fix and may be stale. The 8-bit result is measured after all fixes.*
 
-- **Entire model in H.265**: All parameters (spatial DCT, channel-wise DCT for 1x1 convolutions, batch normalization, FC layer) are encoded as H.265 video frames. The output directory is fully self-contained.
-- **Pretrained init matters**: Correct DCT initialization from pretrained weights (forward DCT transform) gives 50% better compression at the same epoch, because the optimizer refines meaningful features rather than learning from scratch.
-- **Label remapping**: Subset datasets (e.g., ImageNette) require remapping folder labels to ImageNet class indices for pretrained models to work correctly. Without this, the cross-entropy loss trains against wrong targets.
-- **Extreme sparsity**: Only 551-12,000 of 11.2M DCT coefficients are nonzero (>99.9% sparse), yet accuracy exceeds 86-92%. The rate proxy successfully discovers minimal frequency representations.
-- **BN requires high precision**: BN layers are encoded separately at 12-bit lossless (`--bn-bit-depth 12 --bn-crf 0`) to prevent near-zero `running_var` from going negative. DCT/FC layers use 8-bit.
-- **Compression improves with training**: H.265 size decreases monotonically as the rate proxy reshapes coefficients toward codec-friendly patterns.
+*Baseline pretrained ResNet-18 achieves ~95-97% Top-1 on ImageNette2-320 (with 1000-class FC head, not 10-class).*
+
+**Key results:** The entire 44.6 MB ResNet-18 compresses to **1.2 MB (35.6x)** at **88.10% Top-1** accuracy. BN layers are stored as raw float32 tensors (lossless); all other layers (DCT convolutions, channel-wise DCT 1x1, FC) are encoded as H.265 video. The output directory is fully self-contained.
+
+**Algorithmic changes vs earlier runs:**
+
+*Critical bug fixes:*
+- **Pretrained weight transfer via forward DCT**: `replace_with_dct_convs` computes `weight_dct = C @ weight @ C` instead of random init, preserving pretrained features exactly.
+- **ImageNette label remapping**: Labels remapped to ImageNet class indices (0, 217, 482...) for correct pretrained FC supervision.
+- **Block-DCT size propagation**: `dct_block_size` stored in manifest and used by decode — mismatch between training (block=16) and decode (block=0) was causing 10% accuracy loss.
+- **BN stored as raw tensors**: Eliminated precision loss from H.265 encoding of BN running statistics.
+
+*Techniques from papers:*
+- **Training-time uniform noise** (ECRF): differentiable quantization proxy
+- **L2 coefficient regularization** (ECRF): coupled via $\lambda_2 = \alpha \cdot \lambda_r$
+- **DCT dropout** (DCT-Conv): frequency-domain regularization ($p=0.05$)
+- **Block DCT 16x16** (ECRF + DCT-Conv): for 1x1 channel convolutions
+- **Rate warmup** (ECRF): 5-epoch ramp
+
+*Encoding improvements:*
+- **Channel-wise DCT for 1x1 convolutions**: all under DCT rate proxy
+- **Similarity-sorted frames**: greedy nearest-neighbor for better P/B-frame prediction
+- **Maximized inter-frame prediction**: `keyint=-1`, `bframes=16`, `ref=16`
 
 ### 4.2 CTNet-50
 
@@ -250,8 +230,7 @@ The following table compares CTNet against established neural network compressio
 
 | Method | Reference | Model | Compression | Top-1 Acc | Acc Drop |
 |--------|-----------|-------|-------------|-----------|----------|
-| **CTNet-18 (ours, 12-bit lossless)** | -- | ResNet-18 | **12.3x** | **92.25%*** | ~4% from baseline* |
-| CTNet-18 (ours, 10-bit lossless) | -- | ResNet-18 | 17.1x | 90.11%* | ~6% from baseline* |
+| **CTNet-18 (ours, 8-bit + raw BN)** | -- | ResNet-18 | **35.6x** | **88.10%*** | ~8% from baseline* |
 | Deep Compression | Han et al., 2016 | VGG-16 | 49x | 68.3%** | ~0%** |
 | Deep Compression | Han et al., 2016 | AlexNet | 35x | 57.2%** | ~0%** |
 | Deep Compression (est.) | -- | ResNet-18 | 15-25x | ~68-69%** | 1-2%** |
@@ -379,7 +358,7 @@ python export_h265.py encode --arch resnet50 --profile
 
 ## 7. Conclusion
 
-CTNet demonstrates that modern video codecs are surprisingly effective neural network compressors. By reparameterizing all convolutional layers into the DCT domain (spatial DCT for 3x3/7x7, channel-wise DCT for 1x1) and encoding the entire model — including BN and FC layers — as H.265 video streams, CTNet-18 compresses a 44.6 MB ResNet-18 to 3.5 MB (12.3x) at 92.25% Top-1 on ImageNette2, only ~4% below the uncompressed baseline. The network achieves 99.995% DCT coefficient sparsity while maintaining accuracy. The approach requires no custom entropy coding implementation, leverages decades of video codec optimization, and offers continuous rate-distortion control via standard codec parameters.
+CTNet demonstrates that modern video codecs are surprisingly effective neural network compressors. By reparameterizing all convolutional layers into the DCT domain (spatial DCT for 3x3/7x7, channel-wise block DCT for 1x1), encoding DCT and FC layers as H.265 video streams, and storing BN parameters as raw tensors, CTNet-18 compresses a 44.6 MB ResNet-18 to **1.2 MB (35.6x)** at **88.10% Top-1** on ImageNette2. The network achieves 99.9% DCT coefficient sparsity (8,634 of 11.2M nonzero) while maintaining accuracy within ~8% of the uncompressed baseline. The approach requires no custom entropy coding, leverages decades of video codec optimization, and offers continuous rate-distortion control via standard codec parameters.
 
 CTNet-50 extends the framework to deeper bottleneck architectures, revealing that the approach is most effective when spatial convolutions dominate the parameter budget. For architectures with many 1x1 convolutions, CTNet naturally combines with standard quantization for a hybrid compression strategy.
 
@@ -425,7 +404,11 @@ All previously reported results (92.25% accuracy, 12.3x compression) were achiev
 
 **ImageNette label mapping.** A second initialization issue: ImageNette uses folder names that are WordNet IDs (e.g. `n01440764` for tench), which `ImageFolder` assigns sequential labels 0-9. But the pretrained ResNet-18 FC layer outputs 1000-class logits where tench = class 0, English springer = class 217, parachute = class 701, etc. Without remapping, the cross-entropy loss trains against wrong targets, destroying the pretrained features in the first few gradient steps. This was fixed by detecting subset datasets (< 1000 classes with WordNet ID folder names) and remapping labels to their correct ImageNet indices. With both fixes applied, a pretrained ResNet-18 immediately achieves 78.2% Top-1 on ImageNette after DCT replacement (vs ~10% random chance without the fixes), confirming the pretrained features are intact.
 
-**BN running_var precision.** Early 8-bit export results showed NaN loss due to near-zero `running_var` values going negative after the 8-bit quantization roundtrip (error ~0.002). This was addressed by: (1) encoding BN layers separately with 12-bit lossless (`--bn-bit-depth 12 --bn-crf 0`), and (2) clamping `running_var >= 0` on decode as a safety net.
+**BN running_var precision.** Early 8-bit export results showed NaN loss due to near-zero `running_var` values going negative after the 8-bit quantization roundtrip (error ~0.002). This was ultimately resolved by storing BN layers as raw float32 tensors (`bn_state.pt`) rather than encoding them as H.265 video. BN parameters are small (~75 KB for ResNet-18) and precision-critical — H.265 encoding offers negligible compression benefit but introduces quantization risk.
+
+**Block-DCT size mismatch in decode.** When training used `--dct-block-size 16` for channel-wise 1x1 convolutions, the decode was creating `ChannelDCTConv1x1` with `block_size=0` (full DCT). Same weight tensor + different IDCT = completely wrong spatial weights, causing ~10% accuracy loss after encode/decode roundtrip. Fixed by storing `dct_block_size` in the manifest and using it during decode.
+
+**Label remapping in decode.** The decode evaluation used sequential ImageNette labels (0-9) but the model was trained with ImageNet indices (0, 217, 482...). This caused every prediction to be scored against the wrong target, showing ~4-8% accuracy instead of the true ~88%. Fixed by applying the same label remapping in the decode evaluation.
 
 ---
 

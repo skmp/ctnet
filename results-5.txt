@@ -927,3 +927,15 @@ Evaluating decoded model on ./imagenette2-320/val...
   Float32 model size:  42948.8 KB
   Compression ratio:   15.2x
 
+after fixes
+
+8 bits
+--- Decoded Model Evaluation ---
+  Loss:  0.3985
+  Acc@1: 88.10%
+  Acc@5: 98.80%
+  (After H.265 decode: Acc@1 88.10%)
+
+  H.265 total size:    1206.8 KB
+  Float32 model size:  42948.8 KB
+  Compression ratio:   35.6x
