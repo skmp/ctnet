@@ -12,26 +12,15 @@ echo "=== CTNet-18c (two-phase, accuracy-focused) ==="
 echo "Dataset: $DATA_DIR"
 echo ""
 
-# Phase 1: Task-only (50 epochs, no rate compression)
-echo "--- Phase 1: Task learning (50 epochs, no compression) ---"
-python train_imagenet.py "$DATA_DIR" \
-    --arch resnet18 --epochs 50 --pretrained \
-    --optimizer adamw --lr 5e-4 --weight-decay 0.001 \
-    --lambda-rate 0 --qstep 0.5 \
-    --lambda-alpha 0 \
-    --no-train-noise --dct-dropout 0 \
-    --cache-dataset
-
-# Phase 2: Task + rate compression (462 more epochs, auto-resumes from checkpoint)
 echo ""
-echo "--- Phase 2: Compression (462 epochs, rate fades in) ---"
+echo "--- Compression 1024 epochs, rate fades in ---"
 python train_imagenet.py "$DATA_DIR" \
-    --arch resnet18 --epochs 512 --pretrained \
+    --arch resnet18 --epochs 1024 --pretrained \
     --optimizer adamw --lr 5e-4 --weight-decay 0.001 \
-    --lambda-rate 1e-6 --qstep 0.5 \
+    --lambda-rate 1e-5 --qstep 0.1 \
     --lambda-alpha 0.5 \
     --no-train-noise --dct-dropout 0 \
-    --rate-warmup-epochs 55 \
+    --rate-warmup-epochs 4 \
     --cache-dataset
 
 # Export

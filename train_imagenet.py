@@ -387,6 +387,8 @@ def main():
     # ---------- Training loop ----------
     best_acc1 = 0.0
     smallest_est_kb = float("inf")
+    # Track best accuracy at each integer compression ratio (5x, 6x, ...)
+    best_acc_at_ratio: dict[int, float] = {}
 
     for epoch in range(start_epoch, args.epochs):
         if distributed:
@@ -430,6 +432,16 @@ def main():
                 smallest_est_kb = est_8b_kb
                 torch.save(state, os.path.join(args.output_dir, "smallest.pth"))
 
+            # Save best model at each integer compression ratio
+            ratio_int = int(raw_kb / max(est_8b_kb, 1e-6))
+            ratio_tag = ""
+            if ratio_int >= 5:
+                prev_best = best_acc_at_ratio.get(ratio_int, 0.0)
+                if acc1 > prev_best:
+                    best_acc_at_ratio[ratio_int] = acc1
+                    torch.save(state, os.path.join(args.output_dir, f"best_{ratio_int}x.pth"))
+                    ratio_tag = f" *best@{ratio_int}x*"
+
             est_parts = []
             for b in (8, 10, 12):
                 kb = est_by_depth[b] / 8 / 1024
@@ -442,7 +454,7 @@ def main():
             print(f"=> Epoch {epoch}: Acc@1 {acc1:.2f}%  (best: {best_acc1:.2f}%)  "
                   f"Sparsity {sparsity*100:.1f}% ({nonzero}/{total} nonzero)  "
                   f"Est[{est_str}] / {raw_kb:.0f}KB raw"
-                  f"{best_tag}{small_tag}")
+                  f"{best_tag}{small_tag}{ratio_tag}")
 
     # --- Post-training: quantize and export sparse coefficients ---
     if is_main:
