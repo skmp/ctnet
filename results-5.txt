@@ -33,3 +33,897 @@ Compression vs pixel raw:         3.2x
 Total compressed model (H.265 only): 3569.7 KB
 Compression ratio:                   12.8x
 Manifest saved to ./h265_out/manifest.json
+
+=> Epoch 160: Acc@1 88.36%  (best: 88.36%)  Sparsity 99.9% (9057/11166912 nonzero)  Est[8b:2393KB(19x)  10b:4387KB(10x)  12b:7067KB(6x)] / 45700KB raw *best* *smallest*
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  * Val:  Loss 0.8056  Acc@1 79.31  Acc@5 97.73
+=> Epoch 45: Acc@1 79.31%  (best: 84.38%)  Sparsity 99.9% (16671/11166912 nonzero)  Est[8b:4271KB(11x)  10b:7156KB(6x)  12b:10310KB(4x)] / 45700KB raw
+Epoch [46][0/37]  Time 2.247 (2.247)  Data 2.040 (2.040)  TaskLoss 0.7101 (0.7101)  RateLoss 495102.9 (495102.9)  Est[8b:4271KB(10x)  10b:7156KB(6x)  12b:10310KB(4x)]  Acc@1 77.73 (77.73)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.5399  Acc@1 83.59  Acc@5 98.19
+=> Epoch 46: Acc@1 83.59%  (best: 84.38%)  Sparsity 99.9% (16475/11166912 nonzero)  Est[8b:4294KB(11x)  10b:7153KB(6x)  12b:10295KB(4x)] / 45700KB raw
+Epoch [47][0/37]  Time 2.190 (2.190)  Data 1.994 (1.994)  TaskLoss 0.7915 (0.7915)  RateLoss 494148.3 (494148.3)  Est[8b:4294KB(10x)  10b:7153KB(6x)  12b:10295KB(4x)]  Acc@1 76.17 (76.17)  Acc@5 96.09 (96.09)
+  * Val:  Loss 0.5965  Acc@1 82.14  Acc@5 98.06
+=> Epoch 47: Acc@1 82.14%  (best: 84.38%)  Sparsity 99.9% (16270/11166912 nonzero)  Est[8b:4205KB(11x)  10b:7075KB(6x)  12b:10225KB(4x)] / 45700KB raw *smallest*
+Epoch [48][0/37]  Time 2.152 (2.152)  Data 1.946 (1.946)  TaskLoss 0.7353 (0.7353)  RateLoss 491308.8 (491308.8)  Est[8b:4205KB(10x)  10b:7075KB(6x)  12b:10225KB(4x)]  Acc@1 75.78 (75.78)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.6795  Acc@1 80.84  Acc@5 97.96
+=> Epoch 48: Acc@1 80.84%  (best: 84.38%)  Sparsity 99.9% (16023/11166912 nonzero)  Est[8b:4201KB(11x)  10b:7068KB(6x)  12b:10215KB(4x)] / 45700KB raw *smallest*
+Epoch [49][0/37]  Time 1.736 (1.736)  Data 1.540 (1.540)  TaskLoss 0.6640 (0.6640)  RateLoss 490699.3 (490699.3)  Est[8b:4201KB(10x)  10b:7068KB(6x)  12b:10215KB(4x)]  Acc@1 78.52 (78.52)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.6116  Acc@1 82.50  Acc@5 97.81
+=> Epoch 49: Acc@1 82.50%  (best: 84.38%)  Sparsity 99.9% (15866/11166912 nonzero)  Est[8b:4200KB(11x)  10b:7047KB(6x)  12b:10192KB(4x)] / 45700KB raw *smallest*
+Epoch [50][0/37]  Time 1.722 (1.722)  Data 1.521 (1.521)  TaskLoss 0.6321 (0.6321)  RateLoss 490461.4 (490461.4)  Est[8b:4200KB(10x)  10b:7047KB(6x)  12b:10192KB(4x)]  Acc@1 78.91 (78.91)  Acc@5 96.09 (96.09)
+  * Val:  Loss 0.5620  Acc@1 83.31  Acc@5 98.06
+=> Epoch 50: Acc@1 83.31%  (best: 84.38%)  Sparsity 99.9% (15638/11166912 nonzero)  Est[8b:4161KB(11x)  10b:6989KB(7x)  12b:10132KB(5x)] / 45700KB raw *smallest*
+Epoch [51][0/37]  Time 1.781 (1.781)  Data 1.576 (1.576)  TaskLoss 0.6694 (0.6694)  RateLoss 488793.2 (488793.2)  Est[8b:4161KB(10x)  10b:6989KB(6x)  12b:10132KB(4x)]  Acc@1 78.91 (78.91)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.5528  Acc@1 83.72  Acc@5 97.86
+=> Epoch 51: Acc@1 83.72%  (best: 84.38%)  Sparsity 99.9% (15443/11166912 nonzero)  Est[8b:4184KB(11x)  10b:7016KB(7x)  12b:10160KB(4x)] / 45700KB raw
+Epoch [52][0/37]  Time 1.789 (1.789)  Data 1.583 (1.583)  TaskLoss 0.6378 (0.6378)  RateLoss 488267.8 (488267.8)  Est[8b:4184KB(10x)  10b:7016KB(6x)  12b:10160KB(4x)]  Acc@1 78.52 (78.52)  Acc@5 95.70 (95.70)
+  * Val:  Loss 0.4925  Acc@1 85.12  Acc@5 98.34
+=> Epoch 52: Acc@1 85.12%  (best: 85.12%)  Sparsity 99.9% (15268/11166912 nonzero)  Est[8b:4134KB(11x)  10b:6950KB(7x)  12b:10089KB(5x)] / 45700KB raw *best* *smallest*
+Epoch [53][0/37]  Time 1.723 (1.723)  Data 1.534 (1.534)  TaskLoss 0.7256 (0.7256)  RateLoss 486425.4 (486425.4)  Est[8b:4134KB(11x)  10b:6950KB(6x)  12b:10089KB(4x)]  Acc@1 75.78 (75.78)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.6980  Acc@1 81.17  Acc@5 97.99
+=> Epoch 53: Acc@1 81.17%  (best: 85.12%)  Sparsity 99.9% (15104/11166912 nonzero)  Est[8b:4106KB(11x)  10b:6914KB(7x)  12b:10035KB(5x)] / 45700KB raw *smallest*
+Epoch [54][0/37]  Time 1.657 (1.657)  Data 1.464 (1.464)  TaskLoss 0.6944 (0.6944)  RateLoss 486127.5 (486127.5)  Est[8b:4106KB(11x)  10b:6914KB(6x)  12b:10035KB(4x)]  Acc@1 78.12 (78.12)  Acc@5 98.05 (98.05)
+  * Val:  Loss 1.0943  Acc@1 76.33  Acc@5 97.53
+=> Epoch 54: Acc@1 76.33%  (best: 85.12%)  Sparsity 99.9% (14914/11166912 nonzero)  Est[8b:4081KB(11x)  10b:6883KB(7x)  12b:10016KB(5x)] / 45700KB raw *smallest*
+Epoch [55][0/37]  Time 1.663 (1.663)  Data 1.473 (1.473)  TaskLoss 0.7227 (0.7227)  RateLoss 483877.2 (483877.2)  Est[8b:4081KB(11x)  10b:6883KB(6x)  12b:10016KB(4x)]  Acc@1 80.08 (80.08)  Acc@5 95.31 (95.31)
+  * Val:  Loss 0.5197  Acc@1 84.92  Acc@5 98.17
+=> Epoch 55: Acc@1 84.92%  (best: 85.12%)  Sparsity 99.9% (14735/11166912 nonzero)  Est[8b:4013KB(11x)  10b:6799KB(7x)  12b:9924KB(5x)] / 45700KB raw *smallest*
+Epoch [56][0/37]  Time 1.746 (1.746)  Data 1.545 (1.545)  TaskLoss 0.7079 (0.7079)  RateLoss 482451.8 (482451.8)  Est[8b:4013KB(11x)  10b:6799KB(6x)  12b:9924KB(4x)]  Acc@1 80.08 (80.08)  Acc@5 96.09 (96.09)
+  * Val:  Loss 0.6131  Acc@1 83.06  Acc@5 98.09
+=> Epoch 56: Acc@1 83.06%  (best: 85.12%)  Sparsity 99.9% (14617/11166912 nonzero)  Est[8b:4094KB(11x)  10b:6929KB(7x)  12b:10067KB(5x)] / 45700KB raw
+Epoch [57][0/37]  Time 2.216 (2.216)  Data 2.021 (2.021)  TaskLoss 0.6377 (0.6377)  RateLoss 482329.1 (482329.1)  Est[8b:4094KB(11x)  10b:6929KB(6x)  12b:10067KB(4x)]  Acc@1 78.52 (78.52)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4992  Acc@1 85.17  Acc@5 98.42
+=> Epoch 57: Acc@1 85.17%  (best: 85.17%)  Sparsity 99.9% (14402/11166912 nonzero)  Est[8b:4028KB(11x)  10b:6809KB(7x)  12b:9934KB(5x)] / 45700KB raw *best*
+Epoch [58][0/37]  Time 1.752 (1.752)  Data 1.560 (1.560)  TaskLoss 0.5817 (0.5817)  RateLoss 480654.8 (480654.8)  Est[8b:4028KB(11x)  10b:6809KB(6x)  12b:9934KB(4x)]  Acc@1 82.03 (82.03)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.5527  Acc@1 83.90  Acc@5 97.91
+=> Epoch 58: Acc@1 83.90%  (best: 85.17%)  Sparsity 99.9% (14263/11166912 nonzero)  Est[8b:4044KB(11x)  10b:6862KB(7x)  12b:9990KB(5x)] / 45700KB raw
+Epoch [59][0/37]  Time 1.607 (1.607)  Data 1.418 (1.418)  TaskLoss 0.7980 (0.7980)  RateLoss 480405.6 (480405.6)  Est[8b:4044KB(11x)  10b:6862KB(6x)  12b:9990KB(4x)]  Acc@1 71.09 (71.09)  Acc@5 95.31 (95.31)
+  * Val:  Loss 0.4931  Acc@1 84.31  Acc@5 98.39
+=> Epoch 59: Acc@1 84.31%  (best: 85.17%)  Sparsity 99.9% (14084/11166912 nonzero)  Est[8b:4009KB(11x)  10b:6782KB(7x)  12b:9905KB(5x)] / 45700KB raw *smallest*
+Epoch [60][0/37]  Time 1.620 (1.620)  Data 1.424 (1.424)  TaskLoss 0.6074 (0.6074)  RateLoss 479214.4 (479214.4)  Est[8b:4009KB(11x)  10b:6782KB(6x)  12b:9905KB(4x)]  Acc@1 79.30 (79.30)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.5924  Acc@1 83.26  Acc@5 97.99
+=> Epoch 60: Acc@1 83.26%  (best: 85.17%)  Sparsity 99.9% (13953/11166912 nonzero)  Est[8b:3978KB(11x)  10b:6744KB(7x)  12b:9869KB(5x)] / 45700KB raw *smallest*
+Epoch [61][0/37]  Time 1.615 (1.615)  Data 1.426 (1.426)  TaskLoss 0.5761 (0.5761)  RateLoss 478035.8 (478035.8)  Est[8b:3978KB(11x)  10b:6744KB(6x)  12b:9869KB(4x)]  Acc@1 80.86 (80.86)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.5666  Acc@1 84.41  Acc@5 98.55
+=> Epoch 61: Acc@1 84.41%  (best: 85.17%)  Sparsity 99.9% (13797/11166912 nonzero)  Est[8b:3962KB(12x)  10b:6734KB(7x)  12b:9854KB(5x)] / 45700KB raw *smallest*
+Epoch [62][0/37]  Time 1.715 (1.715)  Data 1.514 (1.514)  TaskLoss 0.5981 (0.5981)  RateLoss 477455.7 (477455.7)  Est[8b:3962KB(11x)  10b:6734KB(6x)  12b:9854KB(4x)]  Acc@1 84.77 (84.77)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.6611  Acc@1 82.29  Acc@5 97.81
+=> Epoch 62: Acc@1 82.29%  (best: 85.17%)  Sparsity 99.9% (13619/11166912 nonzero)  Est[8b:3904KB(12x)  10b:6650KB(7x)  12b:9773KB(5x)] / 45700KB raw *smallest*
+Epoch [63][0/37]  Time 1.726 (1.726)  Data 1.535 (1.535)  TaskLoss 0.6011 (0.6011)  RateLoss 475856.5 (475856.5)  Est[8b:3904KB(11x)  10b:6650KB(7x)  12b:9773KB(4x)]  Acc@1 80.86 (80.86)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.5395  Acc@1 83.72  Acc@5 98.70
+=> Epoch 63: Acc@1 83.72%  (best: 85.17%)  Sparsity 99.9% (13512/11166912 nonzero)  Est[8b:3959KB(12x)  10b:6721KB(7x)  12b:9847KB(5x)] / 45700KB raw
+Epoch [64][0/37]  Time 1.688 (1.688)  Data 1.492 (1.492)  TaskLoss 0.7522 (0.7522)  RateLoss 476355.0 (476355.0)  Est[8b:3959KB(11x)  10b:6721KB(6x)  12b:9847KB(4x)]  Acc@1 74.61 (74.61)  Acc@5 95.70 (95.70)
+  * Val:  Loss 0.5012  Acc@1 84.79  Acc@5 98.52
+=> Epoch 64: Acc@1 84.79%  (best: 85.17%)  Sparsity 99.9% (13387/11166912 nonzero)  Est[8b:3926KB(12x)  10b:6713KB(7x)  12b:9839KB(5x)] / 45700KB raw
+Epoch [65][0/37]  Time 1.676 (1.676)  Data 1.488 (1.488)  TaskLoss 0.6656 (0.6656)  RateLoss 475422.8 (475422.8)  Est[8b:3926KB(11x)  10b:6713KB(6x)  12b:9839KB(4x)]  Acc@1 78.12 (78.12)  Acc@5 96.48 (96.48)
+  * Val:  Loss 0.6572  Acc@1 81.83  Acc@5 97.96
+=> Epoch 65: Acc@1 81.83%  (best: 85.17%)  Sparsity 99.9% (13270/11166912 nonzero)  Est[8b:3873KB(12x)  10b:6625KB(7x)  12b:9739KB(5x)] / 45700KB raw *smallest*
+Epoch [66][0/37]  Time 1.793 (1.793)  Data 1.596 (1.596)  TaskLoss 0.7031 (0.7031)  RateLoss 473657.1 (473657.1)  Est[8b:3873KB(11x)  10b:6625KB(7x)  12b:9739KB(4x)]  Acc@1 80.47 (80.47)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.5898  Acc@1 83.16  Acc@5 97.96
+=> Epoch 66: Acc@1 83.16%  (best: 85.17%)  Sparsity 99.9% (13161/11166912 nonzero)  Est[8b:3827KB(12x)  10b:6519KB(7x)  12b:9623KB(5x)] / 45700KB raw *smallest*
+Epoch [67][0/37]  Time 1.780 (1.780)  Data 1.589 (1.589)  TaskLoss 0.6502 (0.6502)  RateLoss 473257.9 (473257.9)  Est[8b:3827KB(11x)  10b:6519KB(7x)  12b:9623KB(5x)]  Acc@1 77.34 (77.34)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.5235  Acc@1 84.20  Acc@5 98.32
+=> Epoch 67: Acc@1 84.20%  (best: 85.17%)  Sparsity 99.9% (13032/11166912 nonzero)  Est[8b:3840KB(12x)  10b:6576KB(7x)  12b:9687KB(5x)] / 45700KB raw
+Epoch [68][0/37]  Time 1.706 (1.706)  Data 1.504 (1.504)  TaskLoss 0.6569 (0.6569)  RateLoss 472729.8 (472729.8)  Est[8b:3840KB(11x)  10b:6576KB(7x)  12b:9687KB(5x)]  Acc@1 76.17 (76.17)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.5044  Acc@1 84.74  Acc@5 98.45
+=> Epoch 68: Acc@1 84.74%  (best: 85.17%)  Sparsity 99.9% (12971/11166912 nonzero)  Est[8b:3922KB(12x)  10b:6653KB(7x)  12b:9768KB(5x)] / 45700KB raw
+Epoch [69][0/37]  Time 1.777 (1.777)  Data 1.586 (1.586)  TaskLoss 0.5852 (0.5852)  RateLoss 473419.8 (473419.8)  Est[8b:3922KB(11x)  10b:6653KB(7x)  12b:9768KB(4x)]  Acc@1 81.64 (81.64)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.5837  Acc@1 83.46  Acc@5 98.09
+=> Epoch 69: Acc@1 83.46%  (best: 85.17%)  Sparsity 99.9% (12871/11166912 nonzero)  Est[8b:3830KB(12x)  10b:6538KB(7x)  12b:9643KB(5x)] / 45700KB raw
+Epoch [70][0/37]  Time 1.784 (1.784)  Data 1.581 (1.581)  TaskLoss 0.6340 (0.6340)  RateLoss 471334.1 (471334.1)  Est[8b:3830KB(11x)  10b:6538KB(7x)  12b:9643KB(5x)]  Acc@1 82.03 (82.03)  Acc@5 95.31 (95.31)
+  * Val:  Loss 0.8299  Acc@1 80.05  Acc@5 98.09
+=> Epoch 70: Acc@1 80.05%  (best: 85.17%)  Sparsity 99.9% (12764/11166912 nonzero)  Est[8b:3797KB(12x)  10b:6515KB(7x)  12b:9618KB(5x)] / 45700KB raw *smallest*
+Epoch [71][0/37]  Time 1.608 (1.608)  Data 1.421 (1.421)  TaskLoss 0.6457 (0.6457)  RateLoss 470615.2 (470615.2)  Est[8b:3797KB(11x)  10b:6515KB(7x)  12b:9618KB(5x)]  Acc@1 80.08 (80.08)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.5745  Acc@1 84.10  Acc@5 98.14
+=> Epoch 71: Acc@1 84.10%  (best: 85.17%)  Sparsity 99.9% (12645/11166912 nonzero)  Est[8b:3753KB(12x)  10b:6458KB(7x)  12b:9560KB(5x)] / 45700KB raw *smallest*
+Epoch [72][0/37]  Time 1.808 (1.808)  Data 1.610 (1.610)  TaskLoss 0.7191 (0.7191)  RateLoss 469579.1 (469579.1)  Est[8b:3753KB(12x)  10b:6458KB(7x)  12b:9560KB(5x)]  Acc@1 77.73 (77.73)  Acc@5 96.48 (96.48)
+  * Val:  Loss 0.4966  Acc@1 84.43  Acc@5 98.50
+=> Epoch 72: Acc@1 84.43%  (best: 85.17%)  Sparsity 99.9% (12563/11166912 nonzero)  Est[8b:3727KB(12x)  10b:6410KB(7x)  12b:9499KB(5x)] / 45700KB raw *smallest*
+Epoch [73][0/37]  Time 1.723 (1.723)  Data 1.532 (1.532)  TaskLoss 0.5553 (0.5553)  RateLoss 468407.1 (468407.1)  Est[8b:3727KB(12x)  10b:6410KB(7x)  12b:9499KB(5x)]  Acc@1 83.20 (83.20)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.5556  Acc@1 84.25  Acc@5 98.39
+=> Epoch 73: Acc@1 84.25%  (best: 85.17%)  Sparsity 99.9% (12432/11166912 nonzero)  Est[8b:3692KB(12x)  10b:6380KB(7x)  12b:9471KB(5x)] / 45700KB raw *smallest*
+Epoch [74][0/37]  Time 1.829 (1.829)  Data 1.632 (1.632)  TaskLoss 0.5832 (0.5832)  RateLoss 467869.4 (467869.4)  Est[8b:3692KB(12x)  10b:6380KB(7x)  12b:9471KB(5x)]  Acc@1 81.64 (81.64)  Acc@5 96.09 (96.09)
+  * Val:  Loss 0.4629  Acc@1 86.14  Acc@5 98.65
+=> Epoch 74: Acc@1 86.14%  (best: 86.14%)  Sparsity 99.9% (12359/11166912 nonzero)  Est[8b:3695KB(12x)  10b:6358KB(7x)  12b:9446KB(5x)] / 45700KB raw *best*
+Epoch [75][0/37]  Time 1.755 (1.755)  Data 1.565 (1.565)  TaskLoss 0.6154 (0.6154)  RateLoss 467516.1 (467516.1)  Est[8b:3695KB(12x)  10b:6358KB(7x)  12b:9446KB(5x)]  Acc@1 79.69 (79.69)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.5834  Acc@1 84.15  Acc@5 98.32
+=> Epoch 75: Acc@1 84.15%  (best: 86.14%)  Sparsity 99.9% (12269/11166912 nonzero)  Est[8b:3654KB(13x)  10b:6312KB(7x)  12b:9408KB(5x)] / 45700KB raw *smallest*
+Epoch [76][0/37]  Time 1.770 (1.770)  Data 1.568 (1.568)  TaskLoss 0.6904 (0.6904)  RateLoss 466423.9 (466423.9)  Est[8b:3654KB(12x)  10b:6312KB(7x)  12b:9408KB(5x)]  Acc@1 73.44 (73.44)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.6429  Acc@1 82.88  Acc@5 98.11
+=> Epoch 76: Acc@1 82.88%  (best: 86.14%)  Sparsity 99.9% (12188/11166912 nonzero)  Est[8b:3684KB(12x)  10b:6353KB(7x)  12b:9429KB(5x)] / 45700KB raw
+Epoch [77][0/37]  Time 1.830 (1.830)  Data 1.638 (1.638)  TaskLoss 0.6181 (0.6181)  RateLoss 466688.0 (466688.0)  Est[8b:3684KB(12x)  10b:6353KB(7x)  12b:9429KB(5x)]  Acc@1 78.52 (78.52)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.5970  Acc@1 84.41  Acc@5 98.34
+=> Epoch 77: Acc@1 84.41%  (best: 86.14%)  Sparsity 99.9% (12117/11166912 nonzero)  Est[8b:3656KB(13x)  10b:6290KB(7x)  12b:9363KB(5x)] / 45700KB raw
+Epoch [78][0/37]  Time 2.234 (2.234)  Data 2.032 (2.032)  TaskLoss 0.6335 (0.6335)  RateLoss 465818.3 (465818.3)  Est[8b:3656KB(12x)  10b:6290KB(7x)  12b:9363KB(5x)]  Acc@1 78.91 (78.91)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4637  Acc@1 85.48  Acc@5 98.55
+=> Epoch 78: Acc@1 85.48%  (best: 86.14%)  Sparsity 99.9% (12024/11166912 nonzero)  Est[8b:3658KB(12x)  10b:6338KB(7x)  12b:9430KB(5x)] / 45700KB raw
+Epoch [79][0/37]  Time 2.205 (2.205)  Data 2.010 (2.010)  TaskLoss 0.7375 (0.7375)  RateLoss 465079.2 (465079.2)  Est[8b:3658KB(12x)  10b:6338KB(7x)  12b:9430KB(5x)]  Acc@1 75.39 (75.39)  Acc@5 96.09 (96.09)
+  * Val:  Loss 0.4326  Acc@1 86.42  Acc@5 98.78
+=> Epoch 79: Acc@1 86.42%  (best: 86.42%)  Sparsity 99.9% (11976/11166912 nonzero)  Est[8b:3610KB(13x)  10b:6230KB(7x)  12b:9299KB(5x)] / 45700KB raw *best* *smallest*
+Epoch [80][0/37]  Time 1.708 (1.708)  Data 1.526 (1.526)  TaskLoss 0.6496 (0.6496)  RateLoss 464209.3 (464209.3)  Est[8b:3610KB(12x)  10b:6230KB(7x)  12b:9299KB(5x)]  Acc@1 78.52 (78.52)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.4770  Acc@1 85.43  Acc@5 98.55
+=> Epoch 80: Acc@1 85.43%  (best: 86.42%)  Sparsity 99.9% (11893/11166912 nonzero)  Est[8b:3596KB(13x)  10b:6235KB(7x)  12b:9314KB(5x)] / 45700KB raw *smallest*
+Epoch [81][0/37]  Time 1.769 (1.769)  Data 1.581 (1.581)  TaskLoss 0.5754 (0.5754)  RateLoss 463472.0 (463472.0)  Est[8b:3596KB(12x)  10b:6235KB(7x)  12b:9314KB(5x)]  Acc@1 80.08 (80.08)  Acc@5 99.61 (99.61)
+  * Val:  Loss 0.4689  Acc@1 86.80  Acc@5 98.65
+=> Epoch 81: Acc@1 86.80%  (best: 86.80%)  Sparsity 99.9% (11817/11166912 nonzero)  Est[8b:3552KB(13x)  10b:6138KB(7x)  12b:9198KB(5x)] / 45700KB raw *best* *smallest*
+Epoch [82][0/37]  Time 1.789 (1.789)  Data 1.591 (1.591)  TaskLoss 0.5829 (0.5829)  RateLoss 462909.8 (462909.8)  Est[8b:3552KB(12x)  10b:6138KB(7x)  12b:9198KB(5x)]  Acc@1 80.86 (80.86)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.5848  Acc@1 83.46  Acc@5 98.37
+=> Epoch 82: Acc@1 83.46%  (best: 86.80%)  Sparsity 99.9% (11743/11166912 nonzero)  Est[8b:3548KB(13x)  10b:6154KB(7x)  12b:9220KB(5x)] / 45700KB raw *smallest*
+Epoch [83][0/37]  Time 1.628 (1.628)  Data 1.438 (1.438)  TaskLoss 0.5165 (0.5165)  RateLoss 462552.9 (462552.9)  Est[8b:3548KB(12x)  10b:6154KB(7x)  12b:9220KB(5x)]  Acc@1 85.94 (85.94)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.5113  Acc@1 84.31  Acc@5 98.34
+=> Epoch 83: Acc@1 84.31%  (best: 86.80%)  Sparsity 99.9% (11662/11166912 nonzero)  Est[8b:3554KB(13x)  10b:6164KB(7x)  12b:9238KB(5x)] / 45700KB raw
+Epoch [84][0/37]  Time 1.691 (1.691)  Data 1.488 (1.488)  TaskLoss 0.6381 (0.6381)  RateLoss 462284.5 (462284.5)  Est[8b:3554KB(12x)  10b:6164KB(7x)  12b:9238KB(5x)]  Acc@1 78.12 (78.12)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.4915  Acc@1 85.43  Acc@5 98.34
+=> Epoch 84: Acc@1 85.43%  (best: 86.80%)  Sparsity 99.9% (11588/11166912 nonzero)  Est[8b:3500KB(13x)  10b:6084KB(8x)  12b:9133KB(5x)] / 45700KB raw *smallest*
+Epoch [85][0/37]  Time 1.771 (1.771)  Data 1.577 (1.577)  TaskLoss 0.6098 (0.6098)  RateLoss 461383.8 (461383.8)  Est[8b:3500KB(12x)  10b:6084KB(7x)  12b:9133KB(5x)]  Acc@1 79.69 (79.69)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.5933  Acc@1 82.93  Acc@5 98.22
+=> Epoch 85: Acc@1 82.93%  (best: 86.80%)  Sparsity 99.9% (11521/11166912 nonzero)  Est[8b:3503KB(13x)  10b:6091KB(8x)  12b:9148KB(5x)] / 45700KB raw
+Epoch [86][0/37]  Time 1.753 (1.753)  Data 1.554 (1.554)  TaskLoss 0.5499 (0.5499)  RateLoss 461115.5 (461115.5)  Est[8b:3503KB(12x)  10b:6091KB(7x)  12b:9148KB(5x)]  Acc@1 79.69 (79.69)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.4148  Acc@1 86.85  Acc@5 98.85
+=> Epoch 86: Acc@1 86.85%  (best: 86.85%)  Sparsity 99.9% (11453/11166912 nonzero)  Est[8b:3474KB(13x)  10b:6036KB(8x)  12b:9075KB(5x)] / 45700KB raw *best* *smallest*
+Epoch [87][0/37]  Time 1.668 (1.668)  Data 1.473 (1.473)  TaskLoss 0.5692 (0.5692)  RateLoss 460093.0 (460093.0)  Est[8b:3474KB(13x)  10b:6036KB(7x)  12b:9075KB(5x)]  Acc@1 82.03 (82.03)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.4095  Acc@1 87.34  Acc@5 98.85
+=> Epoch 87: Acc@1 87.34%  (best: 87.34%)  Sparsity 99.9% (11389/11166912 nonzero)  Est[8b:3479KB(13x)  10b:6032KB(8x)  12b:9083KB(5x)] / 45700KB raw *best*
+Epoch [88][0/37]  Time 1.730 (1.730)  Data 1.530 (1.530)  TaskLoss 0.5959 (0.5959)  RateLoss 459694.8 (459694.8)  Est[8b:3479KB(13x)  10b:6032KB(7x)  12b:9083KB(5x)]  Acc@1 82.42 (82.42)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.6090  Acc@1 82.96  Acc@5 98.24
+=> Epoch 88: Acc@1 82.96%  (best: 87.34%)  Sparsity 99.9% (11337/11166912 nonzero)  Est[8b:3456KB(13x)  10b:5996KB(8x)  12b:9051KB(5x)] / 45700KB raw *smallest*
+Epoch [89][0/37]  Time 1.815 (1.815)  Data 1.624 (1.624)  TaskLoss 0.6258 (0.6258)  RateLoss 459237.9 (459237.9)  Est[8b:3456KB(13x)  10b:5996KB(7x)  12b:9051KB(5x)]  Acc@1 80.08 (80.08)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.5789  Acc@1 83.06  Acc@5 98.42
+=> Epoch 89: Acc@1 83.06%  (best: 87.34%)  Sparsity 99.9% (11284/11166912 nonzero)  Est[8b:3419KB(13x)  10b:5961KB(8x)  12b:8994KB(5x)] / 45700KB raw *smallest*
+Epoch [90][0/37]  Time 1.799 (1.799)  Data 1.598 (1.598)  TaskLoss 0.6083 (0.6083)  RateLoss 458918.4 (458918.4)  Est[8b:3419KB(13x)  10b:5961KB(7x)  12b:8994KB(5x)]  Acc@1 80.86 (80.86)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.5161  Acc@1 85.55  Acc@5 98.62
+=> Epoch 90: Acc@1 85.55%  (best: 87.34%)  Sparsity 99.9% (11224/11166912 nonzero)  Est[8b:3444KB(13x)  10b:5997KB(8x)  12b:9043KB(5x)] / 45700KB raw
+Epoch [91][0/37]  Time 1.788 (1.788)  Data 1.599 (1.599)  TaskLoss 0.5784 (0.5784)  RateLoss 458633.5 (458633.5)  Est[8b:3444KB(13x)  10b:5997KB(7x)  12b:9043KB(5x)]  Acc@1 82.03 (82.03)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4626  Acc@1 85.78  Acc@5 98.52
+=> Epoch 91: Acc@1 85.78%  (best: 87.34%)  Sparsity 99.9% (11136/11166912 nonzero)  Est[8b:3411KB(13x)  10b:5945KB(8x)  12b:8988KB(5x)] / 45700KB raw *smallest*
+Epoch [92][0/37]  Time 1.676 (1.676)  Data 1.480 (1.480)  TaskLoss 0.5440 (0.5440)  RateLoss 457274.8 (457274.8)  Est[8b:3411KB(13x)  10b:5945KB(7x)  12b:8988KB(5x)]  Acc@1 81.64 (81.64)  Acc@5 99.61 (99.61)
+  * Val:  Loss 0.5777  Acc@1 84.08  Acc@5 98.52
+=> Epoch 92: Acc@1 84.08%  (best: 87.34%)  Sparsity 99.9% (11077/11166912 nonzero)  Est[8b:3434KB(13x)  10b:6014KB(8x)  12b:9068KB(5x)] / 45700KB raw
+Epoch [93][0/37]  Time 1.783 (1.783)  Data 1.592 (1.592)  TaskLoss 0.7226 (0.7226)  RateLoss 457518.4 (457518.4)  Est[8b:3434KB(13x)  10b:6014KB(7x)  12b:9068KB(5x)]  Acc@1 80.47 (80.47)  Acc@5 96.48 (96.48)
+  * Val:  Loss 0.4377  Acc@1 86.80  Acc@5 98.68
+=> Epoch 93: Acc@1 86.80%  (best: 87.34%)  Sparsity 99.9% (11027/11166912 nonzero)  Est[8b:3363KB(14x)  10b:5885KB(8x)  12b:8919KB(5x)] / 45700KB raw *smallest*
+Epoch [94][0/37]  Time 1.785 (1.785)  Data 1.586 (1.586)  TaskLoss 0.6225 (0.6225)  RateLoss 456447.1 (456447.1)  Est[8b:3363KB(13x)  10b:5885KB(7x)  12b:8919KB(5x)]  Acc@1 81.25 (81.25)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.4336  Acc@1 86.68  Acc@5 98.85
+=> Epoch 94: Acc@1 86.68%  (best: 87.34%)  Sparsity 99.9% (10968/11166912 nonzero)  Est[8b:3333KB(14x)  10b:5872KB(8x)  12b:8917KB(5x)] / 45700KB raw *smallest*
+Epoch [95][0/37]  Time 1.740 (1.740)  Data 1.548 (1.548)  TaskLoss 0.6507 (0.6507)  RateLoss 455960.7 (455960.7)  Est[8b:3333KB(13x)  10b:5872KB(7x)  12b:8917KB(5x)]  Acc@1 79.30 (79.30)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.4591  Acc@1 85.89  Acc@5 98.45
+=> Epoch 95: Acc@1 85.89%  (best: 87.34%)  Sparsity 99.9% (10934/11166912 nonzero)  Est[8b:3341KB(14x)  10b:5856KB(8x)  12b:8890KB(5x)] / 45700KB raw
+Epoch [96][0/37]  Time 1.823 (1.823)  Data 1.617 (1.617)  TaskLoss 0.5827 (0.5827)  RateLoss 455372.1 (455372.1)  Est[8b:3341KB(13x)  10b:5856KB(7x)  12b:8890KB(5x)]  Acc@1 81.25 (81.25)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4793  Acc@1 86.06  Acc@5 98.17
+=> Epoch 96: Acc@1 86.06%  (best: 87.34%)  Sparsity 99.9% (10870/11166912 nonzero)  Est[8b:3361KB(14x)  10b:5887KB(8x)  12b:8924KB(5x)] / 45700KB raw
+Epoch [97][0/37]  Time 2.253 (2.253)  Data 2.057 (2.057)  TaskLoss 0.5599 (0.5599)  RateLoss 455429.5 (455429.5)  Est[8b:3361KB(13x)  10b:5887KB(7x)  12b:8924KB(5x)]  Acc@1 83.98 (83.98)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.7399  Acc@1 82.27  Acc@5 98.19
+=> Epoch 97: Acc@1 82.27%  (best: 87.34%)  Sparsity 99.9% (10823/11166912 nonzero)  Est[8b:3329KB(14x)  10b:5812KB(8x)  12b:8836KB(5x)] / 45700KB raw *smallest*
+Epoch [98][0/37]  Time 2.133 (2.133)  Data 1.930 (1.930)  TaskLoss 0.4901 (0.4901)  RateLoss 454563.7 (454563.7)  Est[8b:3329KB(13x)  10b:5812KB(8x)  12b:8836KB(5x)]  Acc@1 85.55 (85.55)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.5167  Acc@1 84.94  Acc@5 98.29
+=> Epoch 98: Acc@1 84.94%  (best: 87.34%)  Sparsity 99.9% (10785/11166912 nonzero)  Est[8b:3303KB(14x)  10b:5802KB(8x)  12b:8811KB(5x)] / 45700KB raw *smallest*
+Epoch [99][0/37]  Time 1.867 (1.867)  Data 1.677 (1.677)  TaskLoss 0.6510 (0.6510)  RateLoss 454267.7 (454267.7)  Est[8b:3303KB(13x)  10b:5802KB(8x)  12b:8811KB(5x)]  Acc@1 77.34 (77.34)  Acc@5 96.09 (96.09)
+  * Val:  Loss 0.5862  Acc@1 84.33  Acc@5 97.89
+=> Epoch 99: Acc@1 84.33%  (best: 87.34%)  Sparsity 99.9% (10748/11166912 nonzero)  Est[8b:3295KB(14x)  10b:5802KB(8x)  12b:8831KB(5x)] / 45700KB raw *smallest*
+Epoch [100][0/37]  Time 1.740 (1.740)  Data 1.539 (1.539)  TaskLoss 0.6217 (0.6217)  RateLoss 453690.1 (453690.1)  Est[8b:3295KB(13x)  10b:5802KB(8x)  12b:8831KB(5x)]  Acc@1 77.73 (77.73)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.4582  Acc@1 86.42  Acc@5 98.42
+=> Epoch 100: Acc@1 86.42%  (best: 87.34%)  Sparsity 99.9% (10696/11166912 nonzero)  Est[8b:3259KB(14x)  10b:5734KB(8x)  12b:8743KB(5x)] / 45700KB raw *smallest*
+Epoch [101][0/37]  Time 1.776 (1.776)  Data 1.585 (1.585)  TaskLoss 0.6926 (0.6926)  RateLoss 453022.3 (453022.3)  Est[8b:3259KB(13x)  10b:5734KB(8x)  12b:8743KB(5x)]  Acc@1 80.86 (80.86)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.4400  Acc@1 86.29  Acc@5 98.42
+=> Epoch 101: Acc@1 86.29%  (best: 87.34%)  Sparsity 99.9% (10646/11166912 nonzero)  Est[8b:3240KB(14x)  10b:5719KB(8x)  12b:8729KB(5x)] / 45700KB raw *smallest*
+Epoch [102][0/37]  Time 1.837 (1.837)  Data 1.633 (1.633)  TaskLoss 0.5267 (0.5267)  RateLoss 452582.9 (452582.9)  Est[8b:3240KB(13x)  10b:5719KB(8x)  12b:8729KB(5x)]  Acc@1 82.42 (82.42)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.3897  Acc@1 87.77  Acc@5 98.88
+=> Epoch 102: Acc@1 87.77%  (best: 87.77%)  Sparsity 99.9% (10585/11166912 nonzero)  Est[8b:3281KB(14x)  10b:5805KB(8x)  12b:8841KB(5x)] / 45700KB raw *best*
+Epoch [103][0/37]  Time 1.793 (1.793)  Data 1.599 (1.599)  TaskLoss 0.5808 (0.5808)  RateLoss 452580.7 (452580.7)  Est[8b:3281KB(13x)  10b:5805KB(8x)  12b:8841KB(5x)]  Acc@1 80.86 (80.86)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.4009  Acc@1 87.92  Acc@5 98.85
+=> Epoch 103: Acc@1 87.92%  (best: 87.92%)  Sparsity 99.9% (10558/11166912 nonzero)  Est[8b:3219KB(14x)  10b:5677KB(8x)  12b:8700KB(5x)] / 45700KB raw *best* *smallest*
+Epoch [104][0/37]  Time 1.837 (1.837)  Data 1.638 (1.638)  TaskLoss 0.5507 (0.5507)  RateLoss 451674.8 (451674.8)  Est[8b:3219KB(14x)  10b:5677KB(8x)  12b:8700KB(5x)]  Acc@1 80.47 (80.47)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.4240  Acc@1 86.85  Acc@5 98.65
+=> Epoch 104: Acc@1 86.85%  (best: 87.92%)  Sparsity 99.9% (10511/11166912 nonzero)  Est[8b:3214KB(14x)  10b:5677KB(8x)  12b:8687KB(5x)] / 45700KB raw *smallest*
+Epoch [105][0/37]  Time 1.795 (1.795)  Data 1.605 (1.605)  TaskLoss 0.5791 (0.5791)  RateLoss 451774.7 (451774.7)  Est[8b:3214KB(14x)  10b:5677KB(8x)  12b:8687KB(5x)]  Acc@1 81.64 (81.64)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4251  Acc@1 86.85  Acc@5 98.65
+=> Epoch 105: Acc@1 86.85%  (best: 87.92%)  Sparsity 99.9% (10466/11166912 nonzero)  Est[8b:3229KB(14x)  10b:5637KB(8x)  12b:8634KB(5x)] / 45700KB raw
+Epoch [106][0/37]  Time 1.888 (1.888)  Data 1.696 (1.696)  TaskLoss 0.6492 (0.6492)  RateLoss 451235.6 (451235.6)  Est[8b:3229KB(14x)  10b:5637KB(8x)  12b:8634KB(5x)]  Acc@1 78.91 (78.91)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.5117  Acc@1 85.58  Acc@5 98.42
+=> Epoch 106: Acc@1 85.58%  (best: 87.92%)  Sparsity 99.9% (10417/11166912 nonzero)  Est[8b:3168KB(14x)  10b:5594KB(8x)  12b:8579KB(5x)] / 45700KB raw *smallest*
+Epoch [107][0/37]  Time 2.237 (2.237)  Data 2.042 (2.042)  TaskLoss 0.6434 (0.6434)  RateLoss 450590.4 (450590.4)  Est[8b:3168KB(14x)  10b:5594KB(8x)  12b:8579KB(5x)]  Acc@1 80.86 (80.86)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.4572  Acc@1 86.68  Acc@5 98.52
+=> Epoch 107: Acc@1 86.68%  (best: 87.92%)  Sparsity 99.9% (10403/11166912 nonzero)  Est[8b:3150KB(15x)  10b:5512KB(8x)  12b:8472KB(5x)] / 45700KB raw *smallest*
+Epoch [108][0/37]  Time 2.194 (2.194)  Data 1.989 (1.989)  TaskLoss 0.5893 (0.5893)  RateLoss 449927.3 (449927.3)  Est[8b:3150KB(14x)  10b:5512KB(8x)  12b:8472KB(5x)]  Acc@1 82.03 (82.03)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4536  Acc@1 86.55  Acc@5 98.62
+=> Epoch 108: Acc@1 86.55%  (best: 87.92%)  Sparsity 99.9% (10354/11166912 nonzero)  Est[8b:3155KB(14x)  10b:5581KB(8x)  12b:8569KB(5x)] / 45700KB raw
+Epoch [109][0/37]  Time 2.251 (2.251)  Data 2.048 (2.048)  TaskLoss 0.5922 (0.5922)  RateLoss 449833.6 (449833.6)  Est[8b:3155KB(14x)  10b:5581KB(8x)  12b:8569KB(5x)]  Acc@1 81.64 (81.64)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4216  Acc@1 87.08  Acc@5 98.68
+=> Epoch 109: Acc@1 87.08%  (best: 87.92%)  Sparsity 99.9% (10295/11166912 nonzero)  Est[8b:3152KB(14x)  10b:5602KB(8x)  12b:8597KB(5x)] / 45700KB raw
+Epoch [110][0/37]  Time 1.857 (1.857)  Data 1.649 (1.649)  TaskLoss 0.5194 (0.5194)  RateLoss 449464.4 (449464.4)  Est[8b:3152KB(14x)  10b:5602KB(8x)  12b:8597KB(5x)]  Acc@1 82.03 (82.03)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4791  Acc@1 85.38  Acc@5 98.32
+=> Epoch 110: Acc@1 85.38%  (best: 87.92%)  Sparsity 99.9% (10268/11166912 nonzero)  Est[8b:3145KB(15x)  10b:5571KB(8x)  12b:8564KB(5x)] / 45700KB raw *smallest*
+Epoch [111][0/37]  Time 2.194 (2.194)  Data 1.999 (1.999)  TaskLoss 0.6965 (0.6965)  RateLoss 448857.1 (448857.1)  Est[8b:3145KB(14x)  10b:5571KB(8x)  12b:8564KB(5x)]  Acc@1 79.69 (79.69)  Acc@5 94.92 (94.92)
+  * Val:  Loss 0.5237  Acc@1 84.71  Acc@5 98.42
+=> Epoch 111: Acc@1 84.71%  (best: 87.92%)  Sparsity 99.9% (10220/11166912 nonzero)  Est[8b:3123KB(15x)  10b:5534KB(8x)  12b:8501KB(5x)] / 45700KB raw *smallest*
+Epoch [112][0/37]  Time 1.844 (1.844)  Data 1.642 (1.642)  TaskLoss 0.6067 (0.6067)  RateLoss 448749.5 (448749.5)  Est[8b:3123KB(14x)  10b:5534KB(8x)  12b:8501KB(5x)]  Acc@1 81.64 (81.64)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.4877  Acc@1 85.71  Acc@5 98.60
+=> Epoch 112: Acc@1 85.71%  (best: 87.92%)  Sparsity 99.9% (10193/11166912 nonzero)  Est[8b:3098KB(15x)  10b:5488KB(8x)  12b:8444KB(5x)] / 45700KB raw *smallest*
+Epoch [113][0/37]  Time 2.141 (2.141)  Data 1.946 (1.946)  TaskLoss 0.6020 (0.6020)  RateLoss 448147.3 (448147.3)  Est[8b:3098KB(14x)  10b:5488KB(8x)  12b:8444KB(5x)]  Acc@1 80.08 (80.08)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4565  Acc@1 86.32  Acc@5 98.42
+=> Epoch 113: Acc@1 86.32%  (best: 87.92%)  Sparsity 99.9% (10161/11166912 nonzero)  Est[8b:3013KB(15x)  10b:5347KB(9x)  12b:8293KB(6x)] / 45700KB raw *smallest*
+Epoch [114][0/37]  Time 2.224 (2.224)  Data 2.019 (2.019)  TaskLoss 0.4900 (0.4900)  RateLoss 447026.5 (447026.5)  Est[8b:3013KB(14x)  10b:5347KB(8x)  12b:8293KB(5x)]  Acc@1 85.94 (85.94)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.4805  Acc@1 85.27  Acc@5 98.27
+=> Epoch 114: Acc@1 85.27%  (best: 87.92%)  Sparsity 99.9% (10115/11166912 nonzero)  Est[8b:3051KB(15x)  10b:5424KB(8x)  12b:8399KB(5x)] / 45700KB raw
+Epoch [115][0/37]  Time 2.248 (2.248)  Data 2.052 (2.052)  TaskLoss 0.5646 (0.5646)  RateLoss 447081.8 (447081.8)  Est[8b:3051KB(14x)  10b:5424KB(8x)  12b:8399KB(5x)]  Acc@1 80.86 (80.86)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.4301  Acc@1 86.65  Acc@5 98.68
+=> Epoch 115: Acc@1 86.65%  (best: 87.92%)  Sparsity 99.9% (10077/11166912 nonzero)  Est[8b:3047KB(15x)  10b:5409KB(8x)  12b:8368KB(5x)] / 45700KB raw
+Epoch [116][0/37]  Time 2.230 (2.230)  Data 2.024 (2.024)  TaskLoss 0.6921 (0.6921)  RateLoss 446680.1 (446680.1)  Est[8b:3047KB(14x)  10b:5409KB(8x)  12b:8368KB(5x)]  Acc@1 78.12 (78.12)  Acc@5 95.70 (95.70)
+  * Val:  Loss 0.4840  Acc@1 86.27  Acc@5 98.55
+=> Epoch 116: Acc@1 86.27%  (best: 87.92%)  Sparsity 99.9% (10040/11166912 nonzero)  Est[8b:3077KB(15x)  10b:5429KB(8x)  12b:8374KB(5x)] / 45700KB raw
+Epoch [117][0/37]  Time 2.217 (2.217)  Data 2.022 (2.022)  TaskLoss 0.4899 (0.4899)  RateLoss 446639.9 (446639.9)  Est[8b:3077KB(14x)  10b:5429KB(8x)  12b:8374KB(5x)]  Acc@1 81.64 (81.64)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4792  Acc@1 86.50  Acc@5 98.17
+=> Epoch 117: Acc@1 86.50%  (best: 87.92%)  Sparsity 99.9% (10014/11166912 nonzero)  Est[8b:3068KB(15x)  10b:5413KB(8x)  12b:8361KB(5x)] / 45700KB raw
+Epoch [118][0/37]  Time 2.265 (2.265)  Data 2.061 (2.061)  TaskLoss 0.5141 (0.5141)  RateLoss 446689.2 (446689.2)  Est[8b:3068KB(14x)  10b:5413KB(8x)  12b:8361KB(5x)]  Acc@1 83.98 (83.98)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.5088  Acc@1 85.32  Acc@5 98.09
+=> Epoch 118: Acc@1 85.32%  (best: 87.92%)  Sparsity 99.9% (9996/11166912 nonzero)  Est[8b:2965KB(15x)  10b:5263KB(9x)  12b:8186KB(6x)] / 45700KB raw *smallest*
+Epoch [119][0/37]  Time 1.754 (1.754)  Data 1.564 (1.564)  TaskLoss 0.5161 (0.5161)  RateLoss 445488.1 (445488.1)  Est[8b:2965KB(15x)  10b:5263KB(8x)  12b:8186KB(5x)]  Acc@1 81.25 (81.25)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.5037  Acc@1 85.45  Acc@5 98.27
+=> Epoch 119: Acc@1 85.45%  (best: 87.92%)  Sparsity 99.9% (9968/11166912 nonzero)  Est[8b:2967KB(15x)  10b:5308KB(9x)  12b:8239KB(6x)] / 45700KB raw
+Epoch [120][0/37]  Time 1.669 (1.669)  Data 1.473 (1.473)  TaskLoss 0.5133 (0.5133)  RateLoss 445355.9 (445355.9)  Est[8b:2967KB(15x)  10b:5308KB(8x)  12b:8239KB(5x)]  Acc@1 83.59 (83.59)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.5550  Acc@1 84.74  Acc@5 98.32
+=> Epoch 120: Acc@1 84.74%  (best: 87.92%)  Sparsity 99.9% (9936/11166912 nonzero)  Est[8b:2967KB(15x)  10b:5301KB(9x)  12b:8251KB(6x)] / 45700KB raw
+Epoch [121][0/37]  Time 1.747 (1.747)  Data 1.558 (1.558)  TaskLoss 0.5742 (0.5742)  RateLoss 445169.1 (445169.1)  Est[8b:2967KB(15x)  10b:5301KB(8x)  12b:8251KB(5x)]  Acc@1 81.25 (81.25)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.4664  Acc@1 86.29  Acc@5 98.60
+=> Epoch 121: Acc@1 86.29%  (best: 87.92%)  Sparsity 99.9% (9904/11166912 nonzero)  Est[8b:2929KB(16x)  10b:5223KB(9x)  12b:8140KB(6x)] / 45700KB raw *smallest*
+Epoch [122][0/37]  Time 1.773 (1.773)  Data 1.585 (1.585)  TaskLoss 0.7001 (0.7001)  RateLoss 444426.8 (444426.8)  Est[8b:2929KB(15x)  10b:5223KB(8x)  12b:8140KB(5x)]  Acc@1 79.69 (79.69)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.4557  Acc@1 86.62  Acc@5 98.50
+=> Epoch 122: Acc@1 86.62%  (best: 87.92%)  Sparsity 99.9% (9890/11166912 nonzero)  Est[8b:2951KB(15x)  10b:5287KB(9x)  12b:8234KB(6x)] / 45700KB raw
+Epoch [123][0/37]  Time 1.732 (1.732)  Data 1.540 (1.540)  TaskLoss 0.4744 (0.4744)  RateLoss 444193.3 (444193.3)  Est[8b:2951KB(15x)  10b:5287KB(8x)  12b:8234KB(5x)]  Acc@1 81.64 (81.64)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.4591  Acc@1 86.09  Acc@5 98.55
+=> Epoch 123: Acc@1 86.09%  (best: 87.92%)  Sparsity 99.9% (9857/11166912 nonzero)  Est[8b:2917KB(16x)  10b:5235KB(9x)  12b:8142KB(6x)] / 45700KB raw *smallest*
+Epoch [124][0/37]  Time 1.729 (1.729)  Data 1.531 (1.531)  TaskLoss 0.5513 (0.5513)  RateLoss 443655.6 (443655.6)  Est[8b:2917KB(15x)  10b:5235KB(8x)  12b:8142KB(5x)]  Acc@1 80.47 (80.47)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4421  Acc@1 87.21  Acc@5 98.70
+=> Epoch 124: Acc@1 87.21%  (best: 87.92%)  Sparsity 99.9% (9815/11166912 nonzero)  Est[8b:2874KB(16x)  10b:5119KB(9x)  12b:8005KB(6x)] / 45700KB raw *smallest*
+Epoch [125][0/37]  Time 1.896 (1.896)  Data 1.711 (1.711)  TaskLoss 0.4879 (0.4879)  RateLoss 443165.8 (443165.8)  Est[8b:2874KB(15x)  10b:5119KB(9x)  12b:8005KB(5x)]  Acc@1 83.98 (83.98)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.4687  Acc@1 86.42  Acc@5 98.60
+=> Epoch 125: Acc@1 86.42%  (best: 87.92%)  Sparsity 99.9% (9784/11166912 nonzero)  Est[8b:2884KB(16x)  10b:5161KB(9x)  12b:8068KB(6x)] / 45700KB raw
+Epoch [126][0/37]  Time 1.772 (1.772)  Data 1.571 (1.571)  TaskLoss 0.6069 (0.6069)  RateLoss 443185.8 (443185.8)  Est[8b:2884KB(15x)  10b:5161KB(8x)  12b:8068KB(5x)]  Acc@1 79.69 (79.69)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.4765  Acc@1 86.70  Acc@5 98.47
+=> Epoch 126: Acc@1 86.70%  (best: 87.92%)  Sparsity 99.9% (9750/11166912 nonzero)  Est[8b:2922KB(16x)  10b:5234KB(9x)  12b:8173KB(6x)] / 45700KB raw
+Epoch [127][0/37]  Time 1.796 (1.796)  Data 1.605 (1.605)  TaskLoss 0.5379 (0.5379)  RateLoss 443029.1 (443029.1)  Est[8b:2922KB(15x)  10b:5234KB(8x)  12b:8173KB(5x)]  Acc@1 80.86 (80.86)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.4911  Acc@1 86.22  Acc@5 98.62
+=> Epoch 127: Acc@1 86.22%  (best: 87.92%)  Sparsity 99.9% (9730/11166912 nonzero)  Est[8b:2881KB(16x)  10b:5166KB(9x)  12b:8086KB(6x)] / 45700KB raw
+Epoch [128][0/37]  Time 1.750 (1.750)  Data 1.554 (1.554)  TaskLoss 0.4188 (0.4188)  RateLoss 442705.3 (442705.3)  Est[8b:2881KB(15x)  10b:5166KB(8x)  12b:8086KB(5x)]  Acc@1 87.50 (87.50)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.4931  Acc@1 85.27  Acc@5 98.42
+=> Epoch 128: Acc@1 85.27%  (best: 87.92%)  Sparsity 99.9% (9676/11166912 nonzero)  Est[8b:2816KB(16x)  10b:5066KB(9x)  12b:7939KB(6x)] / 45700KB raw *smallest*
+Epoch [129][0/37]  Time 1.822 (1.822)  Data 1.633 (1.633)  TaskLoss 0.5641 (0.5641)  RateLoss 441742.2 (441742.2)  Est[8b:2816KB(15x)  10b:5066KB(9x)  12b:7939KB(5x)]  Acc@1 82.03 (82.03)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.4874  Acc@1 85.94  Acc@5 98.60
+=> Epoch 129: Acc@1 85.94%  (best: 87.92%)  Sparsity 99.9% (9658/11166912 nonzero)  Est[8b:2835KB(16x)  10b:5084KB(9x)  12b:7960KB(6x)] / 45700KB raw
+Epoch [130][0/37]  Time 1.723 (1.723)  Data 1.528 (1.528)  TaskLoss 0.6186 (0.6186)  RateLoss 441971.1 (441971.1)  Est[8b:2835KB(15x)  10b:5084KB(9x)  12b:7960KB(5x)]  Acc@1 80.08 (80.08)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.4579  Acc@1 86.19  Acc@5 98.60
+=> Epoch 130: Acc@1 86.19%  (best: 87.92%)  Sparsity 99.9% (9647/11166912 nonzero)  Est[8b:2817KB(16x)  10b:5036KB(9x)  12b:7924KB(6x)] / 45700KB raw
+Epoch [131][0/37]  Time 1.744 (1.744)  Data 1.554 (1.554)  TaskLoss 0.5494 (0.5494)  RateLoss 441219.8 (441219.8)  Est[8b:2817KB(15x)  10b:5036KB(9x)  12b:7924KB(6x)]  Acc@1 82.42 (82.42)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.4960  Acc@1 85.30  Acc@5 98.47
+=> Epoch 131: Acc@1 85.30%  (best: 87.92%)  Sparsity 99.9% (9618/11166912 nonzero)  Est[8b:2802KB(16x)  10b:5046KB(9x)  12b:7934KB(6x)] / 45700KB raw *smallest*
+Epoch [132][0/37]  Time 1.783 (1.783)  Data 1.587 (1.587)  TaskLoss 0.6175 (0.6175)  RateLoss 441204.3 (441204.3)  Est[8b:2802KB(16x)  10b:5046KB(9x)  12b:7934KB(5x)]  Acc@1 80.08 (80.08)  Acc@5 95.70 (95.70)
+  * Val:  Loss 0.5920  Acc@1 84.92  Acc@5 98.39
+=> Epoch 132: Acc@1 84.92%  (best: 87.92%)  Sparsity 99.9% (9588/11166912 nonzero)  Est[8b:2778KB(16x)  10b:4990KB(9x)  12b:7820KB(6x)] / 45700KB raw *smallest*
+Epoch [133][0/37]  Time 1.672 (1.672)  Data 1.482 (1.482)  TaskLoss 0.6433 (0.6433)  RateLoss 440454.5 (440454.5)  Est[8b:2778KB(16x)  10b:4990KB(9x)  12b:7820KB(6x)]  Acc@1 79.30 (79.30)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.3839  Acc@1 88.15  Acc@5 98.83
+=> Epoch 133: Acc@1 88.15%  (best: 88.15%)  Sparsity 99.9% (9571/11166912 nonzero)  Est[8b:2742KB(17x)  10b:4962KB(9x)  12b:7821KB(6x)] / 45700KB raw *best* *smallest*
+Epoch [134][0/37]  Time 1.737 (1.737)  Data 1.542 (1.542)  TaskLoss 0.6433 (0.6433)  RateLoss 440475.2 (440475.2)  Est[8b:2742KB(16x)  10b:4962KB(9x)  12b:7821KB(6x)]  Acc@1 79.69 (79.69)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4821  Acc@1 86.42  Acc@5 98.60
+=> Epoch 134: Acc@1 86.42%  (best: 88.15%)  Sparsity 99.9% (9555/11166912 nonzero)  Est[8b:2783KB(16x)  10b:5020KB(9x)  12b:7916KB(6x)] / 45700KB raw
+Epoch [135][0/37]  Time 1.690 (1.690)  Data 1.500 (1.500)  TaskLoss 0.6316 (0.6316)  RateLoss 440426.5 (440426.5)  Est[8b:2783KB(16x)  10b:5020KB(9x)  12b:7916KB(6x)]  Acc@1 81.64 (81.64)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.4369  Acc@1 87.16  Acc@5 98.60
+=> Epoch 135: Acc@1 87.16%  (best: 88.15%)  Sparsity 99.9% (9530/11166912 nonzero)  Est[8b:2734KB(17x)  10b:4923KB(9x)  12b:7781KB(6x)] / 45700KB raw *smallest*
+Epoch [136][0/37]  Time 1.724 (1.724)  Data 1.526 (1.526)  TaskLoss 0.7168 (0.7168)  RateLoss 439847.9 (439847.9)  Est[8b:2734KB(16x)  10b:4923KB(9x)  12b:7781KB(6x)]  Acc@1 76.95 (76.95)  Acc@5 96.48 (96.48)
+  * Val:  Loss 0.5791  Acc@1 84.76  Acc@5 98.19
+=> Epoch 136: Acc@1 84.76%  (best: 88.15%)  Sparsity 99.9% (9510/11166912 nonzero)  Est[8b:2711KB(17x)  10b:4896KB(9x)  12b:7746KB(6x)] / 45700KB raw *smallest*
+Epoch [137][0/37]  Time 1.805 (1.805)  Data 1.615 (1.615)  TaskLoss 0.4437 (0.4437)  RateLoss 439517.4 (439517.4)  Est[8b:2711KB(16x)  10b:4896KB(9x)  12b:7746KB(6x)]  Acc@1 85.94 (85.94)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.4322  Acc@1 86.78  Acc@5 98.68
+=> Epoch 137: Acc@1 86.78%  (best: 88.15%)  Sparsity 99.9% (9488/11166912 nonzero)  Est[8b:2732KB(17x)  10b:4917KB(9x)  12b:7766KB(6x)] / 45700KB raw
+Epoch [138][0/37]  Time 1.691 (1.691)  Data 1.496 (1.496)  TaskLoss 0.6730 (0.6730)  RateLoss 439327.1 (439327.1)  Est[8b:2732KB(16x)  10b:4917KB(9x)  12b:7766KB(6x)]  Acc@1 80.47 (80.47)  Acc@5 95.70 (95.70)
+  * Val:  Loss 0.4744  Acc@1 86.04  Acc@5 98.78
+=> Epoch 138: Acc@1 86.04%  (best: 88.15%)  Sparsity 99.9% (9474/11166912 nonzero)  Est[8b:2716KB(17x)  10b:4889KB(9x)  12b:7740KB(6x)] / 45700KB raw
+Epoch [139][0/37]  Time 1.773 (1.773)  Data 1.582 (1.582)  TaskLoss 0.4572 (0.4572)  RateLoss 438970.9 (438970.9)  Est[8b:2716KB(16x)  10b:4889KB(9x)  12b:7740KB(6x)]  Acc@1 84.38 (84.38)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.4335  Acc@1 87.29  Acc@5 98.75
+=> Epoch 139: Acc@1 87.29%  (best: 88.15%)  Sparsity 99.9% (9447/11166912 nonzero)  Est[8b:2713KB(17x)  10b:4892KB(9x)  12b:7744KB(6x)] / 45700KB raw
+Epoch [140][0/37]  Time 1.760 (1.760)  Data 1.565 (1.565)  TaskLoss 0.5239 (0.5239)  RateLoss 439062.2 (439062.2)  Est[8b:2713KB(16x)  10b:4892KB(9x)  12b:7744KB(6x)]  Acc@1 82.03 (82.03)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.4807  Acc@1 86.42  Acc@5 98.29
+=> Epoch 140: Acc@1 86.42%  (best: 88.15%)  Sparsity 99.9% (9413/11166912 nonzero)  Est[8b:2686KB(17x)  10b:4835KB(9x)  12b:7659KB(6x)] / 45700KB raw *smallest*
+Epoch [141][0/37]  Time 1.768 (1.768)  Data 1.577 (1.577)  TaskLoss 0.5566 (0.5566)  RateLoss 438338.5 (438338.5)  Est[8b:2686KB(16x)  10b:4835KB(9x)  12b:7659KB(6x)]  Acc@1 82.81 (82.81)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.4826  Acc@1 86.24  Acc@5 98.57
+=> Epoch 141: Acc@1 86.24%  (best: 88.15%)  Sparsity 99.9% (9392/11166912 nonzero)  Est[8b:2696KB(17x)  10b:4845KB(9x)  12b:7678KB(6x)] / 45700KB raw
+Epoch [142][0/37]  Time 1.719 (1.719)  Data 1.525 (1.525)  TaskLoss 0.5698 (0.5698)  RateLoss 438238.9 (438238.9)  Est[8b:2696KB(16x)  10b:4845KB(9x)  12b:7678KB(6x)]  Acc@1 83.98 (83.98)  Acc@5 96.48 (96.48)
+  * Val:  Loss 0.4603  Acc@1 86.39  Acc@5 98.75
+=> Epoch 142: Acc@1 86.39%  (best: 88.15%)  Sparsity 99.9% (9369/11166912 nonzero)  Est[8b:2662KB(17x)  10b:4829KB(9x)  12b:7656KB(6x)] / 45700KB raw *smallest*
+Epoch [143][0/37]  Time 1.711 (1.711)  Data 1.520 (1.520)  TaskLoss 0.5324 (0.5324)  RateLoss 437946.1 (437946.1)  Est[8b:2662KB(16x)  10b:4829KB(9x)  12b:7656KB(6x)]  Acc@1 84.38 (84.38)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.5327  Acc@1 85.45  Acc@5 98.52
+=> Epoch 143: Acc@1 85.45%  (best: 88.15%)  Sparsity 99.9% (9351/11166912 nonzero)  Est[8b:2675KB(17x)  10b:4786KB(10x)  12b:7601KB(6x)] / 45700KB raw
+Epoch [144][0/37]  Time 1.795 (1.795)  Data 1.596 (1.596)  TaskLoss 0.4772 (0.4772)  RateLoss 437600.0 (437600.0)  Est[8b:2675KB(16x)  10b:4786KB(9x)  12b:7601KB(6x)]  Acc@1 85.16 (85.16)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.5037  Acc@1 85.53  Acc@5 98.70
+=> Epoch 144: Acc@1 85.53%  (best: 88.15%)  Sparsity 99.9% (9343/11166912 nonzero)  Est[8b:2652KB(17x)  10b:4782KB(10x)  12b:7590KB(6x)] / 45700KB raw *smallest*
+Epoch [145][0/37]  Time 1.689 (1.689)  Data 1.499 (1.499)  TaskLoss 0.6629 (0.6629)  RateLoss 437441.6 (437441.6)  Est[8b:2652KB(16x)  10b:4782KB(9x)  12b:7590KB(6x)]  Acc@1 75.78 (75.78)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.4655  Acc@1 86.24  Acc@5 98.57
+=> Epoch 145: Acc@1 86.24%  (best: 88.15%)  Sparsity 99.9% (9322/11166912 nonzero)  Est[8b:2627KB(17x)  10b:4729KB(10x)  12b:7540KB(6x)] / 45700KB raw *smallest*
+Epoch [146][0/37]  Time 1.655 (1.655)  Data 1.466 (1.466)  TaskLoss 0.5427 (0.5427)  RateLoss 437006.1 (437006.1)  Est[8b:2627KB(17x)  10b:4729KB(9x)  12b:7540KB(6x)]  Acc@1 82.42 (82.42)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4759  Acc@1 85.68  Acc@5 98.60
+=> Epoch 146: Acc@1 85.68%  (best: 88.15%)  Sparsity 99.9% (9310/11166912 nonzero)  Est[8b:2595KB(18x)  10b:4715KB(10x)  12b:7504KB(6x)] / 45700KB raw *smallest*
+Epoch [147][0/37]  Time 1.658 (1.658)  Data 1.469 (1.469)  TaskLoss 0.6899 (0.6899)  RateLoss 436597.2 (436597.2)  Est[8b:2595KB(17x)  10b:4715KB(9x)  12b:7504KB(6x)]  Acc@1 78.52 (78.52)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.3989  Acc@1 87.44  Acc@5 98.68
+=> Epoch 147: Acc@1 87.44%  (best: 88.15%)  Sparsity 99.9% (9270/11166912 nonzero)  Est[8b:2620KB(17x)  10b:4740KB(10x)  12b:7549KB(6x)] / 45700KB raw
+Epoch [148][0/37]  Time 1.666 (1.666)  Data 1.477 (1.477)  TaskLoss 0.5499 (0.5499)  RateLoss 436391.4 (436391.4)  Est[8b:2620KB(17x)  10b:4740KB(9x)  12b:7549KB(6x)]  Acc@1 83.20 (83.20)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.5095  Acc@1 85.81  Acc@5 98.32
+=> Epoch 148: Acc@1 85.81%  (best: 88.15%)  Sparsity 99.9% (9257/11166912 nonzero)  Est[8b:2583KB(18x)  10b:4692KB(10x)  12b:7479KB(6x)] / 45700KB raw *smallest*
+Epoch [149][0/37]  Time 1.676 (1.676)  Data 1.488 (1.488)  TaskLoss 0.5344 (0.5344)  RateLoss 436001.8 (436001.8)  Est[8b:2583KB(17x)  10b:4692KB(9x)  12b:7479KB(6x)]  Acc@1 82.03 (82.03)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.4411  Acc@1 87.21  Acc@5 98.50
+=> Epoch 149: Acc@1 87.21%  (best: 88.15%)  Sparsity 99.9% (9246/11166912 nonzero)  Est[8b:2570KB(18x)  10b:4639KB(10x)  12b:7413KB(6x)] / 45700KB raw *smallest*
+Epoch [150][0/37]  Time 1.668 (1.668)  Data 1.479 (1.479)  TaskLoss 0.4836 (0.4836)  RateLoss 435777.6 (435777.6)  Est[8b:2570KB(17x)  10b:4639KB(9x)  12b:7413KB(6x)]  Acc@1 85.94 (85.94)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.5091  Acc@1 85.61  Acc@5 98.24
+=> Epoch 150: Acc@1 85.61%  (best: 88.15%)  Sparsity 99.9% (9223/11166912 nonzero)  Est[8b:2541KB(18x)  10b:4594KB(10x)  12b:7348KB(6x)] / 45700KB raw *smallest*
+Epoch [151][0/37]  Time 1.776 (1.776)  Data 1.581 (1.581)  TaskLoss 0.5822 (0.5822)  RateLoss 435284.7 (435284.7)  Est[8b:2541KB(17x)  10b:4594KB(9x)  12b:7348KB(6x)]  Acc@1 81.64 (81.64)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.4223  Acc@1 87.77  Acc@5 98.78
+=> Epoch 151: Acc@1 87.77%  (best: 88.15%)  Sparsity 99.9% (9209/11166912 nonzero)  Est[8b:2517KB(18x)  10b:4586KB(10x)  12b:7368KB(6x)] / 45700KB raw *smallest*
+Epoch [152][0/37]  Time 1.798 (1.798)  Data 1.605 (1.605)  TaskLoss 0.6197 (0.6197)  RateLoss 435071.8 (435071.8)  Est[8b:2517KB(17x)  10b:4586KB(10x)  12b:7368KB(6x)]  Acc@1 81.25 (81.25)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.4455  Acc@1 86.96  Acc@5 98.47
+=> Epoch 152: Acc@1 86.96%  (best: 88.15%)  Sparsity 99.9% (9192/11166912 nonzero)  Est[8b:2530KB(18x)  10b:4585KB(10x)  12b:7357KB(6x)] / 45700KB raw
+Epoch [153][0/37]  Time 1.799 (1.799)  Data 1.606 (1.606)  TaskLoss 0.6074 (0.6074)  RateLoss 434837.8 (434837.8)  Est[8b:2530KB(17x)  10b:4585KB(10x)  12b:7357KB(6x)]  Acc@1 78.91 (78.91)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.4405  Acc@1 86.70  Acc@5 98.57
+=> Epoch 153: Acc@1 86.70%  (best: 88.15%)  Sparsity 99.9% (9184/11166912 nonzero)  Est[8b:2491KB(18x)  10b:4530KB(10x)  12b:7271KB(6x)] / 45700KB raw *smallest*
+Epoch [154][0/37]  Time 1.759 (1.759)  Data 1.568 (1.568)  TaskLoss 0.4369 (0.4369)  RateLoss 434574.8 (434574.8)  Est[8b:2491KB(18x)  10b:4530KB(10x)  12b:7271KB(6x)]  Acc@1 83.59 (83.59)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.4367  Acc@1 87.26  Acc@5 98.65
+=> Epoch 154: Acc@1 87.26%  (best: 88.15%)  Sparsity 99.9% (9156/11166912 nonzero)  Est[8b:2482KB(18x)  10b:4530KB(10x)  12b:7276KB(6x)] / 45700KB raw *smallest*
+Epoch [155][0/37]  Time 1.734 (1.734)  Data 1.540 (1.540)  TaskLoss 0.4779 (0.4779)  RateLoss 434313.0 (434313.0)  Est[8b:2482KB(18x)  10b:4530KB(10x)  12b:7276KB(6x)]  Acc@1 81.64 (81.64)  Acc@5 99.61 (99.61)
+  * Val:  Loss 0.3957  Acc@1 88.05  Acc@5 98.62
+=> Epoch 155: Acc@1 88.05%  (best: 88.15%)  Sparsity 99.9% (9135/11166912 nonzero)  Est[8b:2464KB(19x)  10b:4474KB(10x)  12b:7194KB(6x)] / 45700KB raw *smallest*
+Epoch [156][0/37]  Time 2.255 (2.255)  Data 2.060 (2.060)  TaskLoss 0.5632 (0.5632)  RateLoss 433757.6 (433757.6)  Est[8b:2464KB(18x)  10b:4474KB(10x)  12b:7194KB(6x)]  Acc@1 80.47 (80.47)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4994  Acc@1 85.45  Acc@5 98.34
+=> Epoch 156: Acc@1 85.45%  (best: 88.15%)  Sparsity 99.9% (9118/11166912 nonzero)  Est[8b:2493KB(18x)  10b:4493KB(10x)  12b:7202KB(6x)] / 45700KB raw
+Epoch [157][0/37]  Time 2.117 (2.117)  Data 1.914 (1.914)  TaskLoss 0.6347 (0.6347)  RateLoss 433613.3 (433613.3)  Est[8b:2493KB(17x)  10b:4493KB(10x)  12b:7202KB(6x)]  Acc@1 77.73 (77.73)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.5065  Acc@1 85.48  Acc@5 98.78
+=> Epoch 157: Acc@1 85.48%  (best: 88.15%)  Sparsity 99.9% (9110/11166912 nonzero)  Est[8b:2475KB(18x)  10b:4476KB(10x)  12b:7172KB(6x)] / 45700KB raw
+Epoch [158][0/37]  Time 2.136 (2.136)  Data 1.942 (1.942)  TaskLoss 0.5878 (0.5878)  RateLoss 433462.2 (433462.2)  Est[8b:2475KB(18x)  10b:4476KB(10x)  12b:7172KB(6x)]  Acc@1 81.25 (81.25)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.4163  Acc@1 87.75  Acc@5 98.88
+=> Epoch 158: Acc@1 87.75%  (best: 88.15%)  Sparsity 99.9% (9096/11166912 nonzero)  Est[8b:2451KB(19x)  10b:4464KB(10x)  12b:7155KB(6x)] / 45700KB raw *smallest*
+Epoch [159][0/37]  Time 1.844 (1.844)  Data 1.649 (1.649)  TaskLoss 0.5973 (0.5973)  RateLoss 433090.8 (433090.8)  Est[8b:2451KB(18x)  10b:4464KB(10x)  12b:7155KB(6x)]  Acc@1 82.81 (82.81)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.4488  Acc@1 86.73  Acc@5 98.60
+=> Epoch 159: Acc@1 86.73%  (best: 88.15%)  Sparsity 99.9% (9073/11166912 nonzero)  Est[8b:2410KB(19x)  10b:4395KB(10x)  12b:7067KB(6x)] / 45700KB raw *smallest*
+Epoch [160][0/37]  Time 1.850 (1.850)  Data 1.660 (1.660)  TaskLoss 0.5573 (0.5573)  RateLoss 432806.2 (432806.2)  Est[8b:2410KB(18x)  10b:4395KB(10x)  12b:7067KB(6x)]  Acc@1 80.86 (80.86)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.3816  Acc@1 88.36  Acc@5 98.70
+=> Epoch 160: Acc@1 88.36%  (best: 88.36%)  Sparsity 99.9% (9057/11166912 nonzero)  Est[8b:2393KB(19x)  10b:4387KB(10x)  12b:7067KB(6x)] / 45700KB raw *best* *smallest*
+Epoch [161][0/37]  Time 1.852 (1.852)  Data 1.658 (1.658)  TaskLoss 0.6822 (0.6822)  RateLoss 432551.3 (432551.3)  Est[8b:2393KB(18x)  10b:4387KB(10x)  12b:7067KB(6x)]  Acc@1 78.12 (78.12)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.5653  Acc@1 83.80  Acc@5 98.29
+=> Epoch 161: Acc@1 83.80%  (best: 88.36%)  Sparsity 99.9% (9041/11166912 nonzero)  Est[8b:2418KB(19x)  10b:4377KB(10x)  12b:7051KB(6x)] / 45700KB raw
+Epoch [162][0/37]  Time 1.726 (1.726)  Data 1.536 (1.536)  TaskLoss 0.5062 (0.5062)  RateLoss 432272.4 (432272.4)  Est[8b:2418KB(18x)  10b:4377KB(10x)  12b:7051KB(6x)]  Acc@1 82.81 (82.81)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4698  Acc@1 86.62  Acc@5 98.70
+=> Epoch 162: Acc@1 86.62%  (best: 88.36%)  Sparsity 99.9% (9026/11166912 nonzero)  Est[8b:2419KB(19x)  10b:4400KB(10x)  12b:7061KB(6x)] / 45700KB raw
+Epoch [163][0/37]  Time 1.791 (1.791)  Data 1.596 (1.596)  TaskLoss 0.5134 (0.5134)  RateLoss 432172.7 (432172.7)  Est[8b:2419KB(18x)  10b:4400KB(10x)  12b:7061KB(6x)]  Acc@1 84.77 (84.77)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.3794  Acc@1 88.46  Acc@5 99.03
+=> Epoch 163: Acc@1 88.46%  (best: 88.46%)  Sparsity 99.9% (9018/11166912 nonzero)  Est[8b:2344KB(19x)  10b:4289KB(11x)  12b:6965KB(7x)] / 45700KB raw *best* *smallest*
+Epoch [164][0/37]  Time 1.858 (1.858)  Data 1.663 (1.663)  TaskLoss 0.5564 (0.5564)  RateLoss 431745.9 (431745.9)  Est[8b:2344KB(19x)  10b:4289KB(10x)  12b:6965KB(6x)]  Acc@1 82.81 (82.81)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.4054  Acc@1 87.95  Acc@5 98.70
+=> Epoch 164: Acc@1 87.95%  (best: 88.46%)  Sparsity 99.9% (9008/11166912 nonzero)  Est[8b:2376KB(19x)  10b:4312KB(11x)  12b:6964KB(7x)] / 45700KB raw
+Epoch [165][0/37]  Time 1.787 (1.787)  Data 1.596 (1.596)  TaskLoss 0.5167 (0.5167)  RateLoss 431697.1 (431697.1)  Est[8b:2376KB(18x)  10b:4312KB(10x)  12b:6964KB(6x)]  Acc@1 82.81 (82.81)  Acc@5 99.61 (99.61)
+  * Val:  Loss 0.4645  Acc@1 87.06  Acc@5 98.47
+=> Epoch 165: Acc@1 87.06%  (best: 88.46%)  Sparsity 99.9% (8998/11166912 nonzero)  Est[8b:2374KB(19x)  10b:4343KB(11x)  12b:7044KB(6x)] / 45700KB raw
+Epoch [166][0/37]  Time 1.833 (1.833)  Data 1.639 (1.639)  TaskLoss 0.5509 (0.5509)  RateLoss 431603.7 (431603.7)  Est[8b:2374KB(18x)  10b:4343KB(10x)  12b:7044KB(6x)]  Acc@1 82.03 (82.03)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4503  Acc@1 87.64  Acc@5 98.47
+=> Epoch 166: Acc@1 87.64%  (best: 88.46%)  Sparsity 99.9% (8980/11166912 nonzero)  Est[8b:2336KB(20x)  10b:4256KB(11x)  12b:6899KB(7x)] / 45700KB raw *smallest*
+Epoch [167][0/37]  Time 1.869 (1.869)  Data 1.672 (1.672)  TaskLoss 0.4937 (0.4937)  RateLoss 431168.4 (431168.4)  Est[8b:2336KB(19x)  10b:4256KB(10x)  12b:6899KB(6x)]  Acc@1 83.98 (83.98)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4937  Acc@1 85.73  Acc@5 98.57
+=> Epoch 167: Acc@1 85.73%  (best: 88.46%)  Sparsity 99.9% (8968/11166912 nonzero)  Est[8b:2329KB(20x)  10b:4209KB(11x)  12b:6811KB(7x)] / 45700KB raw *smallest*
+Epoch [168][0/37]  Time 1.871 (1.871)  Data 1.692 (1.692)  TaskLoss 0.6192 (0.6192)  RateLoss 430888.2 (430888.2)  Est[8b:2329KB(19x)  10b:4209KB(10x)  12b:6811KB(6x)]  Acc@1 80.86 (80.86)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.5013  Acc@1 86.22  Acc@5 98.55
+=> Epoch 168: Acc@1 86.22%  (best: 88.46%)  Sparsity 99.9% (8957/11166912 nonzero)  Est[8b:2321KB(20x)  10b:4206KB(11x)  12b:6834KB(7x)] / 45700KB raw *smallest*
+Epoch [169][0/37]  Time 1.864 (1.864)  Data 1.667 (1.667)  TaskLoss 0.5179 (0.5179)  RateLoss 430662.4 (430662.4)  Est[8b:2321KB(19x)  10b:4206KB(10x)  12b:6834KB(6x)]  Acc@1 84.77 (84.77)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.4625  Acc@1 86.45  Acc@5 98.37
+=> Epoch 169: Acc@1 86.45%  (best: 88.46%)  Sparsity 99.9% (8951/11166912 nonzero)  Est[8b:2288KB(20x)  10b:4205KB(11x)  12b:6831KB(7x)] / 45700KB raw *smallest*
+Epoch [170][0/37]  Time 1.828 (1.828)  Data 1.636 (1.636)  TaskLoss 0.5685 (0.5685)  RateLoss 430540.1 (430540.1)  Est[8b:2288KB(19x)  10b:4205KB(10x)  12b:6831KB(6x)]  Acc@1 82.42 (82.42)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.3796  Acc@1 88.71  Acc@5 98.80
+=> Epoch 170: Acc@1 88.71%  (best: 88.71%)  Sparsity 99.9% (8950/11166912 nonzero)  Est[8b:2258KB(20x)  10b:4140KB(11x)  12b:6718KB(7x)] / 45700KB raw *best* *smallest*
+Epoch [171][0/37]  Time 1.850 (1.850)  Data 1.659 (1.659)  TaskLoss 0.4462 (0.4462)  RateLoss 430132.4 (430132.4)  Est[8b:2258KB(19x)  10b:4140KB(11x)  12b:6718KB(6x)]  Acc@1 86.72 (86.72)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.4358  Acc@1 87.01  Acc@5 98.73
+=> Epoch 171: Acc@1 87.01%  (best: 88.71%)  Sparsity 99.9% (8937/11166912 nonzero)  Est[8b:2259KB(20x)  10b:4099KB(11x)  12b:6693KB(7x)] / 45700KB raw
+Epoch [172][0/37]  Time 1.861 (1.861)  Data 1.661 (1.661)  TaskLoss 0.4820 (0.4820)  RateLoss 429903.4 (429903.4)  Est[8b:2259KB(19x)  10b:4099KB(11x)  12b:6693KB(7x)]  Acc@1 83.59 (83.59)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.6459  Acc@1 83.39  Acc@5 98.17
+=> Epoch 172: Acc@1 83.39%  (best: 88.71%)  Sparsity 99.9% (8922/11166912 nonzero)  Est[8b:2227KB(21x)  10b:4105KB(11x)  12b:6667KB(7x)] / 45700KB raw *smallest*
+Epoch [173][0/37]  Time 1.827 (1.827)  Data 1.638 (1.638)  TaskLoss 0.4800 (0.4800)  RateLoss 429677.6 (429677.6)  Est[8b:2227KB(20x)  10b:4105KB(11x)  12b:6667KB(7x)]  Acc@1 83.20 (83.20)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.4563  Acc@1 86.19  Acc@5 98.47
+=> Epoch 173: Acc@1 86.19%  (best: 88.71%)  Sparsity 99.9% (8909/11166912 nonzero)  Est[8b:2227KB(21x)  10b:4056KB(11x)  12b:6603KB(7x)] / 45700KB raw
+Epoch [174][0/37]  Time 1.893 (1.893)  Data 1.703 (1.703)  TaskLoss 0.5410 (0.5410)  RateLoss 429332.9 (429332.9)  Est[8b:2227KB(20x)  10b:4056KB(11x)  12b:6603KB(7x)]  Acc@1 82.42 (82.42)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.4159  Acc@1 87.82  Acc@5 98.60
+=> Epoch 174: Acc@1 87.82%  (best: 88.71%)  Sparsity 99.9% (8904/11166912 nonzero)  Est[8b:2207KB(21x)  10b:4039KB(11x)  12b:6587KB(7x)] / 45700KB raw *smallest*
+Epoch [175][0/37]  Time 1.840 (1.840)  Data 1.650 (1.650)  TaskLoss 0.6009 (0.6009)  RateLoss 429091.5 (429091.5)  Est[8b:2207KB(20x)  10b:4039KB(11x)  12b:6587KB(7x)]  Acc@1 82.81 (82.81)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4288  Acc@1 87.64  Acc@5 98.60
+=> Epoch 175: Acc@1 87.64%  (best: 88.71%)  Sparsity 99.9% (8895/11166912 nonzero)  Est[8b:2207KB(21x)  10b:4007KB(11x)  12b:6553KB(7x)] / 45700KB raw *smallest*
+Epoch [176][0/37]  Time 1.846 (1.846)  Data 1.663 (1.663)  TaskLoss 0.4564 (0.4564)  RateLoss 428915.4 (428915.4)  Est[8b:2207KB(20x)  10b:4007KB(11x)  12b:6553KB(7x)]  Acc@1 83.59 (83.59)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.4431  Acc@1 86.52  Acc@5 98.37
+=> Epoch 176: Acc@1 86.52%  (best: 88.71%)  Sparsity 99.9% (8886/11166912 nonzero)  Est[8b:2154KB(21x)  10b:3918KB(12x)  12b:6398KB(7x)] / 45700KB raw *smallest*
+Epoch [177][0/37]  Time 1.792 (1.792)  Data 1.603 (1.603)  TaskLoss 0.5422 (0.5422)  RateLoss 428507.1 (428507.1)  Est[8b:2154KB(20x)  10b:3918KB(11x)  12b:6398KB(7x)]  Acc@1 80.86 (80.86)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.3929  Acc@1 88.18  Acc@5 98.88
+=> Epoch 177: Acc@1 88.18%  (best: 88.71%)  Sparsity 99.9% (8888/11166912 nonzero)  Est[8b:2169KB(21x)  10b:3929KB(12x)  12b:6445KB(7x)] / 45700KB raw
+Epoch [178][0/37]  Time 1.760 (1.760)  Data 1.573 (1.573)  TaskLoss 0.5942 (0.5942)  RateLoss 428438.8 (428438.8)  Est[8b:2169KB(20x)  10b:3929KB(11x)  12b:6445KB(7x)]  Acc@1 80.08 (80.08)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4161  Acc@1 87.75  Acc@5 98.93
+=> Epoch 178: Acc@1 87.75%  (best: 88.71%)  Sparsity 99.9% (8880/11166912 nonzero)  Est[8b:2147KB(21x)  10b:3913KB(12x)  12b:6425KB(7x)] / 45700KB raw *smallest*
+Epoch [179][0/37]  Time 1.849 (1.849)  Data 1.658 (1.658)  TaskLoss 0.6852 (0.6852)  RateLoss 428267.5 (428267.5)  Est[8b:2147KB(20x)  10b:3913KB(11x)  12b:6425KB(7x)]  Acc@1 81.25 (81.25)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.4153  Acc@1 87.80  Acc@5 98.70
+=> Epoch 179: Acc@1 87.80%  (best: 88.71%)  Sparsity 99.9% (8869/11166912 nonzero)  Est[8b:2152KB(21x)  10b:3907KB(12x)  12b:6427KB(7x)] / 45700KB raw
+Epoch [180][0/37]  Time 1.862 (1.862)  Data 1.672 (1.672)  TaskLoss 0.5621 (0.5621)  RateLoss 428117.4 (428117.4)  Est[8b:2152KB(20x)  10b:3907KB(11x)  12b:6427KB(7x)]  Acc@1 81.25 (81.25)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.3988  Acc@1 88.66  Acc@5 98.83
+=> Epoch 180: Acc@1 88.66%  (best: 88.71%)  Sparsity 99.9% (8855/11166912 nonzero)  Est[8b:2123KB(22x)  10b:3875KB(12x)  12b:6340KB(7x)] / 45700KB raw *smallest*
+Epoch [181][0/37]  Time 1.781 (1.781)  Data 1.592 (1.592)  TaskLoss 0.5761 (0.5761)  RateLoss 427899.2 (427899.2)  Est[8b:2123KB(21x)  10b:3875KB(11x)  12b:6340KB(7x)]  Acc@1 84.38 (84.38)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.3732  Acc@1 88.66  Acc@5 98.96
+=> Epoch 181: Acc@1 88.66%  (best: 88.71%)  Sparsity 99.9% (8840/11166912 nonzero)  Est[8b:2118KB(22x)  10b:3835KB(12x)  12b:6284KB(7x)] / 45700KB raw *smallest*
+Epoch [182][0/37]  Time 1.828 (1.828)  Data 1.634 (1.634)  TaskLoss 0.3784 (0.3784)  RateLoss 427718.5 (427718.5)  Est[8b:2118KB(21x)  10b:3835KB(11x)  12b:6284KB(7x)]  Acc@1 86.33 (86.33)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.4677  Acc@1 86.55  Acc@5 98.55
+=> Epoch 182: Acc@1 86.55%  (best: 88.71%)  Sparsity 99.9% (8827/11166912 nonzero)  Est[8b:2108KB(22x)  10b:3810KB(12x)  12b:6269KB(7x)] / 45700KB raw *smallest*
+Epoch [183][0/37]  Time 1.816 (1.816)  Data 1.623 (1.623)  TaskLoss 0.4923 (0.4923)  RateLoss 427473.2 (427473.2)  Est[8b:2108KB(21x)  10b:3810KB(11x)  12b:6269KB(7x)]  Acc@1 85.94 (85.94)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4318  Acc@1 87.69  Acc@5 98.83
+=> Epoch 183: Acc@1 87.69%  (best: 88.71%)  Sparsity 99.9% (8822/11166912 nonzero)  Est[8b:2084KB(22x)  10b:3789KB(12x)  12b:6205KB(7x)] / 45700KB raw *smallest*
+Epoch [184][0/37]  Time 1.881 (1.881)  Data 1.699 (1.699)  TaskLoss 0.4720 (0.4720)  RateLoss 427231.4 (427231.4)  Est[8b:2084KB(21x)  10b:3789KB(12x)  12b:6205KB(7x)]  Acc@1 81.25 (81.25)  Acc@5 99.61 (99.61)
+  * Val:  Loss 0.4591  Acc@1 86.19  Acc@5 98.52
+=> Epoch 184: Acc@1 86.19%  (best: 88.71%)  Sparsity 99.9% (8817/11166912 nonzero)  Est[8b:2065KB(22x)  10b:3756KB(12x)  12b:6194KB(7x)] / 45700KB raw *smallest*
+Epoch [185][0/37]  Time 1.830 (1.830)  Data 1.636 (1.636)  TaskLoss 0.5233 (0.5233)  RateLoss 427058.2 (427058.2)  Est[8b:2065KB(21x)  10b:3756KB(12x)  12b:6194KB(7x)]  Acc@1 82.81 (82.81)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4907  Acc@1 86.01  Acc@5 98.65
+=> Epoch 185: Acc@1 86.01%  (best: 88.71%)  Sparsity 99.9% (8820/11166912 nonzero)  Est[8b:2065KB(22x)  10b:3722KB(12x)  12b:6127KB(7x)] / 45700KB raw
+Epoch [186][0/37]  Time 1.774 (1.774)  Data 1.578 (1.578)  TaskLoss 0.5244 (0.5244)  RateLoss 426810.2 (426810.2)  Est[8b:2065KB(21x)  10b:3722KB(12x)  12b:6127KB(7x)]  Acc@1 84.38 (84.38)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.3675  Acc@1 89.02  Acc@5 99.03
+=> Epoch 186: Acc@1 89.02%  (best: 89.02%)  Sparsity 99.9% (8801/11166912 nonzero)  Est[8b:2057KB(22x)  10b:3752KB(12x)  12b:6179KB(7x)] / 45700KB raw *best* *smallest*
+Epoch [187][0/37]  Time 1.880 (1.880)  Data 1.685 (1.685)  TaskLoss 0.5841 (0.5841)  RateLoss 426718.9 (426718.9)  Est[8b:2057KB(21x)  10b:3752KB(12x)  12b:6179KB(7x)]  Acc@1 82.81 (82.81)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.4734  Acc@1 85.94  Acc@5 98.80
+=> Epoch 187: Acc@1 85.94%  (best: 89.02%)  Sparsity 99.9% (8791/11166912 nonzero)  Est[8b:2035KB(22x)  10b:3709KB(12x)  12b:6122KB(7x)] / 45700KB raw *smallest*
+Epoch [188][0/37]  Time 1.875 (1.875)  Data 1.680 (1.680)  TaskLoss 0.5224 (0.5224)  RateLoss 426436.5 (426436.5)  Est[8b:2035KB(21x)  10b:3709KB(12x)  12b:6122KB(7x)]  Acc@1 82.03 (82.03)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4120  Acc@1 87.77  Acc@5 98.73
+=> Epoch 188: Acc@1 87.77%  (best: 89.02%)  Sparsity 99.9% (8788/11166912 nonzero)  Est[8b:2025KB(23x)  10b:3640KB(13x)  12b:6022KB(8x)] / 45700KB raw *smallest*
+Epoch [189][0/37]  Time 1.883 (1.883)  Data 1.688 (1.688)  TaskLoss 0.4598 (0.4598)  RateLoss 426140.2 (426140.2)  Est[8b:2025KB(22x)  10b:3640KB(12x)  12b:6022KB(7x)]  Acc@1 86.33 (86.33)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.3919  Acc@1 88.56  Acc@5 98.85
+=> Epoch 189: Acc@1 88.56%  (best: 89.02%)  Sparsity 99.9% (8781/11166912 nonzero)  Est[8b:2016KB(23x)  10b:3640KB(13x)  12b:6002KB(8x)] / 45700KB raw *smallest*
+Epoch [190][0/37]  Time 1.905 (1.905)  Data 1.710 (1.710)  TaskLoss 0.5531 (0.5531)  RateLoss 425947.6 (425947.6)  Est[8b:2016KB(22x)  10b:3640KB(12x)  12b:6002KB(7x)]  Acc@1 83.20 (83.20)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4897  Acc@1 85.86  Acc@5 98.57
+=> Epoch 190: Acc@1 85.86%  (best: 89.02%)  Sparsity 99.9% (8773/11166912 nonzero)  Est[8b:1978KB(23x)  10b:3589KB(13x)  12b:5934KB(8x)] / 45700KB raw *smallest*
+Epoch [191][0/37]  Time 1.828 (1.828)  Data 1.634 (1.634)  TaskLoss 0.5969 (0.5969)  RateLoss 425787.3 (425787.3)  Est[8b:1978KB(22x)  10b:3589KB(12x)  12b:5934KB(7x)]  Acc@1 80.47 (80.47)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.4874  Acc@1 86.32  Acc@5 98.50
+=> Epoch 191: Acc@1 86.32%  (best: 89.02%)  Sparsity 99.9% (8764/11166912 nonzero)  Est[8b:1955KB(23x)  10b:3578KB(13x)  12b:5909KB(8x)] / 45700KB raw *smallest*
+Epoch [192][0/37]  Time 1.790 (1.790)  Data 1.596 (1.596)  TaskLoss 0.6160 (0.6160)  RateLoss 425607.6 (425607.6)  Est[8b:1955KB(22x)  10b:3578KB(12x)  12b:5909KB(7x)]  Acc@1 79.69 (79.69)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.4608  Acc@1 86.80  Acc@5 98.60
+=> Epoch 192: Acc@1 86.80%  (best: 89.02%)  Sparsity 99.9% (8758/11166912 nonzero)  Est[8b:1952KB(23x)  10b:3551KB(13x)  12b:5880KB(8x)] / 45700KB raw *smallest*
+Epoch [193][0/37]  Time 1.754 (1.754)  Data 1.560 (1.560)  TaskLoss 0.5371 (0.5371)  RateLoss 425427.4 (425427.4)  Est[8b:1952KB(22x)  10b:3551KB(12x)  12b:5880KB(7x)]  Acc@1 82.42 (82.42)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.4579  Acc@1 87.54  Acc@5 98.60
+=> Epoch 193: Acc@1 87.54%  (best: 89.02%)  Sparsity 99.9% (8755/11166912 nonzero)  Est[8b:1964KB(23x)  10b:3528KB(13x)  12b:5843KB(8x)] / 45700KB raw
+Epoch [194][0/37]  Time 1.749 (1.749)  Data 1.560 (1.560)  TaskLoss 0.5219 (0.5219)  RateLoss 425289.1 (425289.1)  Est[8b:1964KB(22x)  10b:3528KB(12x)  12b:5843KB(7x)]  Acc@1 83.20 (83.20)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.4618  Acc@1 86.78  Acc@5 98.50
+=> Epoch 194: Acc@1 86.78%  (best: 89.02%)  Sparsity 99.9% (8748/11166912 nonzero)  Est[8b:1915KB(24x)  10b:3442KB(13x)  12b:5729KB(8x)] / 45700KB raw *smallest*
+Epoch [195][0/37]  Time 1.789 (1.789)  Data 1.613 (1.613)  TaskLoss 0.7113 (0.7113)  RateLoss 424974.3 (424974.3)  Est[8b:1915KB(23x)  10b:3442KB(13x)  12b:5729KB(8x)]  Acc@1 76.95 (76.95)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.3726  Acc@1 88.76  Acc@5 98.75
+=> Epoch 195: Acc@1 88.76%  (best: 89.02%)  Sparsity 99.9% (8743/11166912 nonzero)  Est[8b:1912KB(24x)  10b:3441KB(13x)  12b:5702KB(8x)] / 45700KB raw *smallest*
+Epoch [196][0/37]  Time 1.844 (1.844)  Data 1.654 (1.654)  TaskLoss 0.5547 (0.5547)  RateLoss 424872.7 (424872.7)  Est[8b:1912KB(23x)  10b:3441KB(13x)  12b:5702KB(8x)]  Acc@1 82.42 (82.42)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.4198  Acc@1 88.18  Acc@5 98.60
+=> Epoch 196: Acc@1 88.18%  (best: 89.02%)  Sparsity 99.9% (8733/11166912 nonzero)  Est[8b:1924KB(24x)  10b:3465KB(13x)  12b:5736KB(8x)] / 45700KB raw
+Epoch [197][0/37]  Time 1.795 (1.795)  Data 1.606 (1.606)  TaskLoss 0.5337 (0.5337)  RateLoss 424746.7 (424746.7)  Est[8b:1924KB(23x)  10b:3465KB(13x)  12b:5736KB(8x)]  Acc@1 84.38 (84.38)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4653  Acc@1 86.37  Acc@5 98.45
+=> Epoch 197: Acc@1 86.37%  (best: 89.02%)  Sparsity 99.9% (8721/11166912 nonzero)  Est[8b:1860KB(25x)  10b:3367KB(14x)  12b:5576KB(8x)] / 45700KB raw *smallest*
+Epoch [198][0/37]  Time 1.891 (1.891)  Data 1.701 (1.701)  TaskLoss 0.6806 (0.6806)  RateLoss 424496.2 (424496.2)  Est[8b:1860KB(23x)  10b:3367KB(13x)  12b:5576KB(8x)]  Acc@1 80.47 (80.47)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.4651  Acc@1 86.45  Acc@5 98.60
+=> Epoch 198: Acc@1 86.45%  (best: 89.02%)  Sparsity 99.9% (8721/11166912 nonzero)  Est[8b:1840KB(25x)  10b:3316KB(14x)  12b:5503KB(8x)] / 45700KB raw *smallest*
+Epoch [199][0/37]  Time 1.903 (1.903)  Data 1.713 (1.713)  TaskLoss 0.5117 (0.5117)  RateLoss 424247.7 (424247.7)  Est[8b:1840KB(24x)  10b:3316KB(13x)  12b:5503KB(8x)]  Acc@1 81.64 (81.64)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4847  Acc@1 86.57  Acc@5 98.52
+=> Epoch 199: Acc@1 86.57%  (best: 89.02%)  Sparsity 99.9% (8711/11166912 nonzero)  Est[8b:1838KB(25x)  10b:3316KB(14x)  12b:5549KB(8x)] / 45700KB raw *smallest*
+Epoch [200][0/37]  Time 1.884 (1.884)  Data 1.693 (1.693)  TaskLoss 0.5405 (0.5405)  RateLoss 424167.3 (424167.3)  Est[8b:1838KB(24x)  10b:3316KB(13x)  12b:5549KB(8x)]  Acc@1 80.86 (80.86)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4056  Acc@1 88.05  Acc@5 98.65
+=> Epoch 200: Acc@1 88.05%  (best: 89.02%)  Sparsity 99.9% (8707/11166912 nonzero)  Est[8b:1825KB(25x)  10b:3295KB(14x)  12b:5472KB(8x)] / 45700KB raw *smallest*
+Epoch [201][0/37]  Time 1.945 (1.945)  Data 1.755 (1.755)  TaskLoss 0.3404 (0.3404)  RateLoss 424006.6 (424006.6)  Est[8b:1825KB(24x)  10b:3295KB(13x)  12b:5472KB(8x)]  Acc@1 89.84 (89.84)  Acc@5 99.61 (99.61)
+  * Val:  Loss 0.4929  Acc@1 86.24  Acc@5 98.62
+=> Epoch 201: Acc@1 86.24%  (best: 89.02%)  Sparsity 99.9% (8706/11166912 nonzero)  Est[8b:1798KB(25x)  10b:3240KB(14x)  12b:5413KB(8x)] / 45700KB raw *smallest*
+Epoch [202][0/37]  Time 1.913 (1.913)  Data 1.724 (1.724)  TaskLoss 0.5544 (0.5544)  RateLoss 423802.1 (423802.1)  Est[8b:1798KB(24x)  10b:3240KB(13x)  12b:5413KB(8x)]  Acc@1 82.03 (82.03)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4254  Acc@1 87.06  Acc@5 98.75
+=> Epoch 202: Acc@1 87.06%  (best: 89.02%)  Sparsity 99.9% (8702/11166912 nonzero)  Est[8b:1790KB(26x)  10b:3176KB(14x)  12b:5297KB(9x)] / 45700KB raw *smallest*
+Epoch [203][0/37]  Time 1.837 (1.837)  Data 1.643 (1.643)  TaskLoss 0.4607 (0.4607)  RateLoss 423583.9 (423583.9)  Est[8b:1790KB(24x)  10b:3176KB(14x)  12b:5297KB(8x)]  Acc@1 86.33 (86.33)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.3812  Acc@1 88.43  Acc@5 98.83
+=> Epoch 203: Acc@1 88.43%  (best: 89.02%)  Sparsity 99.9% (8702/11166912 nonzero)  Est[8b:1768KB(26x)  10b:3173KB(14x)  12b:5264KB(9x)] / 45700KB raw *smallest*
+Epoch [204][0/37]  Time 1.875 (1.875)  Data 1.680 (1.680)  TaskLoss 0.4993 (0.4993)  RateLoss 423448.9 (423448.9)  Est[8b:1768KB(25x)  10b:3173KB(14x)  12b:5264KB(8x)]  Acc@1 81.64 (81.64)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.4069  Acc@1 88.08  Acc@5 98.93
+=> Epoch 204: Acc@1 88.08%  (best: 89.02%)  Sparsity 99.9% (8696/11166912 nonzero)  Est[8b:1774KB(26x)  10b:3160KB(14x)  12b:5265KB(9x)] / 45700KB raw
+Epoch [205][0/37]  Time 1.835 (1.835)  Data 1.647 (1.647)  TaskLoss 0.5671 (0.5671)  RateLoss 423317.5 (423317.5)  Est[8b:1774KB(25x)  10b:3160KB(14x)  12b:5265KB(8x)]  Acc@1 82.42 (82.42)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.3960  Acc@1 88.48  Acc@5 98.68
+=> Epoch 205: Acc@1 88.48%  (best: 89.02%)  Sparsity 99.9% (8690/11166912 nonzero)  Est[8b:1765KB(26x)  10b:3140KB(15x)  12b:5225KB(9x)] / 45700KB raw *smallest*
+Epoch [206][0/37]  Time 1.865 (1.865)  Data 1.670 (1.670)  TaskLoss 0.4602 (0.4602)  RateLoss 423165.4 (423165.4)  Est[8b:1765KB(25x)  10b:3140KB(14x)  12b:5225KB(8x)]  Acc@1 86.72 (86.72)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4561  Acc@1 87.24  Acc@5 98.68
+=> Epoch 206: Acc@1 87.24%  (best: 89.02%)  Sparsity 99.9% (8690/11166912 nonzero)  Est[8b:1718KB(27x)  10b:3074KB(15x)  12b:5140KB(9x)] / 45700KB raw *smallest*
+Epoch [207][0/37]  Time 1.904 (1.904)  Data 1.711 (1.711)  TaskLoss 0.6764 (0.6764)  RateLoss 422965.4 (422965.4)  Est[8b:1718KB(25x)  10b:3074KB(14x)  12b:5140KB(8x)]  Acc@1 76.95 (76.95)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.4564  Acc@1 86.90  Acc@5 98.55
+=> Epoch 207: Acc@1 86.90%  (best: 89.02%)  Sparsity 99.9% (8687/11166912 nonzero)  Est[8b:1720KB(27x)  10b:3056KB(15x)  12b:5123KB(9x)] / 45700KB raw
+Epoch [208][0/37]  Time 1.900 (1.900)  Data 1.706 (1.706)  TaskLoss 0.4671 (0.4671)  RateLoss 422840.6 (422840.6)  Est[8b:1720KB(25x)  10b:3056KB(14x)  12b:5123KB(9x)]  Acc@1 83.20 (83.20)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.4362  Acc@1 86.85  Acc@5 98.78
+=> Epoch 208: Acc@1 86.85%  (best: 89.02%)  Sparsity 99.9% (8685/11166912 nonzero)  Est[8b:1710KB(27x)  10b:3019KB(15x)  12b:5081KB(9x)] / 45700KB raw *smallest*
+Epoch [209][0/37]  Time 1.862 (1.862)  Data 1.668 (1.668)  TaskLoss 0.4192 (0.4192)  RateLoss 422702.5 (422702.5)  Est[8b:1710KB(26x)  10b:3019KB(14x)  12b:5081KB(9x)]  Acc@1 84.77 (84.77)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.4048  Acc@1 87.80  Acc@5 98.73
+=> Epoch 209: Acc@1 87.80%  (best: 89.02%)  Sparsity 99.9% (8673/11166912 nonzero)  Est[8b:1674KB(27x)  10b:2985KB(15x)  12b:4988KB(9x)] / 45700KB raw *smallest*
+Epoch [210][0/37]  Time 1.889 (1.889)  Data 1.693 (1.693)  TaskLoss 0.3635 (0.3635)  RateLoss 422545.8 (422545.8)  Est[8b:1674KB(26x)  10b:2985KB(15x)  12b:4988KB(9x)]  Acc@1 86.72 (86.72)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.5229  Acc@1 85.66  Acc@5 98.37
+=> Epoch 210: Acc@1 85.66%  (best: 89.02%)  Sparsity 99.9% (8673/11166912 nonzero)  Est[8b:1665KB(27x)  10b:2966KB(15x)  12b:4951KB(9x)] / 45700KB raw *smallest*
+Epoch [211][0/37]  Time 1.911 (1.911)  Data 1.717 (1.717)  TaskLoss 0.4705 (0.4705)  RateLoss 422432.2 (422432.2)  Est[8b:1665KB(26x)  10b:2966KB(15x)  12b:4951KB(9x)]  Acc@1 82.42 (82.42)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.3973  Acc@1 88.10  Acc@5 98.80
+=> Epoch 211: Acc@1 88.10%  (best: 89.02%)  Sparsity 99.9% (8674/11166912 nonzero)  Est[8b:1643KB(28x)  10b:2911KB(16x)  12b:4865KB(9x)] / 45700KB raw *smallest*
+Epoch [212][0/37]  Time 1.923 (1.923)  Data 1.728 (1.728)  TaskLoss 0.5084 (0.5084)  RateLoss 422272.4 (422272.4)  Est[8b:1643KB(27x)  10b:2911KB(15x)  12b:4865KB(9x)]  Acc@1 81.64 (81.64)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.3956  Acc@1 88.28  Acc@5 98.85
+=> Epoch 212: Acc@1 88.28%  (best: 89.02%)  Sparsity 99.9% (8669/11166912 nonzero)  Est[8b:1649KB(28x)  10b:2878KB(16x)  12b:4840KB(9x)] / 45700KB raw
+Epoch [213][0/37]  Time 1.931 (1.931)  Data 1.736 (1.736)  TaskLoss 0.5257 (0.5257)  RateLoss 422126.0 (422126.0)  Est[8b:1649KB(26x)  10b:2878KB(15x)  12b:4840KB(9x)]  Acc@1 81.25 (81.25)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4434  Acc@1 87.90  Acc@5 98.78
+=> Epoch 213: Acc@1 87.90%  (best: 89.02%)  Sparsity 99.9% (8668/11166912 nonzero)  Est[8b:1614KB(28x)  10b:2858KB(16x)  12b:4789KB(10x)] / 45700KB raw *smallest*
+Epoch [214][0/37]  Time 1.858 (1.858)  Data 1.662 (1.662)  TaskLoss 0.6121 (0.6121)  RateLoss 422007.3 (422007.3)  Est[8b:1614KB(27x)  10b:2858KB(15x)  12b:4789KB(9x)]  Acc@1 78.91 (78.91)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.4216  Acc@1 87.59  Acc@5 98.85
+=> Epoch 214: Acc@1 87.59%  (best: 89.02%)  Sparsity 99.9% (8664/11166912 nonzero)  Est[8b:1610KB(28x)  10b:2835KB(16x)  12b:4721KB(10x)] / 45700KB raw *smallest*
+Epoch [215][0/37]  Time 1.901 (1.901)  Data 1.711 (1.711)  TaskLoss 0.5142 (0.5142)  RateLoss 421867.4 (421867.4)  Est[8b:1610KB(27x)  10b:2835KB(15x)  12b:4721KB(9x)]  Acc@1 83.20 (83.20)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.4177  Acc@1 88.18  Acc@5 98.75
+=> Epoch 215: Acc@1 88.18%  (best: 89.02%)  Sparsity 99.9% (8664/11166912 nonzero)  Est[8b:1583KB(29x)  10b:2768KB(17x)  12b:4628KB(10x)] / 45700KB raw *smallest*
+Epoch [216][0/37]  Time 1.916 (1.916)  Data 1.726 (1.726)  TaskLoss 0.4968 (0.4968)  RateLoss 421714.9 (421714.9)  Est[8b:1583KB(28x)  10b:2768KB(16x)  12b:4628KB(9x)]  Acc@1 83.59 (83.59)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4553  Acc@1 86.22  Acc@5 98.75
+=> Epoch 216: Acc@1 86.22%  (best: 89.02%)  Sparsity 99.9% (8660/11166912 nonzero)  Est[8b:1564KB(29x)  10b:2744KB(17x)  12b:4556KB(10x)] / 45700KB raw *smallest*
+Epoch [217][0/37]  Time 1.923 (1.923)  Data 1.731 (1.731)  TaskLoss 0.4595 (0.4595)  RateLoss 421591.7 (421591.7)  Est[8b:1564KB(28x)  10b:2744KB(16x)  12b:4556KB(10x)]  Acc@1 84.77 (84.77)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.4445  Acc@1 87.57  Acc@5 98.70
+=> Epoch 217: Acc@1 87.57%  (best: 89.02%)  Sparsity 99.9% (8654/11166912 nonzero)  Est[8b:1588KB(29x)  10b:2766KB(17x)  12b:4586KB(10x)] / 45700KB raw
+Epoch [218][0/37]  Time 1.940 (1.940)  Data 1.746 (1.746)  TaskLoss 0.5020 (0.5020)  RateLoss 421509.8 (421509.8)  Est[8b:1588KB(27x)  10b:2766KB(16x)  12b:4586KB(10x)]  Acc@1 82.42 (82.42)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4064  Acc@1 87.46  Acc@5 98.70
+=> Epoch 218: Acc@1 87.46%  (best: 89.02%)  Sparsity 99.9% (8649/11166912 nonzero)  Est[8b:1562KB(29x)  10b:2692KB(17x)  12b:4462KB(10x)] / 45700KB raw *smallest*
+Epoch [219][0/37]  Time 1.873 (1.873)  Data 1.699 (1.699)  TaskLoss 0.4256 (0.4256)  RateLoss 421372.9 (421372.9)  Est[8b:1562KB(28x)  10b:2692KB(16x)  12b:4462KB(10x)]  Acc@1 85.55 (85.55)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.4410  Acc@1 87.01  Acc@5 98.62
+=> Epoch 219: Acc@1 87.01%  (best: 89.02%)  Sparsity 99.9% (8649/11166912 nonzero)  Est[8b:1554KB(29x)  10b:2665KB(17x)  12b:4416KB(10x)] / 45700KB raw *smallest*
+Epoch [220][0/37]  Time 1.946 (1.946)  Data 1.757 (1.757)  TaskLoss 0.4907 (0.4907)  RateLoss 421265.2 (421265.2)  Est[8b:1554KB(28x)  10b:2665KB(16x)  12b:4416KB(10x)]  Acc@1 84.77 (84.77)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.4103  Acc@1 87.87  Acc@5 98.70
+=> Epoch 220: Acc@1 87.87%  (best: 89.02%)  Sparsity 99.9% (8644/11166912 nonzero)  Est[8b:1529KB(30x)  10b:2647KB(17x)  12b:4398KB(10x)] / 45700KB raw *smallest*
+Epoch [221][0/37]  Time 1.934 (1.934)  Data 1.745 (1.745)  TaskLoss 0.5580 (0.5580)  RateLoss 421159.5 (421159.5)  Est[8b:1529KB(29x)  10b:2647KB(16x)  12b:4398KB(10x)]  Acc@1 80.86 (80.86)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.5082  Acc@1 85.76  Acc@5 98.45
+=> Epoch 221: Acc@1 85.76%  (best: 89.02%)  Sparsity 99.9% (8641/11166912 nonzero)  Est[8b:1517KB(30x)  10b:2602KB(18x)  12b:4297KB(11x)] / 45700KB raw *smallest*
+Epoch [222][0/37]  Time 1.985 (1.985)  Data 1.790 (1.790)  TaskLoss 0.5000 (0.5000)  RateLoss 421053.1 (421053.1)  Est[8b:1517KB(29x)  10b:2602KB(17x)  12b:4297KB(10x)]  Acc@1 83.98 (83.98)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4406  Acc@1 87.64  Acc@5 98.80
+=> Epoch 222: Acc@1 87.64%  (best: 89.02%)  Sparsity 99.9% (8641/11166912 nonzero)  Est[8b:1504KB(30x)  10b:2581KB(18x)  12b:4258KB(11x)] / 45700KB raw *smallest*
+Epoch [223][0/37]  Time 1.992 (1.992)  Data 1.797 (1.797)  TaskLoss 0.5287 (0.5287)  RateLoss 420960.4 (420960.4)  Est[8b:1504KB(29x)  10b:2581KB(17x)  12b:4258KB(10x)]  Acc@1 81.25 (81.25)  Acc@5 99.61 (99.61)
+  * Val:  Loss 0.4341  Acc@1 87.41  Acc@5 98.85
+=> Epoch 223: Acc@1 87.41%  (best: 89.02%)  Sparsity 99.9% (8642/11166912 nonzero)  Est[8b:1504KB(30x)  10b:2562KB(18x)  12b:4248KB(11x)] / 45700KB raw
+Epoch [224][0/37]  Time 2.004 (2.004)  Data 1.809 (1.809)  TaskLoss 0.5075 (0.5075)  RateLoss 420875.9 (420875.9)  Est[8b:1504KB(29x)  10b:2562KB(17x)  12b:4248KB(10x)]  Acc@1 83.20 (83.20)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.3777  Acc@1 88.38  Acc@5 98.85
+=> Epoch 224: Acc@1 88.38%  (best: 89.02%)  Sparsity 99.9% (8640/11166912 nonzero)  Est[8b:1472KB(31x)  10b:2496KB(18x)  12b:4110KB(11x)] / 45700KB raw *smallest*
+Epoch [225][0/37]  Time 2.037 (2.037)  Data 1.847 (1.847)  TaskLoss 0.4526 (0.4526)  RateLoss 420750.6 (420750.6)  Est[8b:1472KB(30x)  10b:2496KB(17x)  12b:4110KB(11x)]  Acc@1 85.55 (85.55)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.4374  Acc@1 87.80  Acc@5 98.62
+=> Epoch 225: Acc@1 87.80%  (best: 89.02%)  Sparsity 99.9% (8639/11166912 nonzero)  Est[8b:1465KB(31x)  10b:2464KB(19x)  12b:4004KB(11x)] / 45700KB raw *smallest*
+Epoch [226][0/37]  Time 2.025 (2.025)  Data 1.836 (1.836)  TaskLoss 0.3598 (0.3598)  RateLoss 420633.8 (420633.8)  Est[8b:1465KB(30x)  10b:2464KB(18x)  12b:4004KB(11x)]  Acc@1 89.84 (89.84)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4002  Acc@1 88.92  Acc@5 98.90
+=> Epoch 226: Acc@1 88.92%  (best: 89.02%)  Sparsity 99.9% (8638/11166912 nonzero)  Est[8b:1450KB(32x)  10b:2421KB(19x)  12b:3954KB(12x)] / 45700KB raw *smallest*
+Epoch [227][0/37]  Time 2.056 (2.056)  Data 1.865 (1.865)  TaskLoss 0.4031 (0.4031)  RateLoss 420560.0 (420560.0)  Est[8b:1450KB(30x)  10b:2421KB(18x)  12b:3954KB(11x)]  Acc@1 86.72 (86.72)  Acc@5 99.61 (99.61)
+  * Val:  Loss 0.5093  Acc@1 86.06  Acc@5 98.62
+=> Epoch 227: Acc@1 86.06%  (best: 89.02%)  Sparsity 99.9% (8639/11166912 nonzero)  Est[8b:1427KB(32x)  10b:2395KB(19x)  12b:3885KB(12x)] / 45700KB raw *smallest*
+Epoch [228][0/37]  Time 2.065 (2.065)  Data 1.877 (1.877)  TaskLoss 0.4204 (0.4204)  RateLoss 420465.7 (420465.7)  Est[8b:1427KB(31x)  10b:2395KB(18x)  12b:3885KB(11x)]  Acc@1 87.11 (87.11)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.4797  Acc@1 86.98  Acc@5 98.39
+=> Epoch 228: Acc@1 86.98%  (best: 89.02%)  Sparsity 99.9% (8639/11166912 nonzero)  Est[8b:1431KB(32x)  10b:2361KB(19x)  12b:3824KB(12x)] / 45700KB raw
+Epoch [229][0/37]  Time 2.058 (2.058)  Data 1.865 (1.865)  TaskLoss 0.4662 (0.4662)  RateLoss 420371.6 (420371.6)  Est[8b:1431KB(30x)  10b:2361KB(18x)  12b:3824KB(11x)]  Acc@1 84.77 (84.77)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.3977  Acc@1 88.43  Acc@5 98.85
+=> Epoch 229: Acc@1 88.43%  (best: 89.02%)  Sparsity 99.9% (8636/11166912 nonzero)  Est[8b:1410KB(32x)  10b:2327KB(20x)  12b:3752KB(12x)] / 45700KB raw *smallest*
+Epoch [230][0/37]  Time 2.010 (2.010)  Data 1.822 (1.822)  TaskLoss 0.4669 (0.4669)  RateLoss 420288.4 (420288.4)  Est[8b:1410KB(31x)  10b:2327KB(19x)  12b:3752KB(12x)]  Acc@1 83.59 (83.59)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.3931  Acc@1 88.25  Acc@5 98.78
+=> Epoch 230: Acc@1 88.25%  (best: 89.02%)  Sparsity 99.9% (8638/11166912 nonzero)  Est[8b:1402KB(33x)  10b:2298KB(20x)  12b:3670KB(12x)] / 45700KB raw *smallest*
+Epoch [231][0/37]  Time 2.013 (2.013)  Data 1.825 (1.825)  TaskLoss 0.4453 (0.4453)  RateLoss 420210.1 (420210.1)  Est[8b:1402KB(31x)  10b:2298KB(19x)  12b:3670KB(12x)]  Acc@1 86.72 (86.72)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.3877  Acc@1 88.18  Acc@5 98.90
+=> Epoch 231: Acc@1 88.18%  (best: 89.02%)  Sparsity 99.9% (8637/11166912 nonzero)  Est[8b:1389KB(33x)  10b:2258KB(20x)  12b:3660KB(12x)] / 45700KB raw *smallest*
+Epoch [232][0/37]  Time 2.053 (2.053)  Data 1.863 (1.863)  TaskLoss 0.5238 (0.5238)  RateLoss 420143.8 (420143.8)  Est[8b:1389KB(31x)  10b:2258KB(19x)  12b:3660KB(12x)]  Acc@1 81.25 (81.25)  Acc@5 99.61 (99.61)
+  * Val:  Loss 0.4283  Acc@1 87.24  Acc@5 98.75
+=> Epoch 232: Acc@1 87.24%  (best: 89.02%)  Sparsity 99.9% (8635/11166912 nonzero)  Est[8b:1368KB(33x)  10b:2232KB(20x)  12b:3576KB(13x)] / 45700KB raw *smallest*
+Epoch [233][0/37]  Time 2.035 (2.035)  Data 1.834 (1.834)  TaskLoss 0.5116 (0.5116)  RateLoss 420061.9 (420061.9)  Est[8b:1368KB(32x)  10b:2232KB(20x)  12b:3576KB(12x)]  Acc@1 85.16 (85.16)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.3939  Acc@1 88.61  Acc@5 98.73
+=> Epoch 233: Acc@1 88.61%  (best: 89.02%)  Sparsity 99.9% (8635/11166912 nonzero)  Est[8b:1363KB(34x)  10b:2218KB(21x)  12b:3514KB(13x)] / 45700KB raw *smallest*
+Epoch [234][0/37]  Time 1.936 (1.936)  Data 1.748 (1.748)  TaskLoss 0.4920 (0.4920)  RateLoss 419993.3 (419993.3)  Est[8b:1363KB(32x)  10b:2218KB(20x)  12b:3514KB(12x)]  Acc@1 82.81 (82.81)  Acc@5 97.27 (97.27)
+  * Val:  Loss 0.3745  Acc@1 88.84  Acc@5 98.78
+=> Epoch 234: Acc@1 88.84%  (best: 89.02%)  Sparsity 99.9% (8636/11166912 nonzero)  Est[8b:1343KB(34x)  10b:2159KB(21x)  12b:3437KB(13x)] / 45700KB raw *smallest*
+Epoch [235][0/37]  Time 2.075 (2.075)  Data 1.884 (1.884)  TaskLoss 0.4505 (0.4505)  RateLoss 419934.9 (419934.9)  Est[8b:1343KB(32x)  10b:2159KB(20x)  12b:3437KB(13x)]  Acc@1 85.16 (85.16)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.3792  Acc@1 88.64  Acc@5 98.88
+=> Epoch 235: Acc@1 88.64%  (best: 89.02%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1351KB(34x)  10b:2146KB(21x)  12b:3389KB(13x)] / 45700KB raw
+Epoch [236][0/37]  Time 2.006 (2.006)  Data 1.812 (1.812)  TaskLoss 0.4324 (0.4324)  RateLoss 419875.7 (419875.7)  Est[8b:1351KB(32x)  10b:2146KB(20x)  12b:3389KB(13x)]  Acc@1 85.16 (85.16)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.3946  Acc@1 88.08  Acc@5 98.80
+=> Epoch 236: Acc@1 88.08%  (best: 89.02%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1342KB(34x)  10b:2129KB(21x)  12b:3280KB(14x)] / 45700KB raw *smallest*
+Epoch [237][0/37]  Time 1.979 (1.979)  Data 1.790 (1.790)  TaskLoss 0.5276 (0.5276)  RateLoss 419807.0 (419807.0)  Est[8b:1342KB(33x)  10b:2129KB(20x)  12b:3280KB(13x)]  Acc@1 83.20 (83.20)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.5653  Acc@1 84.89  Acc@5 98.39
+=> Epoch 237: Acc@1 84.89%  (best: 89.02%)  Sparsity 99.9% (8635/11166912 nonzero)  Est[8b:1328KB(34x)  10b:2090KB(22x)  12b:3209KB(14x)] / 45700KB raw *smallest*
+Epoch [238][0/37]  Time 2.042 (2.042)  Data 1.868 (1.868)  TaskLoss 0.4504 (0.4504)  RateLoss 419747.1 (419747.1)  Est[8b:1328KB(33x)  10b:2090KB(21x)  12b:3209KB(14x)]  Acc@1 86.33 (86.33)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.3815  Acc@1 88.82  Acc@5 99.08
+=> Epoch 238: Acc@1 88.82%  (best: 89.02%)  Sparsity 99.9% (8635/11166912 nonzero)  Est[8b:1317KB(35x)  10b:2063KB(22x)  12b:3145KB(15x)] / 45700KB raw *smallest*
+Epoch [239][0/37]  Time 2.110 (2.110)  Data 1.921 (1.921)  TaskLoss 0.4395 (0.4395)  RateLoss 419695.9 (419695.9)  Est[8b:1317KB(33x)  10b:2063KB(21x)  12b:3145KB(14x)]  Acc@1 84.77 (84.77)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4115  Acc@1 87.92  Acc@5 98.70
+=> Epoch 239: Acc@1 87.92%  (best: 89.02%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1310KB(35x)  10b:2032KB(22x)  12b:3081KB(15x)] / 45700KB raw *smallest*
+Epoch [240][0/37]  Time 2.069 (2.069)  Data 1.882 (1.882)  TaskLoss 0.5239 (0.5239)  RateLoss 419642.2 (419642.2)  Est[8b:1310KB(33x)  10b:2032KB(21x)  12b:3081KB(14x)]  Acc@1 81.25 (81.25)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.4717  Acc@1 86.88  Acc@5 98.52
+=> Epoch 240: Acc@1 86.88%  (best: 89.02%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1302KB(35x)  10b:1994KB(23x)  12b:2998KB(15x)] / 45700KB raw *smallest*
+Epoch [241][0/37]  Time 2.099 (2.099)  Data 1.896 (1.896)  TaskLoss 0.5062 (0.5062)  RateLoss 419596.2 (419596.2)  Est[8b:1302KB(34x)  10b:1994KB(22x)  12b:2998KB(15x)]  Acc@1 84.77 (84.77)  Acc@5 96.88 (96.88)
+  * Val:  Loss 0.4095  Acc@1 87.34  Acc@5 98.68
+=> Epoch 241: Acc@1 87.34%  (best: 89.02%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1287KB(35x)  10b:1965KB(23x)  12b:2925KB(16x)] / 45700KB raw *smallest*
+Epoch [242][0/37]  Time 2.087 (2.087)  Data 1.891 (1.891)  TaskLoss 0.4496 (0.4496)  RateLoss 419550.7 (419550.7)  Est[8b:1287KB(34x)  10b:1965KB(22x)  12b:2925KB(15x)]  Acc@1 83.59 (83.59)  Acc@5 99.61 (99.61)
+  * Val:  Loss 0.3987  Acc@1 88.18  Acc@5 98.68
+=> Epoch 242: Acc@1 88.18%  (best: 89.02%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1277KB(36x)  10b:1944KB(24x)  12b:2860KB(16x)] / 45700KB raw *smallest*
+Epoch [243][0/37]  Time 2.050 (2.050)  Data 1.856 (1.856)  TaskLoss 0.3898 (0.3898)  RateLoss 419508.7 (419508.7)  Est[8b:1277KB(34x)  10b:1944KB(22x)  12b:2860KB(15x)]  Acc@1 88.67 (88.67)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.3820  Acc@1 88.76  Acc@5 98.65
+=> Epoch 243: Acc@1 88.76%  (best: 89.02%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1272KB(36x)  10b:1932KB(24x)  12b:2832KB(16x)] / 45700KB raw *smallest*
+Epoch [244][0/37]  Time 2.066 (2.066)  Data 1.876 (1.876)  TaskLoss 0.4941 (0.4941)  RateLoss 419475.8 (419475.8)  Est[8b:1272KB(34x)  10b:1932KB(23x)  12b:2832KB(15x)]  Acc@1 85.55 (85.55)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.4474  Acc@1 86.96  Acc@5 98.47
+=> Epoch 244: Acc@1 86.96%  (best: 89.02%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1266KB(36x)  10b:1910KB(24x)  12b:2754KB(17x)] / 45700KB raw *smallest*
+Epoch [245][0/37]  Time 2.106 (2.106)  Data 1.915 (1.915)  TaskLoss 0.6466 (0.6466)  RateLoss 419444.0 (419444.0)  Est[8b:1266KB(34x)  10b:1910KB(23x)  12b:2754KB(16x)]  Acc@1 78.12 (78.12)  Acc@5 95.70 (95.70)
+  * Val:  Loss 0.3571  Acc@1 89.10  Acc@5 98.90
+=> Epoch 245: Acc@1 89.10%  (best: 89.10%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1257KB(36x)  10b:1883KB(24x)  12b:2691KB(17x)] / 45700KB raw *best* *smallest*
+Epoch [246][0/37]  Time 2.106 (2.106)  Data 1.915 (1.915)  TaskLoss 0.5237 (0.5237)  RateLoss 419416.4 (419416.4)  Est[8b:1257KB(35x)  10b:1883KB(23x)  12b:2691KB(16x)]  Acc@1 80.86 (80.86)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4236  Acc@1 87.67  Acc@5 98.75
+=> Epoch 246: Acc@1 87.67%  (best: 89.10%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1250KB(37x)  10b:1859KB(25x)  12b:2650KB(17x)] / 45700KB raw *smallest*
+Epoch [247][0/37]  Time 2.114 (2.114)  Data 1.924 (1.924)  TaskLoss 0.6040 (0.6040)  RateLoss 419387.1 (419387.1)  Est[8b:1250KB(35x)  10b:1859KB(23x)  12b:2650KB(16x)]  Acc@1 80.47 (80.47)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4993  Acc@1 86.39  Acc@5 98.50
+=> Epoch 247: Acc@1 86.39%  (best: 89.10%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1243KB(37x)  10b:1849KB(25x)  12b:2586KB(18x)] / 45700KB raw *smallest*
+Epoch [248][0/37]  Time 2.178 (2.178)  Data 1.983 (1.983)  TaskLoss 0.5412 (0.5412)  RateLoss 419363.1 (419363.1)  Est[8b:1243KB(35x)  10b:1849KB(24x)  12b:2586KB(17x)]  Acc@1 80.08 (80.08)  Acc@5 98.05 (98.05)
+  * Val:  Loss 0.3806  Acc@1 88.74  Acc@5 98.80
+=> Epoch 248: Acc@1 88.74%  (best: 89.10%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1240KB(37x)  10b:1829KB(25x)  12b:2539KB(18x)] / 45700KB raw *smallest*
+Epoch [249][0/37]  Time 2.171 (2.171)  Data 1.977 (1.977)  TaskLoss 0.4646 (0.4646)  RateLoss 419341.2 (419341.2)  Est[8b:1240KB(35x)  10b:1829KB(24x)  12b:2539KB(17x)]  Acc@1 84.77 (84.77)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.4545  Acc@1 87.24  Acc@5 98.62
+=> Epoch 249: Acc@1 87.24%  (best: 89.10%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1235KB(37x)  10b:1811KB(25x)  12b:2499KB(18x)] / 45700KB raw *smallest*
+Epoch [250][0/37]  Time 2.179 (2.179)  Data 1.989 (1.989)  TaskLoss 0.3729 (0.3729)  RateLoss 419324.8 (419324.8)  Est[8b:1235KB(35x)  10b:1811KB(24x)  12b:2499KB(17x)]  Acc@1 88.28 (88.28)  Acc@5 99.61 (99.61)
+  * Val:  Loss 0.4226  Acc@1 87.34  Acc@5 98.88
+=> Epoch 250: Acc@1 87.34%  (best: 89.10%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1234KB(37x)  10b:1800KB(25x)  12b:2475KB(18x)] / 45700KB raw *smallest*
+Epoch [251][0/37]  Time 2.174 (2.174)  Data 1.993 (1.993)  TaskLoss 0.4183 (0.4183)  RateLoss 419310.9 (419310.9)  Est[8b:1234KB(35x)  10b:1800KB(24x)  12b:2475KB(18x)]  Acc@1 85.55 (85.55)  Acc@5 99.61 (99.61)
+  * Val:  Loss 0.4217  Acc@1 87.11  Acc@5 98.68
+=> Epoch 251: Acc@1 87.11%  (best: 89.10%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1232KB(37x)  10b:1792KB(25x)  12b:2434KB(19x)] / 45700KB raw *smallest*
+Epoch [252][0/37]  Time 2.181 (2.181)  Data 1.991 (1.991)  TaskLoss 0.5824 (0.5824)  RateLoss 419299.1 (419299.1)  Est[8b:1232KB(35x)  10b:1792KB(24x)  12b:2434KB(18x)]  Acc@1 82.81 (82.81)  Acc@5 97.66 (97.66)
+  * Val:  Loss 0.3938  Acc@1 88.05  Acc@5 98.73
+=> Epoch 252: Acc@1 88.05%  (best: 89.10%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1229KB(37x)  10b:1792KB(25x)  12b:2406KB(19x)] / 45700KB raw *smallest*
+Epoch [253][0/37]  Time 2.183 (2.183)  Data 1.993 (1.993)  TaskLoss 0.3767 (0.3767)  RateLoss 419290.4 (419290.4)  Est[8b:1229KB(35x)  10b:1792KB(24x)  12b:2406KB(18x)]  Acc@1 88.67 (88.67)  Acc@5 98.83 (98.83)
+  * Val:  Loss 0.4005  Acc@1 88.08  Acc@5 98.90
+=> Epoch 253: Acc@1 88.08%  (best: 89.10%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1228KB(37x)  10b:1783KB(26x)  12b:2392KB(19x)] / 45700KB raw *smallest*
+Epoch [254][0/37]  Time 2.191 (2.191)  Data 2.000 (2.000)  TaskLoss 0.4360 (0.4360)  RateLoss 419283.6 (419283.6)  Est[8b:1228KB(36x)  10b:1783KB(24x)  12b:2392KB(18x)]  Acc@1 85.94 (85.94)  Acc@5 99.22 (99.22)
+  * Val:  Loss 0.4158  Acc@1 87.44  Acc@5 98.73
+=> Epoch 254: Acc@1 87.44%  (best: 89.10%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1228KB(37x)  10b:1779KB(26x)  12b:2381KB(19x)] / 45700KB raw *smallest*
+Epoch [255][0/37]  Time 2.193 (2.193)  Data 2.002 (2.002)  TaskLoss 0.3505 (0.3505)  RateLoss 419279.4 (419279.4)  Est[8b:1228KB(36x)  10b:1779KB(25x)  12b:2381KB(18x)]  Acc@1 87.89 (87.89)  Acc@5 98.44 (98.44)
+  * Val:  Loss 0.4046  Acc@1 87.82  Acc@5 98.78
+=> Epoch 255: Acc@1 87.82%  (best: 89.10%)  Sparsity 99.9% (8634/11166912 nonzero)  Est[8b:1227KB(37x)  10b:1778KB(26x)  12b:2373KB(19x)] / 45700KB raw *smallest*
+
+=> Quantizing DCT coefficients and exporting sparse model...
+   Loaded best checkpoint (Acc@1 89.10%)
+   Overall sparsity: 99.9% (8634/11166912 coefficients retained)
+     conv1: 96.5% sparse (330/9408 nonzero)
+     layer1.0.conv1: 98.6% sparse (504/36864 nonzero)
+     layer1.0.conv2: 98.6% sparse (521/36864 nonzero)
+     layer1.1.conv1: 98.8% sparse (435/36864 nonzero)
+     layer1.1.conv2: 98.9% sparse (395/36864 nonzero)
+     layer2.0.conv1: 98.8% sparse (868/73728 nonzero)
+     layer2.0.conv2: 99.3% sparse (1044/147456 nonzero)
+     layer2.0.downsample.0: 99.2% sparse (66/8192 nonzero)
+     layer2.1.conv1: 99.7% sparse (444/147456 nonzero)
+     layer2.1.conv2: 99.7% sparse (390/147456 nonzero)
+     layer3.0.conv1: 99.6% sparse (1176/294912 nonzero)
+     layer3.0.conv2: 99.8% sparse (905/589824 nonzero)
+     layer3.0.downsample.0: 100.0% sparse (2/32768 nonzero)
+     layer3.1.conv1: 100.0% sparse (203/589824 nonzero)
+     layer3.1.conv2: 100.0% sparse (184/589824 nonzero)
+     layer4.0.conv1: 100.0% sparse (456/1179648 nonzero)
+     layer4.0.conv2: 100.0% sparse (235/2359296 nonzero)
+     layer4.0.downsample.0: 100.0% sparse (10/131072 nonzero)
+     layer4.1.conv1: 100.0% sparse (273/2359296 nonzero)
+     layer4.1.conv2: 100.0% sparse (193/2359296 nonzero)
+
+=> Evaluating quantized model...
+  * Val:  Loss 4.5869  Acc@1 19.16  Acc@5 62.96
+   Quantized Acc@1: 19.16% (was 89.10% before quantization)
+   Saved quantized model to ./checkpoints/quantized.pth
+   Saved sparse coefficients to ./checkpoints/sparse_coefficients.pt
+
+--- Encoding to H.265 ---
+Loading model from ./checkpoints/best.pth
+  conv1: [64, 3, 7, 7] -> 2D 448x21  (spatial_dct)
+  bn1: [4, 64] -> 2D 4x64  (bn)
+  layer1.0.conv1: [64, 64, 3, 3] -> 2D 192x192  (spatial_dct)
+  layer1.0.bn1: [4, 64] -> 2D 4x64  (bn)
+  layer1.0.conv2: [64, 64, 3, 3] -> 2D 192x192  (spatial_dct)
+  layer1.0.bn2: [4, 64] -> 2D 4x64  (bn)
+  layer1.1.conv1: [64, 64, 3, 3] -> 2D 192x192  (spatial_dct)
+  layer1.1.bn1: [4, 64] -> 2D 4x64  (bn)
+  layer1.1.conv2: [64, 64, 3, 3] -> 2D 192x192  (spatial_dct)
+  layer1.1.bn2: [4, 64] -> 2D 4x64  (bn)
+  layer2.0.conv1: [128, 64, 3, 3] -> 2D 384x192  (spatial_dct)
+  layer2.0.bn1: [4, 128] -> 2D 4x128  (bn)
+  layer2.0.conv2: [128, 128, 3, 3] -> 2D 384x384  (spatial_dct)
+  layer2.0.bn2: [4, 128] -> 2D 4x128  (bn)
+  layer2.0.downsample.0: [128, 64] -> 2D 128x64  (channel_dct)
+  layer2.0.downsample.1: [4, 128] -> 2D 4x128  (bn)
+  layer2.1.conv1: [128, 128, 3, 3] -> 2D 384x384  (spatial_dct)
+  layer2.1.bn1: [4, 128] -> 2D 4x128  (bn)
+  layer2.1.conv2: [128, 128, 3, 3] -> 2D 384x384  (spatial_dct)
+  layer2.1.bn2: [4, 128] -> 2D 4x128  (bn)
+  layer3.0.conv1: [256, 128, 3, 3] -> 2D 768x384  (spatial_dct)
+  layer3.0.bn1: [4, 256] -> 2D 4x256  (bn)
+  layer3.0.conv2: [256, 256, 3, 3] -> 2D 768x768  (spatial_dct)
+  layer3.0.bn2: [4, 256] -> 2D 4x256  (bn)
+  layer3.0.downsample.0: [256, 128] -> 2D 256x128  (channel_dct)
+  layer3.0.downsample.1: [4, 256] -> 2D 4x256  (bn)
+  layer3.1.conv1: [256, 256, 3, 3] -> 2D 768x768  (spatial_dct)
+  layer3.1.bn1: [4, 256] -> 2D 4x256  (bn)
+  layer3.1.conv2: [256, 256, 3, 3] -> 2D 768x768  (spatial_dct)
+  layer3.1.bn2: [4, 256] -> 2D 4x256  (bn)
+  layer4.0.conv1: [512, 256, 3, 3] -> 2D 1536x768  (spatial_dct)
+  layer4.0.bn1: [4, 512] -> 2D 4x512  (bn)
+  layer4.0.conv2: [512, 512, 3, 3] -> 2D 1536x1536  (spatial_dct)
+  layer4.0.bn2: [4, 512] -> 2D 4x512  (bn)
+  layer4.0.downsample.0: [512, 256] -> 2D 512x256  (channel_dct)
+  layer4.0.downsample.1: [4, 512] -> 2D 4x512  (bn)
+  layer4.1.conv1: [512, 512, 3, 3] -> 2D 1536x1536  (spatial_dct)
+  layer4.1.bn1: [4, 512] -> 2D 4x512  (bn)
+  layer4.1.conv2: [512, 512, 3, 3] -> 2D 1536x1536  (spatial_dct)
+  layer4.1.bn2: [4, 512] -> 2D 4x512  (bn)
+  fc.weight: [1000, 512] -> 2D 1000x512  (fc)
+  fc.bias: [1, 1000] -> 2D 1x1000  (fc_bias)
+
+Encoding 9 video(s) at 8-bit (preset=slower)...
+  bn_16x64.hevc: 5 frames @ 64x16  raw=5.0 KB  h265=10.9 KB  ratio=0.5x (12bit)
+  dct_16x126.hevc: 8 frames @ 126x16  raw=15.8 KB  h265=15.3 KB  ratio=1.0x (8bit)
+  bn_16x128.hevc: 35 frames @ 128x16  raw=70.0 KB  h265=115.0 KB  ratio=0.6x (12bit)
+  dct_96x96.hevc: 16 frames @ 96x96  raw=144.0 KB  h265=30.1 KB  ratio=4.8x (8bit)
+  dct_112x22.hevc: 4 frames @ 22x112  raw=9.6 KB  h265=4.4 KB  ratio=2.2x (8bit)
+  dct_126x128.hevc: 32 frames @ 128x126  raw=504.0 KB  h265=463.6 KB  ratio=1.1x (8bit)
+  dct_128x64.hevc: 1 frames @ 64x128  raw=8.0 KB  h265=2.8 KB  ratio=2.9x (8bit)
+  dct_128x96.hevc: 6 frames @ 96x128  raw=72.0 KB  h265=20.0 KB  ratio=3.6x (8bit)
+  dct_128x128.hevc: 667 frames @ 128x128  raw=10672.0 KB  h265=699.3 KB  ratio=15.3x (8bit)
+
+--- Summary (preset=slower, 52.5s) ---
+Full model DCT weights (float32): 45699.7 KB
+Pixel frames raw:                 11500.4 KB
+H.265 encoded:                    1361.4 KB
+Compression vs float32:           33.6x
+Compression vs pixel raw:         8.4x
+
+Total compressed model (H.265 only): 1361.4 KB
+Compression ratio:                   33.6x
+Manifest saved to ./h265_out/manifest.json
+
+--- Decoding and Evaluating ---
+Decoding H.265 model: arch=resnet18, bit_depth=8
+  Decoding bn_16x64.hevc: 5 frames @ 64x16...
+  Decoding dct_16x126.hevc: 8 frames @ 126x16...
+  Decoding bn_16x128.hevc: 35 frames @ 128x16...
+  Decoding dct_96x96.hevc: 16 frames @ 96x96...
+  Decoding dct_112x22.hevc: 4 frames @ 22x112...
+  Decoding dct_126x128.hevc: 32 frames @ 128x126...
+  Decoding dct_128x64.hevc: 1 frames @ 64x128...
+  Decoding dct_128x96.hevc: 6 frames @ 96x128...
+  Decoding dct_128x128.hevc: 667 frames @ 128x128...
+  Loaded conv1 (spatial_dct): [64, 3, 7, 7]
+  Loaded bn1 (bn): [4, 64]
+  Loaded layer1.0.conv1 (spatial_dct): [64, 64, 3, 3]
+  Loaded layer1.0.bn1 (bn): [4, 64]
+  Loaded layer1.0.conv2 (spatial_dct): [64, 64, 3, 3]
+  Loaded layer1.0.bn2 (bn): [4, 64]
+  Loaded layer1.1.conv1 (spatial_dct): [64, 64, 3, 3]
+  Loaded layer1.1.bn1 (bn): [4, 64]
+  Loaded layer1.1.conv2 (spatial_dct): [64, 64, 3, 3]
+  Loaded layer1.1.bn2 (bn): [4, 64]
+  Loaded layer2.0.conv1 (spatial_dct): [128, 64, 3, 3]
+  Loaded layer2.0.bn1 (bn): [4, 128]
+  Loaded layer2.0.conv2 (spatial_dct): [128, 128, 3, 3]
+  Loaded layer2.0.bn2 (bn): [4, 128]
+  Loaded layer2.0.downsample.0 (channel_dct): [128, 64]
+  Loaded layer2.0.downsample.1 (bn): [4, 128]
+  Loaded layer2.1.conv1 (spatial_dct): [128, 128, 3, 3]
+  Loaded layer2.1.bn1 (bn): [4, 128]
+  Loaded layer2.1.conv2 (spatial_dct): [128, 128, 3, 3]
+  Loaded layer2.1.bn2 (bn): [4, 128]
+  Loaded layer3.0.conv1 (spatial_dct): [256, 128, 3, 3]
+  Loaded layer3.0.bn1 (bn): [4, 256]
+  Loaded layer3.0.conv2 (spatial_dct): [256, 256, 3, 3]
+  Loaded layer3.0.bn2 (bn): [4, 256]
+  Loaded layer3.0.downsample.0 (channel_dct): [256, 128]
+  Loaded layer3.0.downsample.1 (bn): [4, 256]
+  Loaded layer3.1.conv1 (spatial_dct): [256, 256, 3, 3]
+  Loaded layer3.1.bn1 (bn): [4, 256]
+  Loaded layer3.1.conv2 (spatial_dct): [256, 256, 3, 3]
+  Loaded layer3.1.bn2 (bn): [4, 256]
+  Loaded layer4.0.conv1 (spatial_dct): [512, 256, 3, 3]
+  Loaded layer4.0.bn1 (bn): [4, 512]
+  Loaded layer4.0.conv2 (spatial_dct): [512, 512, 3, 3]
+  Loaded layer4.0.bn2 (bn): [4, 512]
+  Loaded layer4.0.downsample.0 (channel_dct): [512, 256]
+  Loaded layer4.0.downsample.1 (bn): [4, 512]
+  Loaded layer4.1.conv1 (spatial_dct): [512, 512, 3, 3]
+  Loaded layer4.1.bn1 (bn): [4, 512]
+  Loaded layer4.1.conv2 (spatial_dct): [512, 512, 3, 3]
+  Loaded layer4.1.bn2 (bn): [4, 512]
+  Loaded fc.weight (fc): [1000, 512]
+  Loaded fc.bias (fc_bias): [1, 1000]
+
+Evaluating decoded model on ./imagenette2-320/val...
+
+--- Decoded Model Evaluation ---
+  Loss:  25.4182
+  Acc@1: 4.74%
+  Acc@5: 9.35%
+  (After H.265 decode: Acc@1 4.74%)
+
+  H.265 total size:    1361.4 KB
+  Float32 model size:  42948.8 KB
+  Compression ratio:   31.5x
+
+(.venv) skmp@venvi:~/projects/ctnet$ python export_h265.py decode
+Decoding H.265 model: arch=resnet18, bit_depth=8
+  Decoding bn_16x64.hevc: 5 frames @ 64x16...
+  Decoding dct_16x126.hevc: 8 frames @ 126x16...
+  Decoding bn_16x128.hevc: 35 frames @ 128x16...
+  Decoding dct_96x96.hevc: 16 frames @ 96x96...
+  Decoding dct_112x22.hevc: 4 frames @ 22x112...
+  Decoding dct_126x128.hevc: 32 frames @ 128x126...
+  Decoding dct_128x64.hevc: 1 frames @ 64x128...
+  Decoding dct_128x96.hevc: 6 frames @ 96x128...
+  Decoding dct_128x128.hevc: 667 frames @ 128x128...
+  Loaded conv1 (spatial_dct): [64, 3, 7, 7]
+  Loaded bn1 (bn): [4, 64]
+  Loaded layer1.0.conv1 (spatial_dct): [64, 64, 3, 3]
+  Loaded layer1.0.bn1 (bn): [4, 64]
+  Loaded layer1.0.conv2 (spatial_dct): [64, 64, 3, 3]
+  Loaded layer1.0.bn2 (bn): [4, 64]
+  Loaded layer1.1.conv1 (spatial_dct): [64, 64, 3, 3]
+  Loaded layer1.1.bn1 (bn): [4, 64]
+  Loaded layer1.1.conv2 (spatial_dct): [64, 64, 3, 3]
+  Loaded layer1.1.bn2 (bn): [4, 64]
+  Loaded layer2.0.conv1 (spatial_dct): [128, 64, 3, 3]
+  Loaded layer2.0.bn1 (bn): [4, 128]
+  Loaded layer2.0.conv2 (spatial_dct): [128, 128, 3, 3]
+  Loaded layer2.0.bn2 (bn): [4, 128]
+  Loaded layer2.0.downsample.0 (channel_dct): [128, 64]
+  Loaded layer2.0.downsample.1 (bn): [4, 128]
+  Loaded layer2.1.conv1 (spatial_dct): [128, 128, 3, 3]
+  Loaded layer2.1.bn1 (bn): [4, 128]
+  Loaded layer2.1.conv2 (spatial_dct): [128, 128, 3, 3]
+  Loaded layer2.1.bn2 (bn): [4, 128]
+  Loaded layer3.0.conv1 (spatial_dct): [256, 128, 3, 3]
+  Loaded layer3.0.bn1 (bn): [4, 256]
+  Loaded layer3.0.conv2 (spatial_dct): [256, 256, 3, 3]
+  Loaded layer3.0.bn2 (bn): [4, 256]
+  Loaded layer3.0.downsample.0 (channel_dct): [256, 128]
+  Loaded layer3.0.downsample.1 (bn): [4, 256]
+  Loaded layer3.1.conv1 (spatial_dct): [256, 256, 3, 3]
+  Loaded layer3.1.bn1 (bn): [4, 256]
+  Loaded layer3.1.conv2 (spatial_dct): [256, 256, 3, 3]
+  Loaded layer3.1.bn2 (bn): [4, 256]
+  Loaded layer4.0.conv1 (spatial_dct): [512, 256, 3, 3]
+  Loaded layer4.0.bn1 (bn): [4, 512]
+  Loaded layer4.0.conv2 (spatial_dct): [512, 512, 3, 3]
+  Loaded layer4.0.bn2 (bn): [4, 512]
+  Loaded layer4.0.downsample.0 (channel_dct): [512, 256]
+  Loaded layer4.0.downsample.1 (bn): [4, 512]
+  Loaded layer4.1.conv1 (spatial_dct): [512, 512, 3, 3]
+  Loaded layer4.1.bn1 (bn): [4, 512]
+  Loaded layer4.1.conv2 (spatial_dct): [512, 512, 3, 3]
+  Loaded layer4.1.bn2 (bn): [4, 512]
+  Loaded fc.weight (fc): [1000, 512]
+  Loaded fc.bias (fc_bias): [1, 1000]
+  Remapping 10 labels to ImageNet indices
+
+Evaluating decoded model on ./imagenette2-320/val...
+
+
+8 bits
+--- Decoded Model Evaluation ---
+  Loss:  0.7260
+  Acc@1: 77.86%
+  Acc@5: 97.89%
+  (After H.265 decode: Acc@1 77.86%)
+
+  H.265 total size:    1361.4 KB
+  Float32 model size:  42948.8 KB
+  Compression ratio:   31.5x
+
+
+10 bits
+--- Decoded Model Evaluation ---
+  Loss:  0.5590
+  Acc@1: 82.17%
+  Acc@5: 98.39%
+  (After H.265 decode: Acc@1 82.17%)
+
+  H.265 total size:    1975.3 KB
+  Float32 model size:  42948.8 KB
+  Compression ratio:   21.7x
+
+
+12 bits
+--- Decoded Model Evaluation ---
+  Loss:  0.5595
+  Acc@1: 82.17%
+  Acc@5: 98.42%
+  (After H.265 decode: Acc@1 82.17%)
+
+  H.265 total size:    2822.7 KB
+  Float32 model size:  42948.8 KB
+  Compression ratio:   15.2x
+

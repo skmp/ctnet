@@ -537,6 +537,25 @@ def decode_main(args):
                                  std=[0.229, 0.224, 0.225]),
         ]),
     )
+
+    # Remap subset dataset labels to ImageNet indices (same as training)
+    IMAGENET_WNID_TO_IDX = {
+        "n01440764": 0, "n02102040": 217, "n02979186": 482, "n03000684": 491,
+        "n03028079": 497, "n03394916": 566, "n03417042": 569, "n03425413": 571,
+        "n03445777": 574, "n03888257": 701,
+    }
+    num_classes = len(val_dataset.classes)
+    if num_classes < 1000:
+        label_map = {}
+        for wnid, local_idx in val_dataset.class_to_idx.items():
+            if wnid in IMAGENET_WNID_TO_IDX:
+                label_map[local_idx] = IMAGENET_WNID_TO_IDX[wnid]
+        if len(label_map) == num_classes:
+            print(f"  Remapping {num_classes} labels to ImageNet indices")
+            val_dataset.targets = [label_map[t] for t in val_dataset.targets]
+            val_dataset.samples = [(p, label_map[t]) for p, t in val_dataset.samples]
+            val_dataset.imgs = val_dataset.samples
+
     val_loader = torch.utils.data.DataLoader(
         val_dataset, batch_size=args.batch_size,
         shuffle=False, num_workers=args.workers, pin_memory=True,
