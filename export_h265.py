@@ -495,7 +495,9 @@ def decode_main(args):
             m.weight.data.copy_(img[0])
             m.bias.data.copy_(img[1])
             m.running_mean.copy_(img[2])
-            m.running_var.copy_(img[3])
+            # Clamp running_var to non-negative: 8-bit roundtrip can push
+            # near-zero variances slightly negative, causing nan in sqrt
+            m.running_var.copy_(img[3].clamp(min=0.0))
             print(f"  Loaded {name} (bn): {list(img.shape)}")
 
         elif isinstance(m, nn.Linear):
