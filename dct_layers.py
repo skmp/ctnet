@@ -4,6 +4,36 @@ import torch.nn.functional as F
 from dct_utils import get_1d_dct_matrix, get_dct_matrix
 
 
+# Module-level training config, set by the training script
+class DCTConfig:
+    qstep: float = 0.1
+    dct_dropout: float = 0.0
+    train_noise: bool = False
+
+
+dct_config = DCTConfig()
+
+
+def _apply_train_noise_and_dropout(weight_dct: torch.Tensor, training: bool) -> torch.Tensor:
+    """Apply training-time uniform noise and DCT dropout to DCT coefficients."""
+    if not training:
+        return weight_dct
+
+    w = weight_dct
+
+    # Training-time uniform noise (ECRF): Φ(θ) = θ + u * qstep, u ~ U(-½, ½)
+    if dct_config.train_noise and dct_config.qstep > 0:
+        noise = torch.empty_like(w).uniform_(-0.5, 0.5) * dct_config.qstep
+        w = w + noise
+
+    # DCT dropout (DCT-Conv): randomly zero coefficients, scale survivors
+    if dct_config.dct_dropout > 0:
+        mask = torch.bernoulli(torch.full_like(w, 1.0 - dct_config.dct_dropout))
+        w = w * mask / (1.0 - dct_config.dct_dropout)
+
+    return w
+
+
 class DCTConv2d(nn.Module):
     """
     Convolutional layer whose learnable parameters live in the DCT (frequency)
@@ -63,8 +93,10 @@ class DCTConv2d(nn.Module):
         self._quantized = False
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        w = _apply_train_noise_and_dropout(self.weight_dct, self.training)
+
         spatial_weight = torch.einsum(
-            "ab, oibd, cd -> oiac", self.C_h_T, self.weight_dct, self.C_w
+            "ab, oibd, cd -> oiac", self.C_h_T, w, self.C_w
         )
 
         if self.padding_mode != "zeros":
@@ -111,11 +143,8 @@ class ChannelDCTConv1x1(nn.Module):
     """
     1x1 convolution with channel-wise DCT reparameterization.
 
-    Learnable parameters are DCT coefficients of shape (out_ch, in_ch_per_group).
-    Forward: 2D IDCT along both channel dimensions, then F.conv2d with [out, in, 1, 1].
-
-    Uses global cached DCT matrices instead of per-layer buffers to save memory
-    (critical for ResNet-50 where matrices can be 2048x2048).
+    Supports optional block DCT: instead of one large N×N DCT, applies
+    B×B DCT in blocks. Set block_size=0 for full (non-block) DCT.
     """
 
     def __init__(
@@ -126,6 +155,7 @@ class ChannelDCTConv1x1(nn.Module):
         padding=0,
         groups: int = 1,
         bias: bool = True,
+        block_size: int = 0,
     ):
         super().__init__()
 
@@ -135,8 +165,8 @@ class ChannelDCTConv1x1(nn.Module):
         self.stride = stride if isinstance(stride, tuple) else (stride, stride)
         self.padding = padding if isinstance(padding, tuple) else (padding, padding)
         self.groups = groups
+        self.block_size = block_size
 
-        # Learnable channel-DCT coefficients (2D)
         self.weight_dct = nn.Parameter(
             torch.empty(out_channels, self.in_ch_per_group)
         )
@@ -147,15 +177,32 @@ class ChannelDCTConv1x1(nn.Module):
         else:
             self.bias = None
 
+    def _idct_full(self, w, device, dtype):
+        C_out = get_dct_matrix(self.out_channels, device, dtype)
+        C_in = get_dct_matrix(self.in_ch_per_group, device, dtype)
+        return C_out.t() @ w @ C_in
+
+    def _idct_block(self, w, device, dtype):
+        B = self.block_size
+        H, W = w.shape
+        pad_h = (B - H % B) % B
+        pad_w = (B - W % B) % B
+        if pad_h > 0 or pad_w > 0:
+            w = F.pad(w, (0, pad_w, 0, pad_h))
+        Hp, Wp = w.shape
+        C_B = get_dct_matrix(B, device, dtype)
+        blocks = w.reshape(Hp // B, B, Wp // B, B)
+        spatial = torch.einsum("ab, hbwc, cd -> hawc", C_B.t(), blocks, C_B)
+        return spatial.reshape(Hp, Wp)[:H, :W]
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Fetch cached DCT matrices for the channel dimensions
-        C_out = get_dct_matrix(self.out_channels, x.device, x.dtype)
-        C_in = get_dct_matrix(self.in_ch_per_group, x.device, x.dtype)
+        w = _apply_train_noise_and_dropout(self.weight_dct, self.training)
 
-        # 2D IDCT: spatial_weight_2d = C_out^T @ weight_dct @ C_in
-        spatial_2d = C_out.t() @ self.weight_dct @ C_in
+        if self.block_size > 0:
+            spatial_2d = self._idct_block(w, x.device, x.dtype)
+        else:
+            spatial_2d = self._idct_full(w, x.device, x.dtype)
 
-        # Reshape to 4D for F.conv2d: (out, in_g, 1, 1)
         spatial_weight = spatial_2d.unsqueeze(-1).unsqueeze(-1)
 
         return F.conv2d(
@@ -181,14 +228,15 @@ class ChannelDCTConv1x1(nn.Module):
         return indices, values
 
     def extra_repr(self) -> str:
+        bs = f", block_size={self.block_size}" if self.block_size > 0 else ""
         return (
             f"{self.in_channels}, {self.out_channels}, "
             f"stride={self.stride}, padding={self.padding}, "
-            f"groups={self.groups}, bias={self.bias is not None}"
+            f"groups={self.groups}, bias={self.bias is not None}{bs}"
         )
 
 
-def replace_with_dct_convs(module: nn.Module) -> None:
+def replace_with_dct_convs(module: nn.Module, block_size: int = 0) -> None:
     """
     Recursively replace all nn.Conv2d layers with DCT variants:
     - kernel > 1x1 → DCTConv2d (spatial DCT)
@@ -204,6 +252,7 @@ def replace_with_dct_convs(module: nn.Module) -> None:
                     padding=child.padding,
                     groups=child.groups,
                     bias=(child.bias is not None),
+                    block_size=block_size,
                 )
                 setattr(module, name, ch_dct)
             else:
@@ -220,7 +269,7 @@ def replace_with_dct_convs(module: nn.Module) -> None:
                 )
                 setattr(module, name, dct_conv)
         else:
-            replace_with_dct_convs(child)
+            replace_with_dct_convs(child, block_size=block_size)
 
 
 def _is_dct_layer(m):

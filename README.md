@@ -101,13 +101,29 @@ where $\lambda$ controls the rate-distortion tradeoff.
 
 ### 3.3 H.265 Video Encoding Pipeline
 
-At export time, each DCT layer's 4D coefficient tensor $(C_{out}, C_{in}, K_h, K_w)$ is reshaped into a 2D image of size $(C_{out} \cdot K_h, C_{in} \cdot K_w)$. Images larger than 128x128 are sliced into tiles; images smaller than 8x8 are circularly padded. Tiles of the same dimensions are grouped into a single H.265 video stream (one frame per tile).
+At export time, every parameter tensor in the model is reshaped into a 2D image: spatial DCT weights are permuted to $(C_{out} \cdot K_h, C_{in} \cdot K_w)$, channel-DCT 1x1 weights are already 2D $(C_{out}, C_{in})$, BN parameters are stacked as $[4, \text{features}]$ (weight, bias, running\_mean, running\_var), and FC weights are used directly as 2D matrices. Images larger than 128x128 are sliced into tiles; smaller than 16x16 are circularly padded.
 
-**Per-frame normalization.** Each frame is independently normalized to the pixel range $[0, 2^b - 1]$ (where $b$ is the bit depth, default 12) with a stored center and scale factor for reconstruction:
+Frames are sorted by similarity (greedy nearest-neighbor on MSE distance) so that similar coefficient patterns are adjacent in the video stream, maximizing H.265's inter-frame prediction efficiency.
+
+**Per-frame normalization.** Each frame is independently normalized to the pixel range $[0, 2^b - 1]$ with a stored center and scale factor for reconstruction:
 
 $$\text{pixel} = \text{round}((\text{value} - \text{center}) \cdot \text{norm\_factor} + 2^{b-1})$$
 
 Per-frame normalization is critical: different layers have vastly different coefficient magnitudes, and a shared normalization would waste precision on layers with small dynamic ranges.
+
+**Per-layer-type encoding.** BN layers are encoded separately from DCT/FC layers with their own CRF and bit depth settings (`--bn-crf 0`, `--bn-bit-depth 12`). BN `running_var` values can be very close to zero, and low bit-depth quantization can push them negative, causing `nan` in the BN `sqrt(var + eps)` computation. Using 12-bit lossless for BN (quantization error ~0.00003) prevents this, while DCT layers can safely use 8-bit (error ~0.002) since convolution weights are more tolerant of small perturbations. On decode, `running_var` is additionally clamped to $\geq 0$ as a safety net.
+
+**Maximized inter-frame prediction.** The H.265 encoder is configured for maximum exploitation of temporal redundancy between frames:
+
+| Parameter | Value | Effect |
+|-----------|-------|--------|
+| `keyint=-1` | Single I-frame | Only the first frame is an I-frame; all subsequent frames use inter-frame prediction (P/B) |
+| `bframes=16` | Max B-frames | Up to 16 bi-directional frames between reference frames (H.265 maximum) |
+| `ref=16` | Max reference frames | Each frame can reference up to 16 previous frames for prediction |
+| `b-adapt=2` | Optimal placement | Algorithm selects optimal B-frame placement for each GOP |
+| `rc-lookahead=250` | Lookahead buffer | Encoder looks ahead 250 frames for rate-distortion decisions |
+
+These settings are critical because our similarity-sorted frames have high inter-frame correlation — adjacent frames often represent tiles from the same or similar layers, where coefficient patterns differ only slightly.
 
 **Subtractive dithering.** Optionally, deterministic white noise of configurable amplitude is added before rounding and subtracted after decoding. This decorrelates quantization error, which can improve accuracy when using lower bit depths or lossy CRF settings.
 
@@ -117,9 +133,9 @@ Per-frame normalization is critical: different layers have vastly different coef
 
 ### 3.4 Reconstruction
 
-Decoding reverses the pipeline: H.265 video frames are decoded via ffmpeg, per-frame dither noise is subtracted, pixels are denormalized back to weight values using the stored center and scale factors, tiles are reassembled into 2D images, and the images are reshaped back into 4D DCT coefficient tensors. The IDCT in each `DCTConv2d` layer converts them to spatial weights at inference time.
+Decoding reverses the pipeline: H.265 video frames are decoded via ffmpeg, per-frame dither noise is subtracted, pixels are denormalized back to weight values using the stored center and scale factors, tiles are reassembled into 2D images, and the images are reshaped back into the original parameter tensors. BN `running_var` is clamped to non-negative. The IDCT in each DCT layer converts frequency coefficients to spatial weights at inference time.
 
-A JSON manifest stores all metadata needed for exact reconstruction: architecture, quantization step, bit depth, dither amplitude, and per-frame normalization parameters.
+A JSON manifest stores all metadata needed for exact reconstruction: architecture, bit depth, dither amplitude, per-frame normalization parameters, and layer type tags for dispatch.
 
 ---
 
@@ -179,7 +195,8 @@ python train_imagenet.py ./imagenette2-320 \
     --lambda-rate 1e-5 --qstep 0.1
 
 # Export
-python export_h265.py encode --arch resnet50 --crf 0 --preset slower
+python export_h265.py encode --arch resnet50 \
+    --crf 0 --bit-depth 8 --bn-bit-depth 12 --bn-crf 0 --preset slower
 
 # Decode and evaluate
 python export_h265.py decode --h265-dir ./h265_out --data ./imagenette2-320
@@ -261,6 +278,23 @@ The following table compares CTNet against established neural network compressio
 
 **Learned image compression.** The learned compression literature (Balle et al., 2017; Minnen et al., 2018) has developed differentiable rate-distortion optimization for image codecs. Our rate proxy draws inspiration from this work, adapting it to the specific structure of neural network coefficient maps.
 
+### 5.1 Key Influences on CTNet
+
+CTNet's design draws directly from specific techniques in the above works:
+
+| Technique in CTNet | Origin | What we adopted | What we changed |
+|-------------------|--------|-----------------|-----------------|
+| DCT reparameterization of conv filters | DCT-Conv | Learnable DCT coefficients with IDCT in forward pass | Extended to 1x1 convolutions via channel-wise DCT |
+| DCT coefficient dropout during training | DCT-Conv | Random zeroing of frequency components (default $p=0.05$) | Applied to both spatial and channel-wise DCT layers |
+| Block DCT for large weight matrices | DCT-Conv + ECRF | DCT in 16x16 blocks for 1x1 convolutions | Avoids O(N²) matrices while matching H.265 CTU block size |
+| Training-time uniform noise | ECRF | $\Phi(\theta) = \theta + u \cdot q$, $u \sim \mathcal{U}(-\frac{1}{2}, \frac{1}{2})$ | Scaled by qstep to match the quantization grid |
+| L2 coefficient regularization | ECRF | $\lambda_2 \|\hat{W}\|_2^2$ coupled via $\lambda_2 = \alpha \cdot \lambda_r$ | Single $\alpha$ parameter reduces hyperparameter search |
+| Rate warmup schedule | ECRF | Ramp compression loss from 0 over first epochs | Separate from LR warmup; prevents early rate-vs-init conflict |
+| Entropy-aware training loss | ECRF | Differentiable bitrate proxy during training | Replaced learned entropy model with H.265-specific rate proxy (significance + level + scan cost) |
+| Video codec as compression backend | Novel | — | H.265/HEVC with CABAC, replacing custom arithmetic coding |
+| Similarity-sorted frame ordering | Novel | — | Greedy nearest-neighbor MSE ordering for inter-frame prediction |
+| Per-layer-type encoding (BN isolation) | Novel | — | Separate CRF/bit-depth for BN layers to prevent running_var corruption |
+
 ---
 
 ## 6. Reproducibility
@@ -271,17 +305,18 @@ The following table compares CTNet against established neural network compressio
 pip install -r requirements.txt
 ./download_imagenette.sh ./imagenette2-320
 
-# Train (best config: AdamW, 256 epochs)
+# Train (best config: AdamW, 256 epochs, all paper innovations enabled by default)
 python train_imagenet.py ./imagenette2-320 \
     --arch resnet18 --epochs 256 --pretrained \
     --optimizer adamw --lr 1e-3 --weight-decay 0.01 \
     --lambda-rate 1e-5 --qstep 0.1 \
     --cache-dataset
 
-# Export to H.265 (lossless, self-contained output)
-python export_h265.py encode --arch resnet18 --crf 0 --preset slower
+# Export to H.265 (8-bit DCT + 12-bit lossless BN, self-contained output)
+python export_h265.py encode --arch resnet18 \
+    --crf 0 --bit-depth 8 --bn-bit-depth 12 --bn-crf 0 --preset slower
 
-# Decode and evaluate (auto-loads non-DCT weights from h265 dir)
+# Decode and evaluate
 python export_h265.py decode --h265-dir ./h265_out --data ./imagenette2-320
 ```
 
@@ -295,7 +330,8 @@ python train_imagenet.py ./imagenette2-320 \
     --lambda-rate 1e-5 --qstep 0.1
 
 # Export to H.265
-python export_h265.py encode --arch resnet50 --crf 0 --preset slower
+python export_h265.py encode --arch resnet50 \
+    --crf 0 --bit-depth 8 --bn-bit-depth 12 --bn-crf 0 --preset slower
 
 # Decode and evaluate
 python export_h265.py decode --h265-dir ./h265_out --data ./imagenette2-320

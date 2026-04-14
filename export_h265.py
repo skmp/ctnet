@@ -62,6 +62,12 @@ def parse_args():
     enc.add_argument("--yuv", action="store_true",
                      help="encode as YUV 4:2:0 (Main/Main10 profile) for hardware "
                           "decoder compatibility on phones, Mac, Windows, etc.")
+    enc.add_argument("--bn-crf", default=0, type=int,
+                     help="CRF for BN layers (default: 0 = lossless). BN running_var "
+                          "needs high precision; use 0 unless you know what you're doing.")
+    enc.add_argument("--bn-bit-depth", default=12, type=int, choices=[8, 10, 12],
+                     help="bit depth for BN layers (default: 12). Higher prevents "
+                          "near-zero running_var from going negative after roundtrip.")
 
     # --- decode subcommand ---
     dec = sub.add_parser("decode", help="Decode H.265 back to model and evaluate")
@@ -248,7 +254,7 @@ def encode_frames_to_h265(frames: list[np.ndarray], output_path: str,
         else:
             in_pix_fmt, out_pix_fmt, h265_profile = "yuv420p10le", "yuv420p10le", "main10"
 
-        x265_params = "log-level=error:range=full"
+        x265_params = "log-level=error:range=full:keyint=-1:bframes=16:ref=16:b-adapt=2:rc-lookahead=250"
         if crf == 0:
             x265_params += ":lossless=1"
 
@@ -270,7 +276,7 @@ def encode_frames_to_h265(frames: list[np.ndarray], output_path: str,
         pix_fmt_map = {8: "gray", 10: "gray10le", 12: "gray12le"}
         pix_fmt = pix_fmt_map[bit_depth]
 
-        x265_params = "log-level=error:range=full"
+        x265_params = "log-level=error:range=full:keyint=-1:bframes=16:ref=16:b-adapt=2:rc-lookahead=250"
         if crf == 0:
             x265_params += ":lossless=1"
 
@@ -673,16 +679,18 @@ def _load_model_for_encode(args):
                   f"2D {e['img_shape'][0]}x{e['img_shape'][1]}  "
                   f"({e['layer_type']})")
 
-    # Build tiles, group by dimensions
+    # Build tiles, group by (height, width, is_bn)
+    # BN layers get their own groups so they can be encoded with different settings
     tile_groups = {}
     for li in layer_images:
         img = li["img"]
         h, w = img.shape
+        is_bn = li["layer_type"] == "bn"
 
         if h <= MAX_TILE and w <= MAX_TILE:
             frame = pad_to_min(img)
             fh, fw = frame.shape
-            key = (fh, fw)
+            key = (fh, fw, is_bn)
             if key not in tile_groups:
                 tile_groups[key] = []
             tile_groups[key].append({
@@ -703,7 +711,7 @@ def _load_model_for_encode(args):
             tile_w = max(MIN_DIM, tile_w + (tile_w % 2))
 
             tiles = slice_to_tiles(img, tile_h, tile_w)
-            key = (tile_h, tile_w)
+            key = (tile_h, tile_w, is_bn)
             if key not in tile_groups:
                 tile_groups[key] = []
             for tile, row_idx, col_idx in tiles:
@@ -723,8 +731,10 @@ def _load_model_for_encode(args):
 
 def _encode_tile_groups(tile_groups: dict, output_dir: str, crf: int,
                         preset: str, bit_depth: int, dither: float = 0.0,
-                        yuv: bool = False, verbose: bool = True):
-    """Encode all tile groups to H.265 videos."""
+                        yuv: bool = False, verbose: bool = True,
+                        bn_crf: int = 0, bn_bit_depth: int = 12):
+    """Encode all tile groups to H.265 videos.
+    BN groups (keyed with is_bn=True) use bn_crf and bn_bit_depth."""
     import time as _time
 
     total_raw_bytes = 0
@@ -732,19 +742,23 @@ def _encode_tile_groups(tile_groups: dict, output_dir: str, crf: int,
     manifest_videos = {}
     t0 = _time.monotonic()
 
-    for (th, tw), entries in sorted(tile_groups.items()):
-        video_name = f"dct_{th}x{tw}.hevc"
+    for (th, tw, is_bn), entries in sorted(tile_groups.items()):
+        tag = "bn" if is_bn else "dct"
+        video_name = f"{tag}_{th}x{tw}.hevc"
+        use_crf = bn_crf if is_bn else crf
+        use_bit_depth = bn_bit_depth if is_bn else bit_depth
         video_path = os.path.join(output_dir, video_name)
 
         # Sort frames by similarity for better inter-frame prediction
         entries = _sort_by_similarity(entries)
 
         frames = [e["frame"] for e in entries]
-        raw_bytes = sum(f.size * (bit_depth // 8) for f in frames)
+        raw_bytes = sum(f.size * (use_bit_depth // 8) for f in frames)
 
         ok, per_frame_norms = encode_frames_to_h265(
             frames, video_path,
-            crf=crf, preset=preset, bit_depth=bit_depth, dither=dither, yuv=yuv,
+            crf=use_crf, preset=preset, bit_depth=use_bit_depth,
+            dither=dither, yuv=yuv,
         )
 
         if ok:
@@ -760,7 +774,7 @@ def _encode_tile_groups(tile_groups: dict, output_dir: str, crf: int,
 
             manifest_videos[video_name] = {
                 "frame_width": tw, "frame_height": th,
-                "bit_depth": bit_depth, "n_frames": len(frames),
+                "bit_depth": use_bit_depth, "n_frames": len(frames),
                 "frames": [],
             }
             for i, e in enumerate(entries):
@@ -802,6 +816,7 @@ def encode_main(args):
             total_raw, total_h265, _, elapsed = _encode_tile_groups(
                 tile_groups, preset_dir, args.crf, preset, args.bit_depth,
                 dither=args.dither, yuv=args.yuv, verbose=False,
+                bn_crf=args.bn_crf, bn_bit_depth=args.bn_bit_depth,
             )
             ratio_f32 = full_model_bytes / max(total_h265, 1)
             ratio_raw = total_raw / max(total_h265, 1)
@@ -834,6 +849,7 @@ def encode_main(args):
     total_raw_bytes, total_h265_bytes, manifest_videos, elapsed = _encode_tile_groups(
         tile_groups, args.output_dir, args.crf, args.preset, args.bit_depth,
         dither=args.dither, yuv=args.yuv,
+        bn_crf=args.bn_crf, bn_bit_depth=args.bn_bit_depth,
     )
 
     manifest = {

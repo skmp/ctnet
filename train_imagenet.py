@@ -33,7 +33,7 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torchvision.models as models
 
-from dct_layers import DCTConv2d, ChannelDCTConv1x1, _is_dct_layer, replace_with_dct_convs, probe_sparsity, quantize_model, export_sparse_coefficients
+from dct_layers import DCTConv2d, ChannelDCTConv1x1, _is_dct_layer, replace_with_dct_convs, probe_sparsity, quantize_model, export_sparse_coefficients, dct_config
 from dct_utils import calculate_hevc_rate_proxy, estimate_h265_size_bits
 
 
@@ -110,10 +110,22 @@ def parse_args():
                         help="weight decay (default: 1e-4 for sgd, 0.01 for adamw)")
     parser.add_argument("--lambda-rate", default=1e-4, type=float,
                         help="weight for HEVC rate proxy loss (rate-distortion tradeoff)")
+    parser.add_argument("--lambda-l2", default=0.0, type=float,
+                        help="L2 regularization on DCT coefficients (0 = off, or use --lambda-alpha)")
+    parser.add_argument("--lambda-alpha", default=1.0, type=float,
+                        help="coupled lambda: lambda_l2 = alpha * lambda_rate (0 = use --lambda-l2 directly)")
     parser.add_argument("--qstep", default=0.1, type=float,
                         help="quantization step size for HEVC rate proxy (larger = more sparsity)")
     parser.add_argument("--steepness", default=10.0, type=float,
                         help="sigmoid steepness for soft significance threshold")
+    parser.add_argument("--no-train-noise", action="store_true",
+                        help="disable training-time uniform noise (enabled by default)")
+    parser.add_argument("--dct-dropout", default=0.05, type=float,
+                        help="DCT coefficient dropout probability (default: 0.05, 0 = off)")
+    parser.add_argument("--dct-block-size", default=16, type=int,
+                        help="block size for channel-wise DCT (default: 16, 0 = full DCT)")
+    parser.add_argument("--rate-warmup-epochs", default=5, type=int,
+                        help="ramp rate loss from 0 to full over N epochs (default: 5, 0 = off)")
     parser.add_argument("-j", "--workers", default=4, type=int, help="data loading workers")
     parser.add_argument("--cache-dataset", action="store_true",
                         help="cache entire dataset in RAM (fast for small datasets like ImageNette)")
@@ -156,11 +168,18 @@ def main():
         print(f"=> Quantization step: {args.qstep}")
         print(f"=> Sigmoid steepness: {args.steepness}")
 
+    # ---------- DCT config ----------
+    dct_config.qstep = args.qstep
+    dct_config.train_noise = not args.no_train_noise
+    dct_config.dct_dropout = args.dct_dropout
+    if args.lambda_alpha > 0:
+        args.lambda_l2 = args.lambda_alpha * args.lambda_rate
+
     # ---------- Model ----------
     model_fn = getattr(models, args.arch)
     weights = "DEFAULT" if args.pretrained else None
     model = model_fn(weights=weights)
-    replace_with_dct_convs(model)
+    replace_with_dct_convs(model, block_size=args.dct_block_size)
     model = model.to(device)
 
     if is_main:
@@ -446,13 +465,24 @@ def train_one_epoch(train_loader, model, criterion, optimizer, epoch, device, ar
 
         # HEVC rate proxy: differentiable estimate of compressed size
         rate_loss = torch.tensor(0.0, device=device)
+        l2_loss = torch.tensor(0.0, device=device)
         for m in base_model.modules():
             if _is_dct_layer(m):
                 rate_loss = rate_loss + calculate_hevc_rate_proxy(
                     m.weight_dct, qstep=args.qstep, steepness=args.steepness
                 )
+                if args.lambda_l2 > 0:
+                    l2_loss = l2_loss + m.weight_dct.pow(2).sum()
 
-        total_loss = task_loss + args.lambda_rate * rate_loss
+        # Rate warmup: ramp from 0 to full over rate_warmup_epochs
+        if args.rate_warmup_epochs > 0 and epoch < args.rate_warmup_epochs:
+            rate_scale = (epoch + 1) / args.rate_warmup_epochs
+        else:
+            rate_scale = 1.0
+
+        total_loss = (task_loss
+                      + args.lambda_rate * rate_scale * rate_loss
+                      + args.lambda_l2 * rate_scale * l2_loss)
 
         # Metrics
         acc1, acc5 = accuracy(outputs, targets, topk=(1, 5))
