@@ -774,7 +774,11 @@ def _encode_tile_groups(tile_groups: dict, output_dir: str, crf: int,
     manifest_videos = {}
     t0 = _time.monotonic()
 
-    for (th, tw, _), entries in sorted(tile_groups.items()):
+    sorted_groups = sorted(tile_groups.items())
+    total_frames_all = sum(len(e) for _, e in sorted_groups)
+    encoded_frames = 0
+
+    for (th, tw, _), entries in sorted_groups:
         video_name = f"dct_{th}x{tw}.hevc"
         use_crf = crf
         use_bit_depth = bit_depth
@@ -786,21 +790,25 @@ def _encode_tile_groups(tile_groups: dict, output_dir: str, crf: int,
         frames = [e["frame"] for e in entries]
         raw_bytes = sum(f.size * (use_bit_depth // 8) for f in frames)
 
+        if verbose:
+            print(f"  {video_name}: encoding {len(frames)} frames @ {tw}x{th}...",
+                  end="", flush=True)
+
         ok, per_frame_norms, actual_bit_depth = encode_frames_to_h265(
             frames, video_path,
             crf=use_crf, preset=preset, bit_depth=use_bit_depth,
             dither=dither, yuv=yuv,
         )
 
+        encoded_frames += len(frames)
+
         if ok:
             h265_bytes = os.path.getsize(video_path)
             raw_bytes = sum(f.size * (actual_bit_depth // 8) for f in frames)
             ratio = raw_bytes / max(h265_bytes, 1)
             if verbose:
-                print(f"  {video_name}: {len(frames)} frames @ {tw}x{th}  "
-                      f"raw={raw_bytes/1024:.1f} KB  "
-                      f"h265={h265_bytes/1024:.1f} KB  "
-                      f"ratio={ratio:.1f}x ({actual_bit_depth}bit)")
+                print(f" {h265_bytes/1024:.1f} KB ({ratio:.1f}x, {actual_bit_depth}bit)"
+                      f"  [{encoded_frames}/{total_frames_all} frames]")
             total_raw_bytes += raw_bytes
             total_h265_bytes += h265_bytes
 

@@ -176,8 +176,12 @@ def encode_main(args):
     manifest_videos = {}
     t0 = _time.monotonic()
 
-    print(f"\nEncoding {len(tile_groups)} video(s) at {args.bit_depth}-bit...")
-    for (th, tw), entries in sorted(tile_groups.items()):
+    sorted_groups = sorted(tile_groups.items())
+    total_frames_all = sum(len(e) for _, e in sorted_groups)
+    encoded_frames = 0
+
+    print(f"\nEncoding {len(sorted_groups)} video(s), {total_frames_all} frames at {args.bit_depth}-bit...")
+    for (th, tw), entries in sorted_groups:
         video_name = f"gpt_{th}x{tw}.hevc"
         video_path = os.path.join(args.output_dir, video_name)
 
@@ -185,10 +189,8 @@ def encode_main(args):
             entries = _sort_by_similarity(entries)
         frames = [e["frame"] for e in entries]
 
-        if args.crf == 0:
-            x265_extra = ":keyint=-1:bframes=16:ref=16:b-adapt=2:rc-lookahead=250"
-        else:
-            x265_extra = ""
+        print(f"  {video_name}: encoding {len(frames)} frames @ {tw}x{th}...",
+              end="", flush=True)
 
         ok, per_frame_norms, actual_bd = encode_frames_to_h265(
             frames, video_path,
@@ -196,11 +198,13 @@ def encode_main(args):
             dither=args.dither,
         )
 
+        encoded_frames += len(frames)
+
         if ok:
             h265_bytes = os.path.getsize(video_path)
             total_h265 += h265_bytes
-            print(f"  {video_name}: {len(frames)} frames @ {tw}x{th}  "
-                  f"h265={h265_bytes/1024:.1f} KB ({actual_bd}bit)")
+            print(f" {h265_bytes/1024:.1f} KB ({actual_bd}bit)"
+                  f"  [{encoded_frames}/{total_frames_all} frames]")
 
             manifest_videos[video_name] = {
                 "frame_width": tw, "frame_height": th,
