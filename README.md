@@ -156,6 +156,7 @@ A JSON manifest stores all metadata needed for exact reconstruction: architectur
 | 1 | No pretrained init, $\lambda=10^{-5}$ | 256 | 92.23%* | 92.25%* | 3,493 KB | 12.3x |
 | 2 | Pretrained init, noise+dropout | 256 | 89.10% | 88.10% | 1,207 KB | 35.6x |
 | **3** | **Pretrained init, accuracy-tuned** | **192** | **94.65%** | **94.22%** | **2,110 KB** | **21.7x** |
+| 3-1k | Same as 3, longer training | 1024 | ~92%+ | 92.33% (10-bit) | 1,628 KB | 26.4x |
 
 \* *Run 1 used 12-bit encoding and different evaluation setup (no label remap in decode); numbers not directly comparable.*
 
@@ -204,6 +205,23 @@ Decoded (epoch 191, CRF 0, 8-bit + raw BN): **94.22%** Acc@1, **99.59%** Acc@5, 
 
 ---
 
+**Run 3-1k** (results-c-1024.txt): Same config as Run 3 but 1024 epochs for longer optimization. BN stored as raw tensors.
+
+Decoded model evaluation (best checkpoint):
+
+| Export settings | Acc@1 | Acc@5 | H.265 Size | Compression |
+|----------------|-------|-------|-----------|-------------|
+| CRF 0, 8-bit | 67.59% | 92.51% | 1,103 KB | 39.0x |
+| CRF 0, 8-bit YUV + dither 0.1 | 83.46% | 97.99% | 1,341 KB | 32.0x |
+| **CRF 0, 10-bit YUV** | **92.33%** | **99.59%** | **1,628 KB** | **26.4x** |
+| CRF 0, 12-bit | 92.33% | 99.54% | 2,307 KB | 18.6x |
+
+**Key observation — bit depth sensitivity:** The 1024-epoch model is highly sensitive to export bit depth. 8-bit loses 25% accuracy (67.59% vs 92.33%), while 10-bit and 12-bit are identical (92.33%). This is because longer training produces weights with finer granularity — the rate proxy compresses coefficients into a narrow value range where 256 levels (8-bit) can't resolve the differences, but 1024 levels (10-bit) can. This motivates the new `--pixel-bit-depth` training feature: simulating the export quantization during training so the model learns to be robust to the target bit depth.
+
+The 10-bit YUV result (**92.33% at 26.4x / 1.6 MB**) offers a compelling tradeoff: better compression than Run 3 (26.4x vs 21.7x) at slightly lower accuracy (92.33% vs 94.22%), and the YUV format is hardware-decodable on mainstream devices.
+
+---
+
 **Key findings:**
 
 - **Pretrained init is critical**: Run 3 starts at 95.57% (epoch 0) and maintains >93% throughout, while Run 1/2 start at ~10% and slowly climb. This gives Run 3 both higher accuracy AND better compression at every epoch.
@@ -211,6 +229,7 @@ Decoded (epoch 191, CRF 0, 8-bit + raw BN): **94.22%** Acc@1, **99.59%** Acc@5, 
 - **BN as raw tensors**: Only 82 KB (2.8% of total), eliminates precision issues entirely.
 - **Label remapping essential for pretrained models**: Without it, the 1000-class FC head trains against wrong targets.
 - **Compression improves monotonically**: All runs show H.265 size decreasing throughout training as the rate proxy reshapes coefficients.
+- **Bit depth sensitivity increases with training**: Short runs (192 epochs) tolerate 8-bit export well (94.22% → 94.22%). Longer runs (1024 epochs) develop finer weight precision that requires 10-bit minimum (92.33% at 10-bit vs 67.59% at 8-bit). This led to the `--pixel-bit-depth` training feature that simulates export quantization during training via straight-through estimator.
 
 **Algorithmic changes vs earlier runs:**
 

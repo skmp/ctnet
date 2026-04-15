@@ -1,0 +1,42 @@
+8 bit
+--- Decoded Model Evaluation ---
+  Loss:  2.1307
+  Acc@1: 67.59%
+  Acc@5: 92.51%
+  (After H.265 decode: Acc@1 67.59%)
+
+  H.265 total size:    1102.7 KB
+  Float32 model size:  42948.8 KB
+  Compression ratio:   39.0x
+  
+8-bit, yuv, dither 0.1
+--- Decoded Model Evaluation ---
+  Loss:  0.8948
+  Acc@1: 83.46%
+  Acc@5: 97.99%
+  (After H.265 decode: Acc@1 83.46%)
+
+  H.265 total size:    1341.1 KB
+  Float32 model size:  42948.8 KB
+  Compression ratio:   32.0x
+ 
+10 bit, yuv
+  Loss:  0.3810
+  Acc@1: 92.33%
+  Acc@5: 99.59%
+  (After H.265 decode: Acc@1 92.33%)
+
+  H.265 total size:    1627.8 KB
+  Float32 model size:  42948.8 KB
+  Compression ratio:   26.4x
+
+12 bit
+--- Decoded Model Evaluation ---
+  Loss:  0.3783
+  Acc@1: 92.33%
+  Acc@5: 99.54%
+  (After H.265 decode: Acc@1 92.33%)
+
+  H.265 total size:    2307.4 KB
+  Float32 model size:  42948.8 KB
+  Compression ratio:   18.6x
