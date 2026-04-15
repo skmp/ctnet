@@ -228,7 +228,8 @@ class ChannelDCTConv1x1(nn.Module):
         Hp, Wp = w.shape
         C_B = get_dct_matrix(B, device, dtype)
         blocks = w.reshape(Hp // B, B, Wp // B, B)
-        spatial = torch.einsum("ab, hbwc, cd -> hawc", C_B.t(), blocks, C_B)
+        # IDCT per block: C^T @ dct_block @ C^T
+        spatial = torch.einsum("ab, hbwc, cd -> hawd", C_B.t(), blocks, C_B.t())
         return spatial.reshape(Hp, Wp)[:H, :W]
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -272,6 +273,21 @@ class ChannelDCTConv1x1(nn.Module):
         )
 
 
+def _block_forward_dct(w: torch.Tensor, block_size: int) -> torch.Tensor:
+    """Compute block forward DCT matching _idct_block's inverse."""
+    B = block_size
+    H, W = w.shape
+    pad_h = (B - H % B) % B
+    pad_w = (B - W % B) % B
+    if pad_h > 0 or pad_w > 0:
+        w = F.pad(w, (0, pad_w, 0, pad_h))
+    Hp, Wp = w.shape
+    C_B = get_1d_dct_matrix(B).to(w)
+    blocks = w.reshape(Hp // B, B, Wp // B, B)
+    dct_blocks = torch.einsum("ab, hbwc, cd -> hawd", C_B, blocks, C_B)
+    return dct_blocks.reshape(Hp, Wp)[:H, :W]
+
+
 def replace_with_dct_convs(module: nn.Module, block_size: int = 0) -> None:
     """
     Recursively replace all nn.Conv2d layers with DCT variants:
@@ -294,9 +310,14 @@ def replace_with_dct_convs(module: nn.Module, block_size: int = 0) -> None:
                 if child.weight is not None:
                     with torch.no_grad():
                         w_2d = child.weight.data.squeeze(-1).squeeze(-1)
-                        C_out = get_1d_dct_matrix(child.out_channels).to(w_2d)
-                        C_in = get_1d_dct_matrix(child.in_channels // child.groups).to(w_2d)
-                        ch_dct.weight_dct.data.copy_(C_out @ w_2d @ C_in.t())
+                        if block_size > 0:
+                            ch_dct.weight_dct.data.copy_(
+                                _block_forward_dct(w_2d, block_size)
+                            )
+                        else:
+                            C_out = get_1d_dct_matrix(child.out_channels).to(w_2d)
+                            C_in = get_1d_dct_matrix(child.in_channels // child.groups).to(w_2d)
+                            ch_dct.weight_dct.data.copy_(C_out @ w_2d @ C_in.t())
                 if child.bias is not None:
                     ch_dct.bias.data.copy_(child.bias.data)
                 setattr(module, name, ch_dct)
