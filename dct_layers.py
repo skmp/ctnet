@@ -9,13 +9,45 @@ class DCTConfig:
     qstep: float = 0.1
     dct_dropout: float = 0.0
     train_noise: bool = False
+    pixel_bit_depth: int = 0    # simulate N-bit center+normalize quantization (0 = off)
 
 
 dct_config = DCTConfig()
 
 
+def _simulate_pixel_quantization(w: torch.Tensor, bit_depth: int) -> torch.Tensor:
+    """
+    Simulate the center+normalize→N-bit→denormalize roundtrip that happens
+    during H.265 export. Uses straight-through estimator: forward pass
+    quantizes, backward pass passes gradients through as if no quantization.
+
+    This teaches the model to produce weights robust to pixel-depth quantization.
+    """
+    max_val = (1 << bit_depth) - 1
+
+    # Per-tensor center+normalize (approximates per-tile in export)
+    w_min = w.min()
+    w_max = w.max()
+    span = w_max - w_min
+    if span == 0:
+        return w
+
+    center = (w_min + w_max) / 2.0
+    norm_factor = max_val / span
+    half = max_val / 2.0
+
+    # Forward: quantize to N-bit integers
+    pixels = ((w - center) * norm_factor + half).round().clamp(0, max_val)
+
+    # Inverse: back to float
+    w_quantized = (pixels - half) / norm_factor + center
+
+    # Straight-through estimator: use quantized in forward, pass gradient through
+    return w + (w_quantized - w).detach()
+
+
 def _apply_train_noise_and_dropout(weight_dct: torch.Tensor, training: bool) -> torch.Tensor:
-    """Apply training-time uniform noise and DCT dropout to DCT coefficients."""
+    """Apply training-time uniform noise, DCT dropout, and pixel quantization simulation."""
     if not training:
         return weight_dct
 
@@ -30,6 +62,10 @@ def _apply_train_noise_and_dropout(weight_dct: torch.Tensor, training: bool) -> 
     if dct_config.dct_dropout > 0:
         mask = torch.bernoulli(torch.full_like(w, 1.0 - dct_config.dct_dropout))
         w = w * mask / (1.0 - dct_config.dct_dropout)
+
+    # Simulate N-bit pixel quantization from export pipeline
+    if dct_config.pixel_bit_depth > 0:
+        w = _simulate_pixel_quantization(w, dct_config.pixel_bit_depth)
 
     return w
 

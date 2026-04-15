@@ -124,6 +124,8 @@ def parse_args():
                         help="DCT coefficient dropout probability (default: 0.05, 0 = off)")
     parser.add_argument("--dct-block-size", default=16, type=int,
                         help="block size for channel-wise DCT (default: 16, 0 = full DCT)")
+    parser.add_argument("--pixel-bit-depth", default=8, type=int, choices=[0, 8, 10, 12],
+                        help="simulate N-bit pixel quantization during training (default: 8, 0 = off)")
     parser.add_argument("--rate-warmup-epochs", default=5, type=int,
                         help="ramp rate loss from 0 to full over N epochs (default: 5, 0 = off)")
     parser.add_argument("-j", "--workers", default=4, type=int, help="data loading workers")
@@ -134,6 +136,8 @@ def parse_args():
     parser.add_argument("--evaluate", action="store_true", help="evaluate only")
     parser.add_argument("--pretrained", action="store_true",
                         help="start from torchvision pretrained weights")
+    parser.add_argument("--no-imagenet-remap", action="store_true",
+                        help="disable automatic label remapping for ImageNet subsets")
     parser.add_argument("--output-dir", default="./checkpoints", type=str)
     parser.add_argument("--clip-grad", default=1.0, type=float,
                         help="max gradient norm (0 to disable)")
@@ -172,6 +176,7 @@ def main():
     dct_config.qstep = args.qstep
     dct_config.train_noise = not args.no_train_noise
     dct_config.dct_dropout = args.dct_dropout
+    dct_config.pixel_bit_depth = args.pixel_bit_depth
     if args.lambda_alpha > 0:
         args.lambda_l2 = args.lambda_alpha * args.lambda_rate
 
@@ -282,13 +287,11 @@ def main():
     val_dataset = datasets.ImageFolder(valdir, val_transform)
 
     # Label remapping for subset datasets (e.g. ImageNette → ImageNet indices)
-    # When using --pretrained with a 1000-class model on a subset, the folder
-    # names are WordNet IDs (e.g. n01440764) that map to specific ImageNet
-    # class indices, not sequential 0..N-1.  ImageNet orders classes by
-    # alphabetically sorted WordNet IDs, so wnid → sorted position = index.
+    # The 1000-class FC head expects ImageNet class indices, not sequential 0..N-1.
+    # Enabled by default; disable with --no-imagenet-remap.
     num_classes = len(train_dataset.classes)
     label_map = None
-    if args.pretrained and num_classes < 1000:
+    if not args.no_imagenet_remap and num_classes < 1000:
         # The dataset folder names should be WordNet IDs
         subset_wnids = sorted(train_dataset.class_to_idx.keys())
         if all(w.startswith("n") and len(w) == 9 for w in subset_wnids):
@@ -446,7 +449,7 @@ def main():
             for b in (8, 10, 12):
                 kb = est_by_depth[b] / 8 / 1024
                 r = raw_kb / max(kb, 1e-6)
-                est_parts.append(f"{b}b:{kb:.0f}KB({r:.0f}x)")
+                est_parts.append(f"{b}b:{kb:.0f}KB({int(r)}x)")
             est_str = "  ".join(est_parts)
 
             best_tag = " *best*" if is_best else ""
@@ -584,7 +587,7 @@ def train_one_epoch(train_loader, model, criterion, optimizer, epoch, device, ar
                 for b in (8, 10, 12):
                     kb = est_by_depth[b] / 8 / 1024
                     r = raw_kb / max(kb, 1e-6)
-                    est_parts.append(f"{b}b:{kb:.0f}KB({r:.0f}x)")
+                    est_parts.append(f"{b}b:{kb:.0f}KB({int(r)}x)")
                 est_str = "  ".join(est_parts)
                 print(
                     f"Epoch [{epoch}][{i}/{len(train_loader)}]  "

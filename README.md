@@ -12,7 +12,7 @@ We present CTNet (Cosine Transform Network), a family of compressed neural netwo
 
 We present two variants:
 
-- **CTNet-18** (based on ResNet-18): achieves **94.22% Top-1** on ImageNette2-320 with the entire model (44.6 MB) compressed to **2.1 MB** (**21.7x compression**) — only ~2% below the uncompressed pretrained baseline (~96%). DCT convolutions, channel-wise DCT 1x1 convolutions, and FC are encoded as H.265 video; BN layers stored as raw tensors. A 1024-epoch run is pending.
+- **CTNet-18** (based on ResNet-18): achieves **93.20% Top-1** on ImageNette2-320 with the entire model (44.6 MB) compressed to **1.8 MB** (**23.8x compression**) at 8-bit, only ~3% below the uncompressed pretrained baseline (~96%). With 8-bit quantization-aware training, accuracy is preserved across all export bit depths. DCT convolutions, channel-wise DCT 1x1 convolutions, and FC are encoded as H.265 video; BN layers stored as raw tensors.
 - **CTNet-50** (based on ResNet-50): applies the same DCT reparameterization to ResNet-50's bottleneck architecture. Due to ResNet-50's heavy use of 1x1 pointwise convolutions (which are not DCT-transformed), CTNet-50 has a similar DCT parameter count (11.3M) to CTNet-18 (11.0M) but benefits from the deeper architecture's representational capacity. The 36 retained 1x1 convolutions and batch normalization layers (54.3 MB total non-DCT overhead) can be independently compressed via standard quantization.
 
 ---
@@ -155,8 +155,9 @@ A JSON manifest stores all metadata needed for exact reconstruction: architectur
 |-----|--------|--------|-----------|---------------|-----------|-------|
 | 1 | No pretrained init, $\lambda=10^{-5}$ | 256 | 92.23%* | 92.25%* | 3,493 KB | 12.3x |
 | 2 | Pretrained init, noise+dropout | 256 | 89.10% | 88.10% | 1,207 KB | 35.6x |
-| **3** | **Pretrained init, accuracy-tuned** | **192** | **94.65%** | **94.22%** | **2,110 KB** | **21.7x** |
+| 3 | Pretrained init, accuracy-tuned | 192 | 94.65% | 94.22% (12-bit) | 2,110 KB | 21.7x |
 | 3-1k | Same as 3, longer training | 1024 | ~92%+ | 92.33% (10-bit) | 1,628 KB | 26.4x |
+| **E** | **8-bit quant-aware training** | **256** | **93.48%** | **93.20% (8-bit)** | **1,803 KB** | **23.8x** |
 
 \* *Run 1 used 12-bit encoding and different evaluation setup (no label remap in decode); numbers not directly comparable.*
 
@@ -222,10 +223,37 @@ The 10-bit YUV result (**92.33% at 26.4x / 1.6 MB**) offers a compelling tradeof
 
 ---
 
+**Run E** (results-e.txt): 8-bit quantization-aware training from epoch 0. Same config as Run 3 but with `--pixel-bit-depth 8` (straight-through estimator simulating 8-bit center+normalize roundtrip during every forward pass). AdamW, lr=5e-4, wd=0.001, $\lambda=10^{-5}$, $q=0.1$, $\alpha=0.5$, pretrained init with label remap, no noise/dropout. 256 epochs. BN stored as raw tensors. **A 512-epoch run is in progress.**
+
+| Epoch | Best Acc@1 | Est 8b Size | Compression | Nonzero DCT coeffs |
+|-------|-----------|------------|-------------|---------------------|
+| 0 | 95.75% | 8,627 KB | 5x | 369K / 11.2M |
+| 33 | 92.84% | 4,089 KB | 11x | 26K / 11.2M |
+| 100 | 92.46% | 3,658 KB | 12x | 14K / 11.2M |
+| 143 | 92.33% | 3,202 KB | 14x | 12K / 11.2M |
+| 200 | 93.20% | 2,527 KB | 18x | 10K / 11.2M |
+| **255** | **93.48%** | **1,831 KB** | **24x** | **10,168 / 11.2M** |
+
+Decoded model evaluation (smallest checkpoint):
+
+| Export settings | Acc@1 | Acc@5 | H.265 Size | Compression |
+|----------------|-------|-------|-----------|-------------|
+| **CRF 0, 8-bit** | **93.20%** | **99.52%** | **1,803 KB** | **23.8x** |
+| CRF 0, 8-bit + dither 0.1 | 93.04% | 99.64% | 2,000 KB | 21.5x |
+| CRF 0, 10-bit | 93.48% | 99.62% | 2,773 KB | 15.5x |
+| CRF 0, 12-bit | 93.38% | 99.67% | 3,990 KB | 10.8x |
+
+**Key result — 8-bit quantization awareness works:** Run E achieves **93.20% at 8-bit** with only 0.28% accuracy loss vs 10-bit (93.48%) — compared to Run 3-1k which lost 25% going from 12-bit to 8-bit (92.33% → 67.59%). The `--pixel-bit-depth 8` straight-through estimator teaches the model to keep weights on the 8-bit quantization grid during training. Accuracy is consistent across all bit depths (93.04%-93.48%), confirming 8-bit robustness.
+
+**Best operating point:** **93.20% accuracy at 1.8 MB (23.8x compression)** — the entire 44.6 MB ResNet-18 in an H.265 video stream that decodes to near-baseline accuracy. This is the recommended configuration.
+
+---
+
 **Key findings:**
 
 - **Pretrained init is critical**: Run 3 starts at 95.57% (epoch 0) and maintains >93% throughout, while Run 1/2 start at ~10% and slowly climb. This gives Run 3 both higher accuracy AND better compression at every epoch.
-- **Accuracy vs compression Pareto frontier**: Run 2 achieves the best compression (35.6x / 88.10%), Run 3 the best accuracy (21.7x / 94.22%). The per-ratio checkpoints (`best_5x.pth` through `best_22x.pth`) trace the full Pareto curve.
+- **Accuracy vs compression Pareto frontier**: Run E achieves the best 8-bit result (23.8x / 93.20%), Run 3 the best overall accuracy (21.7x / 94.22% at 12-bit). The per-ratio checkpoints (`best_5x.pth` through `best_24x.pth`) trace the full Pareto curve.
+- **8-bit quantization-aware training**: The `--pixel-bit-depth 8` STE eliminates the bit-depth sensitivity problem. Without it, longer-trained models lose up to 25% accuracy at 8-bit export (Run 3-1k). With it, accuracy is consistent across 8/10/12-bit (Run E: 93.20%/93.48%/93.38%).
 - **BN as raw tensors**: Only 82 KB (2.8% of total), eliminates precision issues entirely.
 - **Label remapping essential for pretrained models**: Without it, the 1000-class FC head trains against wrong targets.
 - **Compression improves monotonically**: All runs show H.265 size decreasing throughout training as the rate proxy reshapes coefficients.
@@ -253,33 +281,7 @@ The 10-bit YUV result (**92.33% at 26.4x / 1.6 MB**) offers a compelling tradeof
 
 ### 4.2 CTNet-50
 
-CTNet-50 applies the identical DCT reparameterization and H.265 compression pipeline to ResNet-50. Training and export commands:
-
-```bash
-# Train CTNet-50
-python train_imagenet.py ./imagenette2-320 \
-    --arch resnet50 --epochs 256 --pretrained \
-    --optimizer adamw --lr 1e-3 --weight-decay 0.01 \
-    --lambda-rate 1e-5 --qstep 0.1
-
-# Export
-python export_h265.py encode --arch resnet50 \
-    --crf 0 --bit-depth 8 --bn-bit-depth 12 --bn-crf 0 --preset slower
-
-# Decode and evaluate
-python export_h265.py decode --h265-dir ./h265_out --data ./imagenette2-320
-```
-
-**Hardware limitation.** We were unable to train and evaluate CTNet-50 on our test hardware (NVIDIA GeForce GTX 1080 Ti, 11 GB VRAM). ResNet-50's larger activation maps and the additional memory overhead of the DCT reparameterization exceeded the available GPU memory during training. CTNet-50 evaluation is left for future work on hardware with >= 24 GB VRAM.
-
-**Expected behavior.** Because CTNet-50's DCT parameter count (11.3M) is nearly identical to CTNet-18's (11.0M), we expect:
-
-- **H.265 compressed size of DCT layers**: comparable to CTNet-18 (~1.8 MB)
-- **Higher accuracy**: ResNet-50's deeper bottleneck architecture provides stronger feature representations. The uncompressed 1x1 convolutions and batch normalization layers carry the additional representational capacity.
-- **Total compressed model**: the 12.6M parameters in 1x1 convolutions (48 MB float32) would need separate compression. With standard INT8 quantization, these add ~12 MB, for an estimated total of ~14 MB.
-- **Hybrid compression ratio**: ~97.5 MB float32 to ~14 MB (H.265 DCT + INT8 pointwise) = ~7x total, or ~23x on DCT layers alone.
-
-This highlights a key architectural insight: CTNet compression is most effective on architectures where spatial convolutions dominate the parameter budget. For bottleneck architectures like ResNet-50, combining CTNet (for spatial convolutions) with standard quantization (for 1x1 convolutions) yields the best overall compression.
+**Note:** CTNet-50 (ResNet-50) has not been tested since the early development phase. The codebase supports `--arch resnet50` but the architecture has not been validated with the current fixes (pretrained init, label remapping, block-DCT, BN raw storage, 8-bit quantization-aware training). ResNet-50 requires >= 24 GB VRAM. CTNet-50 evaluation is left for future work.
 
 ### 4.3 Comparison with State-of-the-Art
 
@@ -287,7 +289,7 @@ The following table compares CTNet against established neural network compressio
 
 | Method | Reference | Model | Compression | Top-1 Acc | Acc Drop |
 |--------|-----------|-------|-------------|-----------|----------|
-| **CTNet-18 (ours, 8-bit + raw BN)** | -- | ResNet-18 | **21.7x** | **94.22%*** | **~2% from baseline*** |
+| **CTNet-18 (ours, 8-bit QAT + raw BN)** | -- | ResNet-18 | **23.8x** | **93.20%*** | **~3% from baseline*** |
 | Deep Compression | Han et al., 2016 | VGG-16 | 49x | 68.3%** | ~0%** |
 | Deep Compression | Han et al., 2016 | AlexNet | 35x | 57.2%** | ~0%** |
 | Deep Compression (est.) | -- | ResNet-18 | 15-25x | ~68-69%** | 1-2%** |
@@ -372,16 +374,20 @@ CTNet's design draws directly from specific techniques in the above works:
 pip install -r requirements.txt
 ./download_imagenette.sh ./imagenette2-320
 
-# Train (best config: AdamW, 256 epochs, all paper innovations enabled by default)
+# Train (recommended: Run E config — 8-bit quantization-aware, 256 epochs)
 python train_imagenet.py ./imagenette2-320 \
     --arch resnet18 --epochs 256 --pretrained \
-    --optimizer adamw --lr 1e-3 --weight-decay 0.01 \
+    --optimizer adamw --lr 5e-4 --weight-decay 0.001 \
     --lambda-rate 1e-5 --qstep 0.1 \
+    --lambda-alpha 0.5 \
+    --no-train-noise --dct-dropout 0 \
+    --rate-warmup-epochs 4 \
+    --pixel-bit-depth 8 \
     --cache-dataset
 
-# Export to H.265 (8-bit DCT + 12-bit lossless BN, self-contained output)
+# Export to H.265 (8-bit, BN stored as raw tensors automatically)
 python export_h265.py encode --arch resnet18 \
-    --crf 0 --bit-depth 8 --bn-bit-depth 12 --bn-crf 0 --preset slower
+    --crf 0 --bit-depth 8 --preset slower
 
 # Decode and evaluate
 python export_h265.py decode --h265-dir ./h265_out --data ./imagenette2-320
@@ -389,20 +395,7 @@ python export_h265.py decode --h265-dir ./h265_out --data ./imagenette2-320
 
 ### 6.2 CTNet-50
 
-```bash
-# Train
-python train_imagenet.py ./imagenette2-320 \
-    --arch resnet50 --epochs 256 --pretrained \
-    --optimizer adamw --lr 1e-3 --weight-decay 0.01 \
-    --lambda-rate 1e-5 --qstep 0.1
-
-# Export to H.265
-python export_h265.py encode --arch resnet50 \
-    --crf 0 --bit-depth 8 --bn-bit-depth 12 --bn-crf 0 --preset slower
-
-# Decode and evaluate
-python export_h265.py decode --h265-dir ./h265_out --data ./imagenette2-320
-```
+CTNet-50 has not been validated with current fixes. Use `--arch resnet50` with >= 24 GB VRAM.
 
 ### 6.3 Profile Encoding Presets
 
@@ -415,7 +408,7 @@ python export_h265.py encode --arch resnet50 --profile
 
 ## 7. Conclusion
 
-CTNet demonstrates that modern video codecs are surprisingly effective neural network compressors. By reparameterizing all convolutional layers into the DCT domain (spatial DCT for 3x3/7x7, channel-wise block DCT for 1x1), encoding DCT and FC layers as H.265 video streams, and storing BN parameters as raw tensors, CTNet-18 compresses a 44.6 MB ResNet-18 to **2.1 MB (21.7x)** at **94.22% Top-1** on ImageNette2 — only ~2% below the uncompressed pretrained baseline. The approach requires no custom entropy coding, leverages decades of video codec optimization, and offers continuous rate-distortion control via standard codec parameters. A 1024-epoch run is pending and expected to improve results further.
+CTNet demonstrates that modern video codecs are surprisingly effective neural network compressors. By reparameterizing all convolutional layers into the DCT domain (spatial DCT for 3x3/7x7, channel-wise block DCT for 1x1), encoding DCT and FC layers as H.265 video streams, and storing BN parameters as raw tensors, CTNet-18 compresses a 44.6 MB ResNet-18 to **1.8 MB (23.8x)** at **93.20% Top-1** on ImageNette2 — only ~3% below the uncompressed pretrained baseline. With 8-bit quantization-aware training (`--pixel-bit-depth 8`), accuracy is consistent across export bit depths (93.04%-93.48%), eliminating the bit-depth sensitivity that plagued longer-trained models. The approach requires no custom entropy coding, leverages decades of video codec optimization, and offers continuous rate-distortion control via standard codec parameters.
 
 CTNet-50 extends the framework to deeper bottleneck architectures, revealing that the approach is most effective when spatial convolutions dominate the parameter budget. For architectures with many 1x1 convolutions, CTNet naturally combines with standard quantization for a hybrid compression strategy.
 
